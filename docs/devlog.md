@@ -11,8 +11,13 @@
 
 ### Decisions
 - **Stack:** Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
-- **Branch strategy:** feature branches → merge to master
+- **Branch strategy:** feature branches → dev → master (Git Flow)
 - **Backup:** `scripts/snapshot.ps1` saves full snapshots to `snapshots/`
+
+## 2026-07-07 — Git Flow: dev branch
+
+- [x] Created `dev` branch for testing/staging
+- [x] Updated workflow: feature → dev → master
 
 ## 2026-07-07 — Landing page
 
