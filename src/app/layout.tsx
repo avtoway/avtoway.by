@@ -14,15 +14,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "AVTOWAY — Автомобильные видео и сервисы",
-    template: "%s | AVTOWAY",
+    default: "АВТОWAY — Автомобильные видео и сервисы",
+    template: "%s | АВТОWAY",
   },
   description:
-    "AVTOWAY — всё об автомобилях: обзоры, тест-драйвы, услуги и аренда авто.",
+    "АВТОWAY — всё об автомобилях: обзоры, тест-драйвы, услуги и аренда авто.",
   openGraph: {
-    title: "AVTOWAY",
+    title: "АВТОWAY",
     description: "Автомобильные видео, услуги и аренда авто.",
-    siteName: "AVTOWAY",
+    siteName: "АВТОWAY",
     locale: "ru_RU",
     type: "website",
   },
