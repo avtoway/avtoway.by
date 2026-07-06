@@ -30,7 +30,7 @@ export async function getChannelVideos(
     part: "snippet",
     channelId,
     order: "date",
-    maxResults: String(maxResults),
+    maxResults: String(maxResults * 2),
     key: apiKey,
   });
 
@@ -54,8 +54,13 @@ export async function getChannelVideos(
     return [];
   }
 
-  return (data.items ?? [])
-    .filter((item) => item.id?.videoId)
+  function isShort(title: string): boolean {
+    return /#shorts\b/i.test(title);
+  }
+
+  const videos = (data.items ?? [])
+    .filter((item) => item.id?.videoId && !isShort(item.snippet.title))
+    .slice(0, maxResults)
     .map((item) => ({
       id: item.id.videoId,
       title: item.snippet.title,
@@ -67,6 +72,8 @@ export async function getChannelVideos(
         maxres: item.snippet.thumbnails.maxres?.url ?? item.snippet.thumbnails.high?.url ?? "",
       },
     }));
+
+  return videos;
 }
 
 export function getChannelUrl(channelId: string) {
