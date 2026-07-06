@@ -27,7 +27,7 @@ export default function Home() {
       <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <Link href="/" className="text-xl font-bold tracking-tight">
-            AVTO<span className="text-primary">WAY</span>
+            АВТО<span className="text-primary">WAY</span>
           </Link>
           <nav className="flex items-center gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
             <a href="#about">О нас</a>
@@ -42,7 +42,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--color-primary)_0%,_transparent_60%)] opacity-20" />
           <div className="relative z-10 mx-auto max-w-3xl px-4 text-center">
             <h1 className="mb-4 text-5xl font-bold tracking-tight sm:text-7xl">
-              AVTO<span className="text-primary">WAY</span>
+              АВТО<span className="text-primary">WAY</span>
             </h1>
             <p className="mb-8 text-lg text-zinc-600 dark:text-zinc-400 sm:text-xl">
               Автомобильные обзоры, тест-драйвы и всё, что связано с авто
@@ -68,7 +68,7 @@ export default function Home() {
           <div className="mx-auto max-w-3xl px-4 text-center">
             <h2 className="mb-4 text-3xl font-bold">О проекте</h2>
             <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-              AVTOWAY — это проект про автомобили. Мы снимаем честные обзоры,
+              АВТОWAY — это проект про автомобили. Мы снимаем честные обзоры,
               тест-драйвы и полезные видео для тех, кто живёт автотематикой.
               В будущем планируем запустить услуги по подбору авто, консультации
               и аренду автомобилей.
@@ -124,7 +124,7 @@ export default function Home() {
 
       <footer className="border-t border-zinc-200 py-8 dark:border-zinc-800">
         <div className="mx-auto max-w-5xl px-4 text-center text-sm text-zinc-500">
-          <p>© {new Date().getFullYear()} AVTOWAY. Все права защищены.</p>
+          <p>© {new Date().getFullYear()} АВТОWAY. Все права защищены.</p>
         </div>
       </footer>
     </>
