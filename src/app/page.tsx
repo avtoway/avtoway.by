@@ -1,19 +1,5 @@
 import Link from "next/link";
-
-const videos = [
-  {
-    title: "Обзор нового авто 2026",
-    id: "dQw4w9WgXcQ",
-  },
-  {
-    title: "Тест-драйв: спорткар против внедорожника",
-    id: "dQw4w9WgXcQ",
-  },
-  {
-    title: "Тюнинг и доработки своими руками",
-    id: "dQw4w9WgXcQ",
-  },
-];
+import { getChannelVideos, getVideoUrl } from "@/lib/youtube";
 
 const services = [
   { title: "Видеообзоры", desc: "Профессиональные обзоры автомобилей" },
@@ -21,7 +7,9 @@ const services = [
   { title: "Аренда авто", desc: "Скоро — аренда автомобилей" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const channelId = process.env.YOUTUBE_CHANNEL_ID ?? "";
+  const videos = channelId ? await getChannelVideos(channelId) : [];
   return (
     <>
       <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md">
@@ -83,20 +71,21 @@ export default function Home() {
               {videos.map((video) => (
                 <a
                   key={video.id}
-                  href={`https://youtube.com/watch?v=${video.id}`}
+                  href={getVideoUrl(video.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
                 >
                   <div className="aspect-video bg-zinc-200 dark:bg-zinc-700">
                     <img
-                      src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                      src={video.thumbnails.maxres}
                       alt={video.title}
                       className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold">{video.title}</h3>
+                    <h3 className="font-semibold line-clamp-2">{video.title}</h3>
                   </div>
                 </a>
               ))}
