@@ -26,10 +26,19 @@ snapshots/      # Auto-saved backups (gitignored? or not)
 
 ## Branch Strategy
 
-- `master` — production-ready code
-- `feature/*` — new features (merged via PR)
-- `fix/*` — bug fixes
-- `docs/*` — documentation updates
+- `master` — production-ready код (финальная ветка)
+- `dev` — разработка и тестирование (сюда мержатся все фичи)
+- `feature/*` — новые фичи (создаются от dev, мержатся в dev)
+- `fix/*` — исправления багов (создаются от dev, мержатся в dev)
+- `docs/*` — документация (создаются от dev, мержатся в dev)
+
+### Flow
+
+```
+feature/video-gallery ──┐
+feature/services ───────┤──► dev ──► master
+feature/rental ─────────┘
+```
 
 ## Modules (future)
 
