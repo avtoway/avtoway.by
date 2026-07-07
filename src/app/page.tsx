@@ -33,20 +33,14 @@ export default async function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <SiteLogo />
           <nav className="flex items-center gap-6 text-sm font-medium">
-            <a
-              href="#about"
-              className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
-            >
-              О нас
-              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
-            </a>
-            <a
-              href="#services"
-              className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
-            >
+            <span className="cursor-pointer text-zinc-400 transition-colors hover:text-white">Главная</span>
+            <span className="cursor-pointer text-zinc-400 transition-colors hover:text-white">О нас</span>
+            <span className="flex cursor-pointer items-center gap-1 text-zinc-400 transition-colors hover:text-white">
               Услуги
-              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
-            </a>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+            <span className="cursor-pointer text-zinc-400 transition-colors hover:text-white">Партнёры</span>
+            <span className="cursor-pointer text-zinc-400 transition-colors hover:text-white">Контакты</span>
           </nav>
         </div>
       </header>
