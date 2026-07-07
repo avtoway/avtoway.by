@@ -2,23 +2,19 @@
 
 import { useState } from "react";
 
-export default function HeroBackground() {
+export default function HeroBackground({ videoId }: { videoId: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <>
       <div className="absolute inset-0 overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="h-full w-full object-cover"
-          onCanPlay={() => setLoaded(true)}
-        >
-          <source src="/videos/hero-bg.mp4" type="video/mp4" />
-        </video>
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&iv_load_policy=3&playsinline=1&modestbranding=1&disablekb=1&fs=0`}
+          allow="autoplay; encrypted-media"
+          className={`h-[120%] w-[120%] -left-[10%] -top-[10%] absolute scale-150 transition-opacity duration-1000 ${loaded ? "opacity-30" : "opacity-0"}`}
+          onLoad={() => setLoaded(true)}
+        />
+        <div className="absolute inset-0 z-10" />
       </div>
 
       {!loaded && (
