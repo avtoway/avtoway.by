@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { getChannelVideos } from "@/lib/youtube";
 import VideoCarousel from "@/components/video-carousel";
 import Reveal from "@/components/reveal";
 import HeroBackground from "@/components/hero-background";
 import ScrollProgress from "@/components/scroll-progress";
+import SiteLogo from "@/components/site-logo";
 
 const services = [
   {
@@ -31,13 +31,7 @@ export default async function Home() {
       <ScrollProgress />
       <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link
-            href="/"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="animate-logo text-3xl font-extrabold tracking-wider text-zinc-100 transition-all duration-300 hover:scale-105"
-          >
-            АВТО<span className="tracking-[0.15em] font-black text-zinc-300 transition-all duration-300 hover:tracking-[0.2em]">WAY</span>
-          </Link>
+          <SiteLogo />
           <nav className="flex items-center gap-8 text-sm font-medium">
             <a
               href="#about"
