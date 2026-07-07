@@ -48,7 +48,7 @@ export default async function Home() {
             </Reveal>
             <Reveal delay={150}>
               <p className="mb-10 text-lg text-zinc-400 sm:text-xl">
-                Автомобильные обзоры, тест-драйвы и всё, что связано с авто
+                Делаю то, что не делают другие! Обзоры, ремонты, лайфхаки и всё, что связано с авто
               </p>
             </Reveal>
             <Reveal delay={300}>
@@ -88,11 +88,22 @@ export default async function Home() {
             </Reveal>
             <Reveal delay={150}>
               <p className="text-lg leading-relaxed text-zinc-400">
-                АВТОWAY — это проект про автомобили. Мы снимаем честные обзоры,
-                тест-драйвы и полезные видео для тех, кто живёт автотематикой. В
-                будущем планируем запустить услуги по подбору авто, консультации
-                и аренду автомобилей.
+                АВТОWAY — проект про автомобили, где я показываю всё как есть.
+                Честные обзоры, ремонты, лайфхаки и полезные услуги —
+                я делаю то, что не делают другие. Никакой фальши, никаких
+                продюсеров — только реальный опыт и живые проекты.
               </p>
+            </Reveal>
+            <Reveal delay={300}>
+              <div className="mt-8">
+                <a
+                  href="/about"
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-zinc-700 bg-white/5 px-6 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-zinc-500 hover:text-white active:scale-95"
+                >
+                  Подробнее о проекте
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
             </Reveal>
           </div>
         </section>
