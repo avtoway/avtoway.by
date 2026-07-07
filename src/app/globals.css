@@ -50,3 +50,12 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+@keyframes logo-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+.animate-logo {
+  animation: logo-glow 3s ease-in-out infinite;
+}

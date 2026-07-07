@@ -3,6 +3,7 @@ import { getChannelVideos } from "@/lib/youtube";
 import VideoCarousel from "@/components/video-carousel";
 import Reveal from "@/components/reveal";
 import HeroBackground from "@/components/hero-background";
+import ScrollProgress from "@/components/scroll-progress";
 
 const services = [
   {
@@ -27,32 +28,36 @@ export default async function Home() {
   const videos = channelId ? await getChannelVideos(channelId, 15) : [];
   return (
     <>
+      <ScrollProgress />
       <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link
             href="/"
-            className="text-2xl font-extrabold tracking-wider text-white"
+            className="animate-logo text-3xl font-extrabold tracking-wider text-white transition-all hover:brightness-110"
           >
-            АВТО<span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent">WAY</span>
+            АВТО<span className="tracking-[0.15em] font-black text-white/90">WAY</span>
           </Link>
           <nav className="flex items-center gap-8 text-sm font-medium">
             <a
               href="#about"
-              className="text-zinc-400 transition-colors hover:text-white"
+              className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
             >
               О нас
+              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
             <a
               href="#videos"
-              className="text-zinc-400 transition-colors hover:text-white"
+              className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
             >
               Видео
+              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
             <a
               href="#services"
-              className="text-zinc-400 transition-colors hover:text-white"
+              className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
             >
               Услуги
+              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
           </nav>
         </div>
