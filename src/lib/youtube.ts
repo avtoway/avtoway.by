@@ -12,6 +12,15 @@ export interface YTVideo {
 
 const YT_API = "https://www.googleapis.com/youtube/v3";
 
+function parseDurationToSeconds(iso: string): number {
+  const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+  if (!match) return 0;
+  const hours = parseInt(match[1] ?? "0") || 0;
+  const minutes = parseInt(match[2] ?? "0") || 0;
+  const seconds = parseInt(match[3] ?? "0") || 0;
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 export async function getChannelVideos(
   channelId: string,
   maxResults = 15,
@@ -28,7 +37,7 @@ export async function getChannelVideos(
   const params = new URLSearchParams({
     part: "snippet",
     playlistId: uploadsPlaylistId,
-    maxResults: String(maxResults),
+    maxResults: String(maxResults * 2),
     key: apiKey,
   });
 
@@ -53,8 +62,49 @@ export async function getChannelVideos(
     return [];
   }
 
-  return (data.items ?? [])
-    .filter((item) => item.snippet?.resourceId?.videoId)
+  const items = (data.items ?? []).filter(
+    (item) => item.snippet?.resourceId?.videoId,
+  );
+  if (items.length === 0) return [];
+
+  // Фильтруем Shorts (длительность < 60s)
+  const videoIds = items.map((item) => item.snippet.resourceId.videoId).join(",");
+  const detailsParams = new URLSearchParams({
+    part: "contentDetails",
+    id: videoIds,
+    key: apiKey,
+  });
+
+  const detailsRes = await fetch(`${YT_API}/videos?${detailsParams}`, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
+  const detailsData = (await detailsRes.json()) as {
+    error?: { message: string };
+    items?: Array<{
+      id: string;
+      contentDetails: { duration: string };
+    }>;
+  };
+
+  if (!detailsRes.ok || detailsData.error) {
+    console.error(
+      "YouTube API error (details):",
+      detailsData.error?.message ?? detailsRes.statusText,
+    );
+    return [];
+  }
+
+  const durationMap = new Map<string, number>();
+  for (const item of detailsData.items ?? []) {
+    durationMap.set(item.id, parseDurationToSeconds(item.contentDetails.duration));
+  }
+
+  return items
+    .filter((item) => {
+      const duration = durationMap.get(item.snippet.resourceId.videoId) ?? 0;
+      return duration >= 60;
+    })
+    .slice(0, maxResults)
     .map((item) => {
       const thumbs = item.snippet.thumbnails;
       return {
