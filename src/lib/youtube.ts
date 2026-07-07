@@ -27,7 +27,7 @@ function parseDurationToSeconds(iso: string): number {
 
 export async function getChannelVideos(
   channelId: string,
-  maxResults = 6,
+  maxResults = 15,
 ): Promise<YTVideo[]> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {

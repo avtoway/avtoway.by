@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getChannelVideos, getVideoUrl } from "@/lib/youtube";
+import { getChannelVideos } from "@/lib/youtube";
+import VideoCarousel from "@/components/video-carousel";
 
 const services = [
   { title: "Видеообзоры", desc: "Профессиональные обзоры автомобилей" },
@@ -9,7 +10,7 @@ const services = [
 
 export default async function Home() {
   const channelId = process.env.YOUTUBE_CHANNEL_ID ?? "";
-  const videos = channelId ? await getChannelVideos(channelId) : [];
+  const videos = channelId ? await getChannelVideos(channelId, 15) : [];
   return (
     <>
       <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md">
@@ -65,31 +66,9 @@ export default async function Home() {
         </section>
 
         <section id="videos" className="bg-zinc-50 py-24 dark:bg-zinc-900/50">
-          <div className="mx-auto max-w-5xl px-4">
+          <div className="mx-auto max-w-6xl px-8">
             <h2 className="mb-12 text-center text-3xl font-bold">Последние видео</h2>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {videos.map((video) => (
-                <a
-                  key={video.id}
-                  href={getVideoUrl(video.id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
-                >
-                  <div className="aspect-video bg-zinc-200 dark:bg-zinc-700">
-                    <img
-                      src={video.thumbnails.maxres}
-                      alt={video.title}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold line-clamp-2">{video.title}</h3>
-                  </div>
-                </a>
-              ))}
-            </div>
+            <VideoCarousel videos={videos} />
           </div>
         </section>
 
