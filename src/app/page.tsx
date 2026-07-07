@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getChannelVideos } from "@/lib/youtube";
 import VideoCarousel from "@/components/video-carousel";
 import Reveal from "@/components/reveal";
+import HeroBackground from "@/components/hero-background";
 
 const services = [
   {
@@ -59,13 +60,7 @@ export default async function Home() {
 
       <main>
         <section className="relative flex min-h-dvh items-center justify-center overflow-hidden">
-          <div className="animate-gradient absolute -inset-24 scale-150 opacity-[0.04]">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,#ef4444_0%,transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_80%,#3b82f6_0%,transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,#f59e0b_0%,transparent_40%)]" />
-          </div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#ef4444_0%,_transparent_60%)] opacity-10" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_#1e293b_0%,_transparent_50%)] opacity-40" />
+          <HeroBackground videoId="urBpYKOYkeI" />
           <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
             <Reveal>
               <h1 className="mb-4 text-5xl font-bold tracking-tight text-white sm:text-7xl">
