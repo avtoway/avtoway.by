@@ -94,7 +94,7 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
             className="group/card snap-start shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-zinc-600 hover:shadow-xl hover:shadow-red-500/10"
             style={{ width: CARD_WIDTH }}
           >
-            <div className="relative aspect-[4/5] overflow-hidden bg-zinc-800">
+            <div className="relative aspect-video overflow-hidden bg-zinc-800">
               <img
                 src={video.thumbnails.high}
                 alt={video.title}
