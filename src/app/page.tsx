@@ -48,7 +48,7 @@ export default async function Home() {
             </Reveal>
             <Reveal delay={150}>
               <p className="mb-10 text-lg text-zinc-400 sm:text-xl">
-                Тут всё, что связано с авто! Делаю то, что не делают другие!
+                Нам можно верить! Делаю то, что не делают другие
               </p>
             </Reveal>
             <Reveal delay={300}>
