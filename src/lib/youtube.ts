@@ -43,7 +43,9 @@ export async function getChannelVideos(
     key: apiKey,
   });
 
-  const searchRes = await fetch(`${YT_API}/search?${searchParams}`);
+  const searchRes = await fetch(`${YT_API}/search?${searchParams}`, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
   const searchData = (await searchRes.json()) as YouTubeApiError & {
     items?: Array<{
       id: { videoId: string };
@@ -76,7 +78,9 @@ export async function getChannelVideos(
     key: apiKey,
   });
 
-  const detailsRes = await fetch(`${YT_API}/videos?${detailsParams}`);
+  const detailsRes = await fetch(`${YT_API}/videos?${detailsParams}`, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
   const detailsData = (await detailsRes.json()) as YouTubeApiError & {
     items?: Array<{
       id: string;
