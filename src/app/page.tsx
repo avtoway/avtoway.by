@@ -32,19 +32,12 @@ export default async function Home() {
       <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <SiteLogo />
-          <nav className="flex items-center gap-8 text-sm font-medium">
+          <nav className="flex items-center gap-6 text-sm font-medium">
             <a
               href="#about"
               className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
             >
               О нас
-              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
-            </a>
-            <a
-              href="#videos"
-              className="nav-link group relative text-zinc-400 transition-colors hover:text-white"
-            >
-              Видео
               <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
             <a
@@ -75,9 +68,12 @@ export default async function Home() {
             <Reveal delay={300}>
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <a
-                  href="#videos"
+                  href="https://youtube.com/@avtoway"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-sm font-medium text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 active:scale-95"
                 >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                   Смотреть видео
                 </a>
                 <a
