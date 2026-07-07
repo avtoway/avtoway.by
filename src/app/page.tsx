@@ -96,13 +96,10 @@ export default async function Home() {
             </Reveal>
             <Reveal delay={300}>
               <div className="mt-8">
-                <a
-                  href="/about"
-                  className="inline-flex h-11 items-center gap-2 rounded-full border border-zinc-700 bg-white/5 px-6 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-zinc-500 hover:text-white active:scale-95"
-                >
+                <span className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-zinc-700 bg-white/5 px-6 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-zinc-500 hover:text-white active:scale-95">
                   Подробнее о проекте
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </a>
+                </span>
               </div>
             </Reveal>
           </div>
