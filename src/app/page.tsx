@@ -60,7 +60,7 @@ export default async function Home() {
 
       <main>
         <section className="relative flex min-h-dvh items-center justify-center overflow-hidden">
-          <HeroBackground videoId="urBpYKOYkeI" />
+          <HeroBackground />
           <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
             <Reveal>
               <h1 className="mb-4 text-5xl font-bold tracking-tight text-white sm:text-7xl">
