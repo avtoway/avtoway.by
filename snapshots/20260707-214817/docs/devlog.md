@@ -48,18 +48,6 @@
 - [x] Video carousel with auto-scroll, dots, drag
 - [x] Feature branches: `feature/dark-theme`, `feature/modern-ui`, `feature/hero-video-bg`, `feature/auto-carousel` → merged to dev
 
-## 2026-07-07 — Phase 0: Главная страница
-
-- [x] Новый hero-текст: «Нам можно верить! Делаю то, что не делают другие»
-- [x] Новый текст «О проекте» — личный бренд, честность, доверие
-- [x] Кнопка «Подробнее о проекте» (заглушка)
-- [x] Навигация: Главная, Услуги▾, О нас, Партнёры, Контакты — стеклянная капсула с анимациями
-- [x] Кнопка «Смотреть видео» → YouTube канал
-- [x] Логотип: крупнее, мягкий белый, анимация + hover scale
-- [x] Scroll Progress bar
-- [x] `/main` — алиас главной страницы
-- [x] MainNav client component с рабочим «Главная» → `/`
-
 ## 2026-07-07 — Планирование Phase 2
 
 - [x] Создан roadmap проекта (docs/roadmap.md)
