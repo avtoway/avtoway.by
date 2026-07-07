@@ -48,6 +48,13 @@
 - [x] Video carousel with auto-scroll, dots, drag
 - [x] Feature branches: `feature/dark-theme`, `feature/modern-ui`, `feature/hero-video-bg`, `feature/auto-carousel` → merged to dev
 
+## 2026-07-07 — Планирование Phase 2
+
+- [x] Создан roadmap проекта (docs/roadmap.md)
+- [x] Список страниц: Услуги, О нас, Контакты, Партнёры
+- [x] База данных: PostgreSQL + Prisma
+- [x] Админка без регистрации, роли: Admin, Editor, Partner
+
 ## 2026-07-07 — Release v1.0-beta
 
 - [x] All features merged to dev
