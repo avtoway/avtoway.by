@@ -31,9 +31,9 @@ export default async function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link
             href="/"
-            className="text-xl font-bold tracking-tight text-white"
+            className="text-2xl font-extrabold tracking-wider text-white"
           >
-            АВТО<span className="text-primary">WAY</span>
+            АВТО<span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent">WAY</span>
           </Link>
           <nav className="flex items-center gap-8 text-sm font-medium">
             <a
