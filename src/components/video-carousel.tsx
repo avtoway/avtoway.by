@@ -41,7 +41,7 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
     <div className="relative">
       <button
         onClick={() => scroll("left")}
-        className="absolute -left-4 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition hover:scale-110 sm:flex dark:bg-zinc-800"
+        className="absolute -left-4 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 shadow-lg transition hover:scale-110 hover:bg-zinc-700 sm:flex"
         aria-label="Предыдущие видео"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -69,10 +69,10 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
             href={getVideoUrl(video.id)}
             target="_blank"
             rel="noopener noreferrer"
-            className="group snap-start shrink-0 rounded-2xl border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+            className="group snap-start shrink-0 rounded-2xl border border-zinc-800 bg-zinc-900 transition-shadow hover:border-zinc-700 hover:shadow-lg"
             style={{ width: "clamp(260px, 30vw, 360px)" }}
           >
-            <div className="aspect-video overflow-hidden rounded-t-2xl bg-zinc-200 dark:bg-zinc-700">
+            <div className="aspect-video overflow-hidden rounded-t-2xl bg-zinc-800">
               <img
                 src={video.thumbnails.maxres}
                 alt={video.title}
@@ -94,7 +94,7 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
 
       <button
         onClick={() => scroll("right")}
-        className="absolute -right-4 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition hover:scale-110 sm:flex dark:bg-zinc-800"
+        className="absolute -right-4 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 shadow-lg transition hover:scale-110 hover:bg-zinc-700 sm:flex"
         aria-label="Следующие видео"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
