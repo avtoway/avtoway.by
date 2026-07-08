@@ -77,9 +77,8 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-24"
+        <section className="relative overflow-hidden border-t-2 border-[#3b82f6]/30 py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.story.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-50" />
           <div className="relative mx-auto max-w-4xl px-6">
             <Reveal>
               <h2 className="mb-8 text-3xl font-bold text-white group">
@@ -115,9 +114,8 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-24"
+        <section className="relative overflow-hidden border-t-2 border-[#f59e0b]/30 py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.timeline.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f59e0b] to-transparent opacity-50" />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]" style={{ background: `radial-gradient(circle, ${sectionColors.timeline.bg}, transparent 70%)` }} />
           </div>
@@ -151,9 +149,8 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-24"
+        <section className="relative overflow-hidden border-t-2 border-[#10b981]/30 py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.social.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#10b981] to-transparent opacity-50" />
           <div className="pointer-events-none absolute inset-0">
             <div
               className="absolute inset-0 transition-opacity duration-500"
