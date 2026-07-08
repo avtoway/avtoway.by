@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "АВТОWAY — Автомобильные видео и сервисы",
+    default: "АВТОWAY — Автомобильные движения",
     template: "%s | АВТОWAY",
   },
   description:
