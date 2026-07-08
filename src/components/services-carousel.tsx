@@ -17,7 +17,7 @@ interface Service {
 const services: Service[] = [
   {
     title: "Видео ремонты и обзоры",
-    desc: "Честные обзоры и живые ремонты без монтажа.",
+    desc: "Смотрю, делаю, показываю. Честные обзоры и живые ремонты.",
     href: "https://youtube.com/@avtoway",
     color: "#ef4444",
     icon: (
@@ -26,7 +26,7 @@ const services: Service[] = [
   },
   {
     title: "Аренда авто",
-    desc: "Авто под такси, просто аренда и подкаты. Без скрытых платежей.",
+    desc: "Авто под такси, просто аренда и подкаты. Прозрачно и честно.",
     href: "/rent",
     color: "#3b82f6",
     icon: (
@@ -35,7 +35,7 @@ const services: Service[] = [
   },
   {
     title: "Автоподбор",
-    desc: "Проверю авто перед покупкой. Диагностика, документы, торг.",
+    desc: "Проверю авто от и до. Диагностика, документы, торг — полное сопровождение.",
     href: "/inspection",
     color: "#10b981",
     icon: (
@@ -44,7 +44,7 @@ const services: Service[] = [
   },
   {
     title: "Продажа авто",
-    desc: "Помогу продать вашу машину быстро и без головной боли.",
+    desc: "Продам ваше авто быстро, дорого, без головной боли.",
     href: "/sell",
     color: "#f59e0b",
     icon: (
@@ -63,11 +63,15 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
     if (!el) return;
     el.style.borderColor = service.color;
     el.style.boxShadow = `0 20px 60px ${service.color}25, 0 8px 20px rgba(0,0,0,0.4)`;
-    el.style.transform = "translateY(-8px)";
-    if (barRef.current) barRef.current.style.width = "100%";
+    el.style.transform = "translateY(-6px) scale(1.02)";
+    if (barRef.current) {
+      barRef.current.style.width = "100%";
+      barRef.current.style.boxShadow = `0 0 12px ${service.color}`;
+    }
     if (iconRef.current) {
       iconRef.current.style.color = service.color;
       iconRef.current.style.background = `linear-gradient(135deg, ${service.color}20, ${service.color}08)`;
+      iconRef.current.style.transform = "scale(1.1)";
     }
   }, [service.color]);
 
@@ -76,11 +80,15 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
     if (!el) return;
     el.style.borderColor = "#27272a";
     el.style.boxShadow = "0 8px 30px rgba(0,0,0,0.3)";
-    el.style.transform = "translateY(0)";
-    if (barRef.current) barRef.current.style.width = "0%";
+    el.style.transform = "translateY(0) scale(1)";
+    if (barRef.current) {
+      barRef.current.style.width = "0%";
+      barRef.current.style.boxShadow = "none";
+    }
     if (iconRef.current) {
       iconRef.current.style.color = "";
       iconRef.current.style.background = "";
+      iconRef.current.style.transform = "scale(1)";
     }
   }, []);
 
@@ -90,7 +98,7 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
       href={service.href}
       target={service.href.startsWith("http") ? "_blank" : undefined}
       rel={service.href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="relative shrink-0 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-lg shadow-black/30 transition-all duration-300"
+      className="relative shrink-0 rounded-2xl border border-zinc-800 bg-zinc-900 shadow-lg shadow-black/30 transition-all duration-300"
       style={{ ...style, transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
@@ -173,7 +181,7 @@ export default function ServicesCarousel() {
 
   if (!isCarousel) {
     return (
-      <div className="flex items-stretch justify-center gap-6">
+      <div className="flex items-stretch justify-center gap-6 pt-3">
         {services.map((service, i) => (
           <Card key={service.title} service={service} i={i} style={{ flex: "1", maxWidth: "340px" }} />
         ))}
@@ -197,7 +205,7 @@ export default function ServicesCarousel() {
 
       <div
         ref={scrollRef}
-        className="scrollbar-hide -mx-2 flex gap-6 overflow-x-auto px-2 pb-4 snap-x snap-mandatory scroll-smooth"
+        className="scrollbar-hide -mx-2 flex gap-6 overflow-x-auto px-2 pb-4 pt-3 snap-x snap-mandatory scroll-smooth"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {allItems.map((service, i) => (
