@@ -8,6 +8,7 @@ interface Props {
   className?: string;
   style?: React.CSSProperties;
   topOffset?: number; // px from top of section
+}
 
 export default function AnimatedSection({ children, color, className, style, topOffset = 0 }: Props) {
   const ref = useRef<HTMLElement>(null);
@@ -35,7 +36,7 @@ export default function AnimatedSection({ children, color, className, style, top
     const raf = requestAnimationFrame(() => {
       setFlash(true);
     });
-    const timer = setTimeout(() => setFlash(false), 800);
+    const timer = setTimeout(() => setFlash(false), 700);
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(timer);
