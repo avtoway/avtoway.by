@@ -59,9 +59,13 @@ export default function AboutPage() {
           </div>
           <div className="relative mx-auto max-w-4xl px-6">
             <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
-              <div className="shrink-0">
-                <div className="flex h-36 w-36 items-center justify-center rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/50 text-zinc-600 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 sm:h-44 sm:w-44">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="opacity-40"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              <div className="group shrink-0">
+                <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-xl shadow-black/30 transition-all duration-500 group-hover:border-primary/50 group-hover:shadow-primary/10 sm:h-44 sm:w-44">
+                  <picture>
+                    <source srcSet="/images/avatar.webp" type="image/webp" />
+                    <img src="/images/avatar.jpg" alt="АВТОWAY" className="h-full w-full object-cover" />
+                  </picture>
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
                 </div>
               </div>
               <div>
