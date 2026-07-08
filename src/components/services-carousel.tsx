@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 
-const CARD_WIDTH = 380;
+const CARD_WIDTH = 350;
 const GAP = 20;
 const STEP = CARD_WIDTH + GAP;
 
@@ -42,12 +42,17 @@ const services = [
   },
 ];
 
+const glassCard =
+  "relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1";
+
 export default function ServicesCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const realLen = services.length;
-  const allItems = [...services, ...services];
+  const isCarousel = realLen > 3;
+
+  const allItems = isCarousel ? [...services, ...services] : services;
   const maxIndex = allItems.length - 1;
 
   const scrollTo = useCallback(
@@ -71,12 +76,13 @@ export default function ServicesCarousel() {
   }, [current, maxIndex, scrollTo]);
 
   useEffect(() => {
-    if (isHovered || realLen <= 1) return;
+    if (!isCarousel || isHovered || realLen <= 1) return;
     const timer = setInterval(goNext, 2500);
     return () => clearInterval(timer);
-  }, [isHovered, realLen, goNext]);
+  }, [isCarousel, isHovered, realLen, goNext]);
 
   useEffect(() => {
+    if (!isCarousel) return;
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
@@ -85,7 +91,47 @@ export default function ServicesCarousel() {
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isCarousel]);
+
+  const renderCard = (service: (typeof services)[number], i: number) => (
+    <a
+      key={`${service.title}-${i}`}
+      href={service.href}
+      target={service.href.startsWith("http") ? "_blank" : undefined}
+      rel={service.href.startsWith("http") ? "noopener noreferrer" : undefined}
+      className={`${glassCard} ${service.gradient} ${service.border} ${service.shadow} snap-start shrink-0`}
+      style={isCarousel ? { width: CARD_WIDTH } : undefined}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.06)_0%,_transparent_60%)] pointer-events-none" />
+      <div className="relative p-7">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-white/[0.06] text-white backdrop-blur-sm ring-1 ring-white/10 transition-transform duration-500 group-hover/card:scale-110 group-hover/card:text-primary">
+          {service.icon}
+        </div>
+        <h3 className="mb-3 text-xl font-bold tracking-tight text-white">
+          {service.title}
+        </h3>
+        <p className="text-sm leading-relaxed text-zinc-400">
+          {service.desc}
+        </p>
+        <div className="mt-6 flex items-center gap-1.5 text-sm font-medium text-primary opacity-0 transition-all duration-300 group-hover/card:opacity-100">
+          Подробнее
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+    </a>
+  );
+
+  if (!isCarousel) {
+    return (
+      <div className="flex items-stretch justify-center gap-5">
+        {services.map((service, i) => (
+          <div key={service.title} className="flex-1 max-w-[350px]">
+            {renderCard(service, i)}
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -106,32 +152,7 @@ export default function ServicesCarousel() {
         className="scrollbar-hide -mx-2 flex gap-5 overflow-x-auto px-2 pb-4 snap-x snap-mandatory scroll-smooth"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {allItems.map((service, i) => (
-          <a
-            key={`${service.title}-${i}`}
-            href={service.href}
-            target={service.href.startsWith("http") ? "_blank" : undefined}
-            rel={service.href.startsWith("http") ? "noopener noreferrer" : undefined}
-            className={`group/card snap-start shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${service.gradient} bg-zinc-900/50 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 ${service.border} hover:shadow-xl ${service.shadow}`}
-            style={{ width: CARD_WIDTH }}
-          >
-            <div className="p-7">
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-white/5 text-white backdrop-blur-sm transition-transform duration-500 group-hover/card:scale-110 group-hover/card:text-primary">
-                {service.icon}
-              </div>
-              <h3 className="mb-3 text-xl font-bold tracking-tight text-white">
-                {service.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-zinc-400">
-                {service.desc}
-              </p>
-              <div className="mt-6 flex items-center gap-1.5 text-sm font-medium text-primary opacity-0 transition-all duration-300 group-hover/card:opacity-100">
-                Подробнее
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </div>
-            </div>
-          </a>
-        ))}
+        {allItems.map((service, i) => renderCard(service, i))}
       </div>
 
       <button

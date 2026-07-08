@@ -105,7 +105,7 @@ export default async function HomePage() {
         </section>
 
         <section id="services" className="border-t border-zinc-800/50 py-32">
-          <div className="mx-auto max-w-5xl px-6">
+          <div className="mx-auto max-w-6xl px-6">
             <Reveal>
               <h2 className="mb-14 text-center text-3xl font-bold text-white">
                 Наши услуги
