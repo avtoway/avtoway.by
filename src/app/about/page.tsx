@@ -1,46 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import SiteLogo from "@/components/site-logo";
 import MainNav from "@/components/main-nav";
 import ScrollProgress from "@/components/scroll-progress";
 import Reveal from "@/components/reveal";
 
 const socials = [
-  { label: "YouTube", href: "https://youtube.com/@avtoway", color: "#ef4444" },
-  { label: "Instagram", href: "#", color: "#ec4899" },
-  { label: "Telegram", href: "#", color: "#38bdf8" },
-  { label: "VK", href: "#", color: "#3b82f6" },
+  { label: "YouTube", href: "https://youtube.com/@avtoway", color: "#ef4444", border: "hover:border-red-500/40", text: "hover:text-red-400", shadow: "hover:shadow-red-500/20" },
+  { label: "Instagram", href: "#", color: "#ec4899", border: "hover:border-pink-500/40", text: "hover:text-pink-400", shadow: "hover:shadow-pink-500/20" },
+  { label: "Telegram", href: "#", color: "#38bdf8", border: "hover:border-sky-500/40", text: "hover:text-sky-400", shadow: "hover:shadow-sky-500/20" },
+  { label: "VK", href: "#", color: "#3b82f6", border: "hover:border-blue-500/40", text: "hover:text-blue-400", shadow: "hover:shadow-blue-500/20" },
 ];
 
 const milestones = [
-  {
-    year: "2020",
-    title: "Первый шаг",
-    text: "Купил Daewoo Lanos. Просто чтобы было. А оказалось — начало пути. Начал разбираться, копаться, понимать как устроен автомобиль.",
-  },
-  {
-    year: "2022",
-    title: "Dacia Logan — первый серьёзный проект",
-    text: "Приобрёл Logan 2007 на 1.4 бензине. Все говорили — скучная машина. А я заварил днище, переварил заднюю часть. До этого никогда ничего такого не делал. Это мой первый настоящий проект. И он ещё не закончен — в планах турбо, тормоза, подвеска, внешка.",
-  },
-  {
-    year: "2024",
-    title: "YouTube — АВТОWAY",
-    text: "Запустил канал. Начал снимать обзоры, ремонты, лайфхаки. Не ради хайпа — ради дела. Показал Logan, его восстановление, свои ошибки и победы.",
-  },
-  {
-    year: "2025",
-    title: "Hyundai Accent — эксперимент",
-    text: "Купил Accent 1998 года, чтобы делать то, что не делают другие. Было страшно — но я сделал. Продал, пошёл дальше. Этот проект научил главному — не бояться.",
-  },
-  {
-    year: "2026",
-    title: "АВТОWAY — бренд",
-    text: "Запускаю проект как полноценный бренд. Первые услуги: аренда авто под такси, автоподбор, помощь в продаже. Я не прячусь за вывеской — свечу лицом, показываю каждый шаг.",
-  },
+  { year: "2020", title: "Первый шаг", text: "Купил Daewoo Lanos. Просто чтобы было. А оказалось — начало пути. Начал разбираться, копаться, понимать как устроен автомобиль." },
+  { year: "2022", title: "Dacia Logan — первый серьёзный проект", text: "Приобрёл Logan 2007 на 1.4 бензине. Все говорили — скучная машина. А я заварил днище, переварил заднюю часть. До этого никогда ничего такого не делал." },
+  { year: "2024", title: "YouTube — АВТОWAY", text: "Запустил канал. Начал снимать обзоры, ремонты, лайфхаки. Не ради хайпа — ради дела." },
+  { year: "2025", title: "Hyundai Accent — эксперимент", text: "Купил Accent 1998 года, чтобы делать то, что не делают другие. Было страшно — но я сделал." },
+  { year: "2026", title: "АВТОWAY — бренд", text: "Запускаю проект как полноценный бренд. Первые услуги: аренда авто под такси, автоподбор, помощь в продаже." },
 ];
 
 export default function AboutPage() {
+  const [hoveredSocial, setHoveredSocial] = useState<string | null>(null);
+
   return (
     <>
       <ScrollProgress />
@@ -54,18 +37,19 @@ export default function AboutPage() {
       <main>
         <section className="relative border-t border-zinc-800/50 overflow-hidden pt-32 pb-24">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-40 -top-40 h-96 w-96 animate-gradient rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute -right-40 -bottom-40 h-96 w-96 animate-gradient rounded-full bg-blue-500/5 blur-3xl" style={{ animationDelay: "-5s" }} />
+            <div className="absolute -left-40 -top-40 h-[500px] w-[500px] animate-gradient rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(239,68,68,0.08), transparent 70%)" }} />
+            <div className="absolute -right-40 -bottom-40 h-[400px] w-[400px] animate-gradient rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(59,130,246,0.06), transparent 70%)", animationDelay: "-5s" }} />
           </div>
           <div className="relative mx-auto max-w-4xl px-6">
             <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
               <div className="group shrink-0">
-                <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-xl shadow-black/30 transition-all duration-500 group-hover:border-primary/50 group-hover:shadow-primary/10 sm:h-44 sm:w-44">
+                <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-xl shadow-black/30 transition-all duration-500 group-hover:border-red-500/50 group-hover:shadow-xl group-hover:shadow-red-500/20 sm:h-44 sm:w-44">
                   <picture>
                     <source srcSet="/images/avatar.webp" type="image/webp" />
-                    <img src="/images/avatar.jpg" alt="АВТОWAY" className="h-full w-full object-cover" />
+                    <img src="/images/avatar.jpg" alt="АВТОWAY" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   </picture>
                   <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 </div>
               </div>
               <div>
@@ -86,8 +70,10 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="border-t border-zinc-800/50 bg-zinc-900/20 py-24">
-          <div className="mx-auto max-w-4xl px-6">
+        <section className="relative border-t border-zinc-800/50 overflow-hidden py-24">
+          <div className="pointer-events-none absolute inset-0 bg-zinc-900/30" />
+          <div className="pointer-events-none absolute top-0 left-1/4 h-px w-1/2 bg-gradient-to-r from-transparent via-red-500/20 to-transparent" />
+          <div className="relative mx-auto max-w-4xl px-6">
             <Reveal>
               <h2 className="mb-8 text-3xl font-bold text-white">
                 Кто я и почему вам можно верить
@@ -122,21 +108,24 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="border-t border-zinc-800/50 py-24">
-          <div className="mx-auto max-w-4xl px-6">
+        <section className="relative border-t border-zinc-800/50 overflow-hidden py-24">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]" style={{ background: "radial-gradient(circle, rgba(239,68,68,0.04), transparent 70%)" }} />
+          </div>
+          <div className="relative mx-auto max-w-4xl px-6">
             <Reveal>
               <h2 className="mb-16 text-3xl font-bold text-white">История</h2>
             </Reveal>
             <div className="relative">
-              <div className="absolute left-[19px] top-3 h-[calc(100%-24px)] w-px bg-gradient-to-b from-primary/50 via-zinc-700 to-zinc-800" />
+              <div className="absolute left-[19px] top-3 h-[calc(100%-24px)] w-px bg-gradient-to-b from-red-500/50 via-zinc-700 to-zinc-800" />
               {milestones.map((m, i) => (
                 <Reveal key={i} delay={i * 100}>
                   <div className="group relative flex gap-8 pb-14 last:pb-0">
-                    <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-xs font-bold text-zinc-500 shadow-lg shadow-black/20 transition-all duration-300 group-hover:scale-125 group-hover:border-primary group-hover:text-primary group-hover:shadow-primary/20">
+                    <div className="absolute -left-[13px] top-4 z-10 flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-zinc-700 bg-zinc-900 text-[10px] font-bold text-zinc-500 shadow-lg shadow-black/20 transition-all duration-300 group-hover:scale-125 group-hover:border-red-500 group-hover:text-red-400 group-hover:shadow-lg group-hover:shadow-red-500/20">
                       {m.year.slice(2)}
                     </div>
-                    <div className="pt-1.5 transition-all duration-300 group-hover:translate-x-1">
-                      <span className="mb-1 block text-xs font-medium tracking-wider uppercase transition-colors duration-300 text-zinc-600 group-hover:text-primary">
+                    <div className="ml-12 pt-1 transition-all duration-300 group-hover:translate-x-1.5">
+                      <span className="mb-1 block text-xs font-medium tracking-wider uppercase transition-colors duration-300 text-zinc-600 group-hover:text-red-400">
                         {m.year}
                       </span>
                       <h3 className="mb-2 text-base font-semibold text-zinc-300 transition-colors duration-300 group-hover:text-white">
@@ -153,8 +142,18 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="border-t border-zinc-800/50 bg-zinc-900/20 py-24">
-          <div className="mx-auto max-w-4xl px-6 text-center">
+        <section className="relative border-t border-zinc-800/50 overflow-hidden py-24">
+          <div className="pointer-events-none absolute inset-0 bg-zinc-900/30" />
+          <div className="pointer-events-none absolute inset-0">
+            <div
+              className="absolute inset-0 transition-opacity duration-500"
+              style={{
+                background: hoveredSocial ? `radial-gradient(ellipse 60% 50% at 50% 50%, ${hoveredSocial}15 0%, transparent 60%)` : "none",
+                opacity: hoveredSocial ? 1 : 0,
+              }}
+            />
+          </div>
+          <div className="relative mx-auto max-w-4xl px-6 text-center">
             <Reveal>
               <h2 className="mb-8 text-3xl font-bold text-white">Мои ресурсы</h2>
             </Reveal>
@@ -170,20 +169,9 @@ export default function AboutPage() {
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex h-12 items-center gap-3 rounded-full border border-zinc-800 bg-zinc-900 px-6 text-sm font-medium text-zinc-400 shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                    style={{
-                      transitionProperty: "transform, box-shadow, border-color, color, background",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = s.color;
-                      e.currentTarget.style.color = s.color;
-                      e.currentTarget.style.boxShadow = `0 10px 40px ${s.color}20, 0 4px 12px rgba(0,0,0,0.3)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "";
-                      e.currentTarget.style.color = "";
-                      e.currentTarget.style.boxShadow = "";
-                    }}
+                    onMouseEnter={() => setHoveredSocial(s.color)}
+                    onMouseLeave={() => setHoveredSocial(null)}
+                    className={`inline-flex h-12 items-center gap-3 rounded-full border border-zinc-800 bg-zinc-900 px-6 text-sm font-medium text-zinc-400 shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${s.border} ${s.text} ${s.shadow}`}
                   >
                     {s.label}
                   </a>
