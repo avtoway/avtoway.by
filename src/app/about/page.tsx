@@ -5,12 +5,13 @@ import SiteLogo from "@/components/site-logo";
 import MainNav from "@/components/main-nav";
 import ScrollProgress from "@/components/scroll-progress";
 import Reveal from "@/components/reveal";
+import AnimatedSection from "@/components/animated-section";
 
 const sectionColors = {
-  hero: { bg: "rgba(239,68,68,0.12)", border: "#ef4444", name: "красный" },
-  story: { bg: "rgba(59,130,246,0.10)", border: "#3b82f6", name: "синий" },
-  timeline: { bg: "rgba(245,158,11,0.10)", border: "#f59e0b", name: "жёлтый" },
-  social: { bg: "rgba(16,185,129,0.10)", border: "#10b981", name: "зелёный" },
+  hero: "rgba(239,68,68,0.12)",
+  story: "rgba(59,130,246,0.10)",
+  timeline: "rgba(245,158,11,0.10)",
+  social: "rgba(16,185,129,0.10)",
 };
 
 const socials = [
@@ -42,8 +43,10 @@ export default function AboutPage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden border-t-2 border-[#ef4444]/30 pt-32 pb-24"
-          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.hero.bg}, transparent 70%)` }}>
+        <AnimatedSection
+          color="#ef4444" lineTop="top-16"
+          className="pt-32 pb-24"
+          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.hero}, transparent 70%)` }}>
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 -top-40 h-[500px] w-[500px] animate-gradient rounded-full blur-[100px]" style={{ background: `radial-gradient(circle, rgba(239,68,68,0.18), transparent 70%)` }} />
           </div>
@@ -75,10 +78,12 @@ export default function AboutPage() {
               </div>
             </div>
           </div>
-        </section>
+        </AnimatedSection>
 
-        <section className="relative overflow-hidden border-t-2 border-[#3b82f6]/30 py-24"
-          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.story.bg}, transparent 70%)` }}>
+        <AnimatedSection
+          color="#3b82f6" lineTop="top-0"
+          className="py-24"
+          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.story}, transparent 70%)` }}>
           <div className="relative mx-auto max-w-4xl px-6">
             <Reveal>
               <h2 className="mb-8 text-3xl font-bold text-white group">
@@ -112,12 +117,14 @@ export default function AboutPage() {
               </Reveal>
             </div>
           </div>
-        </section>
+        </AnimatedSection>
 
-        <section className="relative overflow-hidden border-t-2 border-[#f59e0b]/30 py-24"
-          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.timeline.bg}, transparent 70%)` }}>
+        <AnimatedSection
+          color="#f59e0b" lineTop="top-0"
+          className="py-24"
+          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.timeline}, transparent 70%)` }}>
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]" style={{ background: `radial-gradient(circle, ${sectionColors.timeline.bg}, transparent 70%)` }} />
+            <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]" style={{ background: `radial-gradient(circle, ${sectionColors.timeline}, transparent 70%)` }} />
           </div>
           <div className="relative mx-auto max-w-4xl px-6">
             <Reveal>
@@ -147,10 +154,12 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-        </section>
+        </AnimatedSection>
 
-        <section className="relative overflow-hidden border-t-2 border-[#10b981]/30 py-24"
-          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.social.bg}, transparent 70%)` }}>
+        <AnimatedSection
+          color="#10b981" lineTop="top-0"
+          className="py-24"
+          style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.social}, transparent 70%)` }}>
           <div className="pointer-events-none absolute inset-0">
             <div
               className="absolute inset-0 transition-opacity duration-500"
@@ -186,7 +195,7 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-        </section>
+        </AnimatedSection>
       </main>
 
       <footer className="border-t border-zinc-800/50 py-10">
