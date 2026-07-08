@@ -53,6 +53,76 @@ const services: Service[] = [
   },
 ];
 
+function Card({ service, i, style }: { service: Service; i: number; style?: React.CSSProperties }) {
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
+
+  const onEnter = useCallback(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.borderColor = service.color;
+    el.style.boxShadow = `0 20px 60px ${service.color}25, 0 8px 20px rgba(0,0,0,0.4)`;
+    el.style.transform = "translateY(-8px)";
+    if (barRef.current) barRef.current.style.width = "100%";
+    if (iconRef.current) {
+      iconRef.current.style.color = service.color;
+      iconRef.current.style.background = `linear-gradient(135deg, ${service.color}20, ${service.color}08)`;
+    }
+  }, [service.color]);
+
+  const onLeave = useCallback(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.borderColor = "#27272a";
+    el.style.boxShadow = "0 8px 30px rgba(0,0,0,0.3)";
+    el.style.transform = "translateY(0)";
+    if (barRef.current) barRef.current.style.width = "0%";
+    if (iconRef.current) {
+      iconRef.current.style.color = "";
+      iconRef.current.style.background = "";
+    }
+  }, []);
+
+  return (
+    <a
+      ref={cardRef}
+      href={service.href}
+      target={service.href.startsWith("http") ? "_blank" : undefined}
+      rel={service.href.startsWith("http") ? "noopener noreferrer" : undefined}
+      className="relative shrink-0 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-lg shadow-black/30 transition-all duration-300"
+      style={{ ...style, transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.03)_0%,transparent_60%)] pointer-events-none" />
+
+      <div
+        ref={barRef}
+        className="absolute left-0 top-0 h-1 rounded-tl-2xl transition-all duration-500"
+        style={{ background: service.color, width: "0%" }}
+      />
+
+      <div className="relative p-7">
+        <div
+          ref={iconRef}
+          className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-400 shadow-inner shadow-black/20 transition-all duration-500"
+        >
+          {service.icon}
+        </div>
+
+        <h3 className="mb-3 text-xl font-bold tracking-tight text-white">
+          {service.title}
+        </h3>
+
+        <p className="text-sm leading-relaxed text-zinc-400">
+          {service.desc}
+        </p>
+      </div>
+    </a>
+  );
+}
+
 export default function ServicesCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
@@ -101,68 +171,11 @@ export default function ServicesCarousel() {
     return () => el.removeEventListener("scroll", onScroll);
   }, [isCarousel]);
 
-  const renderCard = (service: Service, i: number) => (
-    <a
-      key={`${service.title}-${i}`}
-      href={service.href}
-      target={service.href.startsWith("http") ? "_blank" : undefined}
-      rel={service.href.startsWith("http") ? "noopener noreferrer" : undefined}
-      className="group/card snap-start shrink-0 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-lg shadow-black/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
-      style={
-        isCarousel
-          ? { width: CARD_WIDTH, "--c": service.color } as React.CSSProperties
-          : { "--c": service.color } as React.CSSProperties
-      }
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.03)_0%,transparent_60%)] pointer-events-none" />
-
-      <div
-        className="absolute left-0 top-0 h-1 w-0 rounded-tl-2xl transition-all duration-500 group-hover/card:w-full"
-        style={{ background: service.color }}
-      />
-
-      <div
-        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
-        style={{
-          background: `radial-gradient(ellipse at top right, ${service.color}20 0%, transparent 70%)`,
-        }}
-      />
-
-      <div className="relative p-7">
-        <div
-          className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-400 shadow-inner shadow-black/20 transition-all duration-500 group-hover/card:scale-110 group-hover/card:bg-zinc-800/50 group-hover/card:shadow-xl"
-          style={{ transitionProperty: "transform, background, color, box-shadow" }}
-        >
-          <div className="transition-colors duration-500 group-hover/card:text-[var(--c)]">
-            {service.icon}
-          </div>
-        </div>
-
-        <h3 className="mb-3 text-xl font-bold tracking-tight text-white">
-          {service.title}
-        </h3>
-
-        <p className="text-sm leading-relaxed text-zinc-400 transition-colors duration-300 group-hover/card:text-zinc-300">
-          {service.desc}
-        </p>
-
-        <div className="mt-6 flex items-center gap-1.5 text-sm font-medium text-zinc-600 transition-all duration-300 group-hover/card:gap-3 group-hover/card:text-[var(--c)]">
-          Подробнее
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-transform duration-300 group-hover/card:translate-x-1">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
-      </div>
-    </a>
-  );
-
   if (!isCarousel) {
     return (
       <div className="flex items-stretch justify-center gap-6">
         {services.map((service, i) => (
-          <div key={service.title} className="flex-1 max-w-[340px]">
-            {renderCard(service, i)}
-          </div>
+          <Card key={service.title} service={service} i={i} style={{ flex: "1", maxWidth: "340px" }} />
         ))}
       </div>
     );
@@ -187,7 +200,9 @@ export default function ServicesCarousel() {
         className="scrollbar-hide -mx-2 flex gap-6 overflow-x-auto px-2 pb-4 snap-x snap-mandatory scroll-smooth"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {allItems.map((service, i) => renderCard(service, i))}
+        {allItems.map((service, i) => (
+          <Card key={`${service.title}-${i}`} service={service} i={i} style={{ width: CARD_WIDTH }} />
+        ))}
       </div>
 
       <button
