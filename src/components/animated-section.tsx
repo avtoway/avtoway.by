@@ -7,12 +7,12 @@ interface Props {
   color: string;
   className?: string;
   style?: React.CSSProperties;
-  lineTop?: string;
-}
+  topOffset?: number; // px from top of section
 
-export default function AnimatedSection({ children, color, className, style, lineTop = "top-0" }: Props) {
+export default function AnimatedSection({ children, color, className, style, topOffset = 0 }: Props) {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
+  const [flash, setFlash] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -30,6 +30,18 @@ export default function AnimatedSection({ children, color, className, style, lin
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!visible) return;
+    const raf = requestAnimationFrame(() => {
+      setFlash(true);
+    });
+    const timer = setTimeout(() => setFlash(false), 800);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
+  }, [visible]);
+
   return (
     <section
       ref={ref}
@@ -39,13 +51,15 @@ export default function AnimatedSection({ children, color, className, style, lin
       {children}
 
       <div
-        className={`pointer-events-none absolute left-0 right-0 ${lineTop} h-[2px] transition-all duration-700 ease-out`}
+        className="pointer-events-none absolute left-0 right-0 h-[2px]"
         style={{
+          top: topOffset,
           background: `linear-gradient(to right, transparent, ${color} 15%, ${color} 85%, transparent)`,
           transform: visible ? "scaleX(1)" : "scaleX(0)",
           transformOrigin: "center",
-          opacity: visible ? 1 : 0,
-          boxShadow: visible ? `0 0 18px ${color}60, 0 0 60px ${color}30` : "none",
+          opacity: visible ? 0.5 : 0,
+          boxShadow: flash ? `0 0 30px ${color}70, 0 0 80px ${color}30` : "none",
+          transition: "transform 0.7s ease-out, opacity 0.7s ease-out, box-shadow 0.4s ease-out",
         }}
       />
     </section>

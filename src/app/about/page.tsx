@@ -44,7 +44,7 @@ export default function AboutPage() {
 
       <main>
         <AnimatedSection
-          color="#ef4444" lineTop="top-16"
+          color="#ef4444" topOffset={64}
           className="pt-32 pb-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.hero}, transparent 70%)` }}>
           <div className="pointer-events-none absolute inset-0">
@@ -81,7 +81,7 @@ export default function AboutPage() {
         </AnimatedSection>
 
         <AnimatedSection
-          color="#3b82f6" lineTop="top-0"
+          color="#3b82f6" topOffset={0}
           className="py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.story}, transparent 70%)` }}>
           <div className="relative mx-auto max-w-4xl px-6">
@@ -120,7 +120,7 @@ export default function AboutPage() {
         </AnimatedSection>
 
         <AnimatedSection
-          color="#f59e0b" lineTop="top-0"
+          color="#f59e0b" topOffset={0}
           className="py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.timeline}, transparent 70%)` }}>
           <div className="pointer-events-none absolute inset-0">
@@ -157,7 +157,7 @@ export default function AboutPage() {
         </AnimatedSection>
 
         <AnimatedSection
-          color="#10b981" lineTop="top-0"
+          color="#10b981" topOffset={0}
           className="py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.social}, transparent 70%)` }}>
           <div className="pointer-events-none absolute inset-0">
