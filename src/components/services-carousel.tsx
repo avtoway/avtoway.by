@@ -53,12 +53,26 @@ const services: Service[] = [
   },
 ];
 
-function Card({ service, i, style }: { service: Service; i: number; style?: React.CSSProperties }) {
+const colorMap: Record<string, [string, string]> = {
+  "#ef4444": ["239,68,68", "rgba(239,68,68,0.08)"],
+  "#3b82f6": ["59,130,246", "rgba(59,130,246,0.08)"],
+  "#10b981": ["16,185,129", "rgba(16,185,129,0.08)"],
+  "#f59e0b": ["245,158,11", "rgba(245,158,11,0.08)"],
+};
+
+function Card({ service, i, style, onHover, onLeave: onCardLeave }: {
+  service: Service;
+  i: number;
+  style?: React.CSSProperties;
+  onHover?: (color: string) => void;
+  onLeave?: () => void;
+}) {
   const cardRef = useRef<HTMLAnchorElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
 
   const onEnter = useCallback(() => {
+    onHover?.(service.color);
     const el = cardRef.current;
     if (!el) return;
     el.style.borderColor = service.color;
@@ -73,9 +87,10 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
       iconRef.current.style.background = `linear-gradient(135deg, ${service.color}20, ${service.color}08)`;
       iconRef.current.style.transform = "scale(1.1)";
     }
-  }, [service.color]);
+  }, [service.color, onHover]);
 
   const onLeave = useCallback(() => {
+    onCardLeave?.();
     const el = cardRef.current;
     if (!el) return;
     el.style.borderColor = "#27272a";
@@ -90,7 +105,7 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
       iconRef.current.style.background = "";
       iconRef.current.style.transform = "scale(1)";
     }
-  }, []);
+  }, [onCardLeave]);
 
   return (
     <a
@@ -103,13 +118,14 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.03)_0%,transparent_60%)] pointer-events-none" />
-
-      <div
-        ref={barRef}
-        className="absolute left-0 top-0 h-1 rounded-tl-2xl transition-all duration-500"
-        style={{ background: service.color, width: "0%" }}
-      />
+      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.03)_0%,transparent_60%)] pointer-events-none" />
+        <div
+          ref={barRef}
+          className="absolute left-0 top-0 h-1 rounded-t-2xl transition-all duration-500"
+          style={{ background: service.color, width: "0%" }}
+        />
+      </div>
 
       <div className="relative p-7">
         <div
@@ -133,8 +149,10 @@ function Card({ service, i, style }: { service: Service; i: number; style?: Reac
 
 export default function ServicesCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [hoverColor, setHoverColor] = useState<string | null>(null);
   const realLen = services.length;
   const isCarousel = realLen > 3;
 
@@ -179,62 +197,106 @@ export default function ServicesCarousel() {
     return () => el.removeEventListener("scroll", onScroll);
   }, [isCarousel]);
 
-  if (!isCarousel) {
-    return (
-      <div className="flex items-stretch justify-center gap-6 pt-3">
-        {services.map((service, i) => (
-          <Card key={service.title} service={service} i={i} style={{ flex: "1", maxWidth: "340px" }} />
-        ))}
-      </div>
-    );
-  }
+  const cardHovered = useCallback((color: string) => setHoverColor(color), []);
+  const cardLeft = useCallback(() => setHoverColor(null), []);
+
+  const color = hoverColor ? colorMap[hoverColor] : null;
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <section
+      ref={sectionRef}
+      id="services"
+      className="relative border-t border-zinc-800/50 bg-zinc-950 py-32"
     >
-      <button
-        onClick={goPrev}
-        className="absolute -left-3 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
-        aria-label="Назад"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-
-      <div
-        ref={scrollRef}
-        className="scrollbar-hide -mx-2 flex gap-6 overflow-x-auto px-2 pb-4 pt-3 snap-x snap-mandatory scroll-smooth"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {allItems.map((service, i) => (
-          <Card key={`${service.title}-${i}`} service={service} i={i} style={{ width: CARD_WIDTH }} />
-        ))}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden transition-all duration-700">
+        <div
+          className="absolute -left-40 -top-40 h-96 w-96 animate-gradient rounded-full blur-3xl transition-all duration-700"
+          style={{
+            background: color ? `radial-gradient(circle, ${color[1]}, transparent 70%)` : "radial-gradient(circle, rgba(239,68,68,0.05), transparent 70%)",
+            opacity: color ? 1 : 0.5,
+          }}
+        />
+        <div
+          className="absolute -bottom-40 -right-40 h-96 w-96 animate-gradient rounded-full blur-3xl transition-all duration-700"
+          style={{
+            animationDelay: "-5s",
+            background: color ? `radial-gradient(circle, ${color[1]}, transparent 70%)` : "radial-gradient(circle, rgba(59,130,246,0.05), transparent 70%)",
+            opacity: color ? 1 : 0.5,
+          }}
+        />
       </div>
 
-      <button
-        onClick={goNext}
-        className="absolute -right-3 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
-        aria-label="Вперёд"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="mb-14 text-center opacity-0 animate-reveal revealed">
+          <h2 className="text-3xl font-bold text-white">
+            Наши услуги
+          </h2>
+        </div>
 
-      <div className="relative z-10 mt-6 flex justify-center gap-2">
-        {services.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => scrollTo(i)}
-            className={`h-1.5 rounded-full transition-all ${
-              i === current % realLen
-                ? "w-6 bg-primary shadow-sm shadow-primary/50"
-                : "w-1.5 bg-zinc-700 hover:bg-zinc-500"
-            }`}
-            aria-label={`Услуга ${i + 1}`}
-          />
-        ))}
+        {!isCarousel ? (
+          <div className="flex items-stretch justify-center gap-6 pt-3">
+            {services.map((service, i) => (
+              <div key={service.title} className="flex-1 max-w-[340px]">
+                <Card service={service} i={i} onHover={cardHovered} onLeave={cardLeft} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div
+            className="relative"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <button
+              onClick={goPrev}
+              className="absolute -left-3 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
+              aria-label="Назад"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+
+            <div
+              ref={scrollRef}
+              className="scrollbar-hide -mx-2 flex gap-6 overflow-x-auto px-2 pb-4 pt-3 snap-x snap-mandatory scroll-smooth"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {allItems.map((service, i) => (
+                <Card
+                  key={`${service.title}-${i}`}
+                  service={service}
+                  i={i}
+                  style={{ width: CARD_WIDTH }}
+                  onHover={cardHovered}
+                  onLeave={cardLeft}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={goNext}
+              className="absolute -right-3 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
+              aria-label="Вперёд"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+
+            <div className="relative z-10 mt-6 flex justify-center gap-2">
+              {services.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollTo(i)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === current % realLen
+                      ? "w-6 bg-primary shadow-sm shadow-primary/50"
+                      : "w-1.5 bg-zinc-700 hover:bg-zinc-500"
+                  }`}
+                  aria-label={`Услуга ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }
