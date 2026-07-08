@@ -7,10 +7,10 @@ import ScrollProgress from "@/components/scroll-progress";
 import Reveal from "@/components/reveal";
 
 const sectionColors = {
-  hero: { bg: "rgba(239,68,68,0.04)", border: "#ef4444", name: "красный" },
-  story: { bg: "rgba(59,130,246,0.04)", border: "#3b82f6", name: "синий" },
-  timeline: { bg: "rgba(245,158,11,0.04)", border: "#f59e0b", name: "жёлтый" },
-  social: { bg: "rgba(16,185,129,0.04)", border: "#10b981", name: "зелёный" },
+  hero: { bg: "rgba(239,68,68,0.12)", border: "#ef4444", name: "красный" },
+  story: { bg: "rgba(59,130,246,0.10)", border: "#3b82f6", name: "синий" },
+  timeline: { bg: "rgba(245,158,11,0.10)", border: "#f59e0b", name: "жёлтый" },
+  social: { bg: "rgba(16,185,129,0.10)", border: "#10b981", name: "зелёный" },
 };
 
 const socials = [
@@ -44,9 +44,9 @@ export default function AboutPage() {
       <main>
         <section className="relative overflow-hidden pt-32 pb-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.hero.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#ef4444] to-transparent opacity-30" />
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#ef4444] to-transparent opacity-50" />
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-40 -top-40 h-[500px] w-[500px] animate-gradient rounded-full blur-[100px]" style={{ background: `radial-gradient(circle, ${sectionColors.hero.bg}, transparent 70%)` }} />
+            <div className="absolute -left-40 -top-40 h-[500px] w-[500px] animate-gradient rounded-full blur-[100px]" style={{ background: `radial-gradient(circle, rgba(239,68,68,0.18), transparent 70%)` }} />
           </div>
           <div className="relative mx-auto max-w-4xl px-6">
             <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
@@ -80,7 +80,7 @@ export default function AboutPage() {
 
         <section className="relative overflow-hidden py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.story.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-30" />
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-50" />
           <div className="relative mx-auto max-w-4xl px-6">
             <Reveal>
               <h2 className="mb-8 text-3xl font-bold text-white group">
@@ -118,7 +118,7 @@ export default function AboutPage() {
 
         <section className="relative overflow-hidden py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.timeline.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#f59e0b] to-transparent opacity-30" />
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f59e0b] to-transparent opacity-50" />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]" style={{ background: `radial-gradient(circle, ${sectionColors.timeline.bg}, transparent 70%)` }} />
           </div>
@@ -154,7 +154,7 @@ export default function AboutPage() {
 
         <section className="relative overflow-hidden py-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.social.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#10b981] to-transparent opacity-30" />
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#10b981] to-transparent opacity-50" />
           <div className="pointer-events-none absolute inset-0">
             <div
               className="absolute inset-0 transition-opacity duration-500"
