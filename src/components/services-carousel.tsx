@@ -208,20 +208,43 @@ export default function ServicesCarousel() {
       id="services"
       className="relative border-t border-zinc-800/50 bg-zinc-950 py-32"
     >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden transition-all duration-700">
+      <div
+        className="pointer-events-none absolute inset-0 transition-all duration-1000"
+        style={{
+          background: color
+            ? `radial-gradient(ellipse 80% 60% at 50% 40%, ${color[1]} 0%, transparent 70%)`
+            : "none",
+          opacity: color ? 1 : 0,
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute -left-40 -top-40 h-96 w-96 animate-gradient rounded-full blur-3xl transition-all duration-700"
+          className="absolute -left-40 -top-40 h-[500px] w-[500px] animate-gradient rounded-full blur-[100px] transition-all duration-700"
           style={{
-            background: color ? `radial-gradient(circle, ${color[1]}, transparent 70%)` : "radial-gradient(circle, rgba(239,68,68,0.05), transparent 70%)",
-            opacity: color ? 1 : 0.5,
+            background: color
+              ? `radial-gradient(circle, ${color[1]}, transparent 70%)`
+              : "radial-gradient(circle, rgba(239,68,68,0.04), transparent 70%)",
+            opacity: color ? 0.4 : 0.3,
           }}
         />
         <div
-          className="absolute -bottom-40 -right-40 h-96 w-96 animate-gradient rounded-full blur-3xl transition-all duration-700"
+          className="absolute -bottom-40 right-20 h-[400px] w-[400px] animate-gradient rounded-full blur-[100px] transition-all duration-700"
           style={{
-            animationDelay: "-5s",
-            background: color ? `radial-gradient(circle, ${color[1]}, transparent 70%)` : "radial-gradient(circle, rgba(59,130,246,0.05), transparent 70%)",
-            opacity: color ? 1 : 0.5,
+            animationDelay: "-7s",
+            background: color
+              ? `radial-gradient(circle, ${color[1]}, transparent 70%)`
+              : "radial-gradient(circle, rgba(59,130,246,0.04), transparent 70%)",
+            opacity: color ? 0.4 : 0.3,
+          }}
+        />
+        <div
+          className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 animate-gradient rounded-full blur-[80px] transition-all duration-700"
+          style={{
+            animationDelay: "-3.5s",
+            background: color
+              ? `radial-gradient(circle, ${color[1]}, transparent 70%)`
+              : "transparent",
+            opacity: color ? 0.25 : 0,
           }}
         />
       </div>
