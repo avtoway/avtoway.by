@@ -5,7 +5,7 @@ import Link from "next/link";
 const items = [
   { label: "Главная", href: "/" },
   { label: "Услуги", href: "", hasArrow: true },
-  { label: "О нас", href: "#about" },
+  { label: "О нас", href: "/about" },
   { label: "Партнёры", href: "" },
   { label: "Контакты", href: "" },
 ];
@@ -22,7 +22,7 @@ export default function MainNav() {
         const shared =
           "animate-nav-item group relative cursor-pointer rounded-full px-4 py-2 text-zinc-400 transition-all duration-300 hover:text-white";
 
-        if (item.href === "/") {
+        if (item.href === "/" || item.href === "/about") {
           return (
             <Link
               key={item.label}
