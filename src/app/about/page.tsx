@@ -42,9 +42,8 @@ export default function AboutPage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden pt-32 pb-24"
+        <section className="relative overflow-hidden border-t-2 border-[#ef4444]/30 pt-32 pb-24"
           style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${sectionColors.hero.bg}, transparent 70%)` }}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#ef4444] to-transparent opacity-50" />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 -top-40 h-[500px] w-[500px] animate-gradient rounded-full blur-[100px]" style={{ background: `radial-gradient(circle, rgba(239,68,68,0.18), transparent 70%)` }} />
           </div>
