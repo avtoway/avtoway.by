@@ -54,10 +54,10 @@ const services: Service[] = [
 ];
 
 const colorMap: Record<string, [string, string]> = {
-  "#ef4444": ["239,68,68", "rgba(239,68,68,0.08)"],
-  "#3b82f6": ["59,130,246", "rgba(59,130,246,0.08)"],
-  "#10b981": ["16,185,129", "rgba(16,185,129,0.08)"],
-  "#f59e0b": ["245,158,11", "rgba(245,158,11,0.08)"],
+  "#ef4444": ["239,68,68", "rgba(239,68,68,0.15)"],
+  "#3b82f6": ["59,130,246", "rgba(59,130,246,0.15)"],
+  "#10b981": ["16,185,129", "rgba(16,185,129,0.15)"],
+  "#f59e0b": ["245,158,11", "rgba(245,158,11,0.15)"],
 };
 
 function Card({ service, i, style, onHover, onLeave: onCardLeave }: {
@@ -224,7 +224,7 @@ export default function ServicesCarousel() {
             background: color
               ? `radial-gradient(circle, ${color[1]}, transparent 70%)`
               : "radial-gradient(circle, rgba(239,68,68,0.04), transparent 70%)",
-            opacity: color ? 0.4 : 0.3,
+            opacity: color ? 0.6 : 0.3,
           }}
         />
         <div
@@ -234,7 +234,7 @@ export default function ServicesCarousel() {
             background: color
               ? `radial-gradient(circle, ${color[1]}, transparent 70%)`
               : "radial-gradient(circle, rgba(59,130,246,0.04), transparent 70%)",
-            opacity: color ? 0.4 : 0.3,
+            opacity: color ? 0.6 : 0.3,
           }}
         />
         <div
@@ -244,7 +244,7 @@ export default function ServicesCarousel() {
             background: color
               ? `radial-gradient(circle, ${color[1]}, transparent 70%)`
               : "transparent",
-            opacity: color ? 0.25 : 0,
+            opacity: color ? 0.4 : 0,
           }}
         />
       </div>
