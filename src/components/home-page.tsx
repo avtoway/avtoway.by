@@ -5,24 +5,7 @@ import HeroBackground from "@/components/hero-background";
 import ScrollProgress from "@/components/scroll-progress";
 import SiteLogo from "@/components/site-logo";
 import MainNav from "@/components/main-nav";
-
-const services = [
-  {
-    title: "Видеообзоры",
-    desc: "Профессиональные обзоры и тест-драйвы автомобилей",
-    icon: "▶",
-  },
-  {
-    title: "Консультации",
-    desc: "Помощь в выборе и проверке авто перед покупкой",
-    icon: "✕",
-  },
-  {
-    title: "Аренда авто",
-    desc: "Скоро — аренда автомобилей для любых целей",
-    icon: "◉",
-  },
-];
+import ServicesCarousel from "@/components/services-carousel";
 
 export default async function HomePage() {
   const channelId = process.env.YOUTUBE_CHANNEL_ID ?? "";
@@ -128,24 +111,9 @@ export default async function HomePage() {
                 Наши услуги
               </h2>
             </Reveal>
-            <div className="grid gap-6 sm:grid-cols-3">
-              {services.map((service, i) => (
-                <Reveal key={service.title} delay={150 * (i + 1)}>
-                  <div className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all hover:border-zinc-700 hover:bg-zinc-800/50 hover:shadow-lg">
-                    <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative z-10">
-                      <span className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        {service.icon}
-                      </span>
-                      <h3 className="mb-2 text-lg font-semibold text-white">
-                        {service.title}
-                      </h3>
-                      <p className="text-zinc-400">{service.desc}</p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+            <Reveal delay={150}>
+              <ServicesCarousel />
+            </Reveal>
           </div>
         </section>
       </main>
