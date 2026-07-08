@@ -104,8 +104,12 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section id="services" className="border-t border-zinc-800/50 py-32">
-          <div className="mx-auto max-w-6xl px-6">
+        <section id="services" className="relative border-t border-zinc-800/50 bg-zinc-950 py-32">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -left-40 -top-40 h-96 w-96 animate-gradient rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute -bottom-40 -right-40 h-96 w-96 animate-gradient rounded-full bg-blue-500/5 blur-3xl" style={{ animationDelay: "-5s" }} />
+          </div>
+          <div className="relative mx-auto max-w-6xl px-6">
             <Reveal>
               <h2 className="mb-14 text-center text-3xl font-bold text-white">
                 Наши услуги
