@@ -26,8 +26,8 @@ export default function MainNav() {
           return (
             <Link
               key={item.label}
-              href="/"
-              onClick={() => handleClick("/")}
+              href={item.href}
+              onClick={() => handleClick(item.href)}
               className={`${shared} no-underline`}
               style={{ animationDelay: delay }}
             >
