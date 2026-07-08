@@ -43,7 +43,7 @@ const services = [
 ];
 
 const glassCard =
-  "relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1";
+  "relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/90 shadow-lg shadow-black/20 backdrop-blur-lg transition-all duration-500 hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-black/30";
 
 export default function ServicesCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -104,7 +104,7 @@ export default function ServicesCarousel() {
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.06)_0%,_transparent_60%)] pointer-events-none" />
       <div className="relative p-7">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-white/[0.06] text-white backdrop-blur-sm ring-1 ring-white/10 transition-transform duration-500 group-hover/card:scale-110 group-hover/card:text-primary">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-700/50 to-zinc-800/50 text-zinc-200 shadow-inner shadow-white/5 transition-all duration-500 group-hover/card:scale-110 group-hover/card:from-primary/20 group-hover/card:to-primary/5 group-hover/card:text-primary">
           {service.icon}
         </div>
         <h3 className="mb-3 text-xl font-bold tracking-tight text-white">
@@ -123,9 +123,9 @@ export default function ServicesCarousel() {
 
   if (!isCarousel) {
     return (
-      <div className="flex items-stretch justify-center gap-5">
+      <div className="flex items-stretch justify-center gap-6">
         {services.map((service, i) => (
-          <div key={service.title} className="flex-1 max-w-[350px]">
+          <div key={service.title} className="flex-1 max-w-[360px]">
             {renderCard(service, i)}
           </div>
         ))}
