@@ -65,14 +65,13 @@ export default function AboutPage() {
         </div>
         <div className="relative mx-auto max-w-4xl px-6">
           <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
-            <div className="group shrink-0 animate-float" style={{ animationDuration: "5s" }}>
-              <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-xl shadow-black/30 transition-all duration-500 group-hover:border-[#ef4444]/50 group-hover:shadow-xl group-hover:shadow-[#ef4444]/20 sm:h-44 sm:w-44">
+            <div className="shrink-0 animate-float" style={{ animationDuration: "5s" }}>
+              <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-lg shadow-black/20 transition-shadow duration-300 hover:border-[#ef4444]/50 hover:shadow-lg hover:shadow-[#ef4444]/10 sm:h-44 sm:w-44">
                 <picture>
                   <source srcSet="/images/avatar.webp" type="image/webp" />
-                  <img src="/images/avatar.jpg" alt="АВТОWAY" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src="/images/avatar.jpg" alt="АВТОWAY" className="h-full w-full object-cover" />
                 </picture>
                 <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
               </div>
             </div>
             <div>
