@@ -32,14 +32,13 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
               <img
                 src={video.thumbnails.high}
                 alt={video.title}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover/card:scale-110"
+                className="h-full w-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-black/0 transition-colors group-hover/card:bg-black/10" />
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
             </div>
             <div className="p-4">
-              <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-200 transition-colors group-hover/card:text-white">
+              <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-200">
                 {video.title}
               </h3>
               <p className="mt-1.5 text-xs text-zinc-600">
