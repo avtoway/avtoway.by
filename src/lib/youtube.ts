@@ -1,14 +1,4 @@
-export interface YTVideo {
-  id: string;
-  title: string;
-  publishedAt: string;
-  thumbnails: {
-    default: string;
-    medium: string;
-    high: string;
-    maxres: string;
-  };
-}
+import type { YTVideo } from "@/shared/types/youtube";
 
 const YT_API = "https://www.googleapis.com/youtube/v3";
 
@@ -27,7 +17,9 @@ export async function getChannelVideos(
 ): Promise<YTVideo[]> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
-    console.error("YOUTUBE_API_KEY not configured");
+    if (typeof window === "undefined") {
+      console.error("YOUTUBE_API_KEY not configured. Add it to .env.local");
+    }
     return [];
   }
 

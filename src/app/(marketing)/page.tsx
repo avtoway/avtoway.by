@@ -1,5 +1,5 @@
 import HomePage from "@/components/home-page";
 
-export default function Home() {
+export default function MarketingHome() {
   return <HomePage />;
 }

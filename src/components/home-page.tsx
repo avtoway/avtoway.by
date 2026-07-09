@@ -2,25 +2,17 @@ import { getChannelVideos } from "@/lib/youtube";
 import VideoCarousel from "@/components/video-carousel";
 import Reveal from "@/components/reveal";
 import HeroBackground from "@/components/hero-background";
-import ScrollProgress from "@/components/scroll-progress";
-import SiteLogo from "@/components/site-logo";
-import MainNav from "@/components/main-nav";
 import ServicesCarousel from "@/components/services-carousel";
+import { IconYouTube, IconArrowRight } from "@/shared/ui/icons";
+import { container } from "@/di/container";
 
 export default async function HomePage() {
   const channelId = process.env.YOUTUBE_CHANNEL_ID ?? "";
   const videos = channelId ? await getChannelVideos(channelId, 15) : [];
+  const services = await container.getServiceRepository().getActive();
   return (
     <>
-      <ScrollProgress />
-      <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <SiteLogo />
-          <MainNav />
-        </div>
-      </header>
-
-      <main>
+      
         <section className="relative flex min-h-dvh items-center justify-center overflow-hidden">
           <HeroBackground />
           <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
@@ -42,7 +34,7 @@ export default async function HomePage() {
                   rel="noopener noreferrer"
                   className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-sm font-medium text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 active:scale-95"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <IconYouTube className="size-[18px]" />
                   Смотреть видео
                 </a>
                 <a
@@ -84,7 +76,7 @@ export default async function HomePage() {
                   className="inline-flex h-11 items-center gap-2 rounded-full border border-zinc-700 bg-white/5 px-6 text-sm font-medium text-zinc-300 backdrop-blur-sm transition-all hover:border-zinc-500 hover:text-white active:scale-95"
                 >
                   Подробнее о проекте
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  <IconArrowRight />
                 </a>
               </div>
             </Reveal>
@@ -107,14 +99,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <ServicesCarousel />
-      </main>
-
-      <footer className="border-t border-zinc-800/50 py-10">
-        <div className="mx-auto max-w-5xl px-6 text-center text-sm text-zinc-600">
-          <p>© {new Date().getFullYear()} АВТОWAY. Все права защищены.</p>
-        </div>
-      </footer>
+        <ServicesCarousel items={services} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { useInView } from "@/lib/use-in-view";
+import { useInView } from "@/shared/lib/hooks/use-in-view";
 
 export default function Reveal({
   children,

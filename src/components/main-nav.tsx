@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-const items = [
-  { label: "Главная", href: "/" },
-  { label: "Услуги", href: "", hasArrow: true },
-  { label: "О нас", href: "/about" },
-  { label: "Партнёры", href: "" },
-  { label: "Контакты", href: "" },
-];
+import { NAV_ITEMS } from "@/shared/config/navigation";
 
 export default function MainNav() {
   const handleClick = (href: string) => {
@@ -17,7 +10,7 @@ export default function MainNav() {
 
   return (
     <nav className="animate-nav flex items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5 text-base font-medium backdrop-blur-sm sm:gap-3 sm:px-4">
-      {items.map((item, i) => {
+      {NAV_ITEMS.map((item, i) => {
         const delay = `${(i + 1) * 0.05}s`;
         const shared =
           "animate-nav-item group relative cursor-pointer rounded-full px-4 py-2 text-zinc-400 transition-all duration-300 hover:text-white";
