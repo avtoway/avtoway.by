@@ -41,9 +41,8 @@ export default function AboutPage() {
   return (
     <>
       {/* SECTION 1: Hero */}
-      <AnimatedSection
-        color="#ef4444" topOffset={64}
-        className="pt-32 pb-24"
+      <section
+        className="relative overflow-hidden pt-32 pb-24"
         style={{
           background: "linear-gradient(-45deg, rgba(239,68,68,0.06), rgba(59,130,246,0.04), rgba(239,68,68,0.06))",
           backgroundSize: "400% 400%",
@@ -92,7 +91,7 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
 
       {/* SECTION 2: Story */}
       <AnimatedSection
