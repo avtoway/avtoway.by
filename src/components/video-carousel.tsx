@@ -16,7 +16,6 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
 
   return (
     <div className="relative">
-      <div className="absolute -inset-6 rounded-3xl bg-white/[0.02] backdrop-blur-sm" />
       <Carousel
         items={videos}
         cardWidth={360}
@@ -27,7 +26,7 @@ export default function VideoCarousel({ videos }: { videos: YTVideo[] }) {
             href={getVideoUrl(video.id)}
             target="_blank"
             rel="noopener noreferrer"
-            className="group/card block h-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-zinc-600 hover:shadow-xl hover:shadow-red-500/10"
+            className="group/card block h-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/50 transition-all duration-500 hover:-translate-y-1 hover:border-zinc-600 hover:shadow-xl hover:shadow-red-500/10"
           >
             <div className="relative aspect-video overflow-hidden bg-zinc-800">
               <img
