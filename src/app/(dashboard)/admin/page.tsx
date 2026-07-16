@@ -51,11 +51,13 @@ export default function AdminDashboard() {
       const me = await fetch("/api/auth/me").then(r => r.json());
       if (!me.ok) { router.push("/admin/login"); return; }
       const safeJson = (r: Response): Promise<any> => r.json().catch(() => ({ ok: false }));
+      const hasAudit = me.data.permissions?.includes("audit.view");
+      const hasUsers = me.data.permissions?.includes("users.manage");
       const [uRes, sRes, pRes, lRes] = await Promise.all([
-        fetch("/api/users").then(safeJson),
+        hasUsers ? fetch("/api/users").then(safeJson) : Promise.resolve({ ok: false, data: [] }),
         fetch("/api/services").then(safeJson),
         fetch("/api/partners").then(safeJson),
-        fetch("/api/audit-logs").then(safeJson),
+        hasAudit ? fetch("/api/audit-logs").then(safeJson) : Promise.resolve({ ok: false, data: [] }),
       ]);
       setData({
         user: me.data,
@@ -103,11 +105,12 @@ export default function AdminDashboard() {
 
       {/* Stats + Recent activity */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Stats cards */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
-          <p className="text-3xl font-bold text-white">{data.userCount}</p>
-          <p className="mt-1 text-xs text-zinc-500">Сотрудников</p>
-        </div>
+        {hasPerm("users.manage") && (
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
+            <p className="text-3xl font-bold text-white">{data.userCount}</p>
+            <p className="mt-1 text-xs text-zinc-500">Сотрудников</p>
+          </div>
+        )}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
           <p className="text-3xl font-bold text-white">{data.serviceCount}</p>
           <p className="mt-1 text-xs text-zinc-500">Услуг</p>
@@ -117,29 +120,30 @@ export default function AdminDashboard() {
           <p className="mt-1 text-xs text-zinc-500">Партнёров</p>
         </div>
 
-         {/* Recent logs */}
-        <div className="col-span-full rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
-          <h3 className="mb-3 text-sm font-semibold text-zinc-300">Последние действия</h3>
-          {data.recentLogs.length === 0 ? (
-            <p className="text-xs text-zinc-600">Нет записей</p>
-          ) : (
-            <div className="space-y-2">
-              {data.recentLogs.map(log => (
-                <div key={log.id} className="flex items-center gap-3 text-xs text-zinc-500">
-                  <Link href="/admin/audit-logs" className="flex items-center gap-3 truncate transition-colors hover:text-zinc-300">
-                    <span className={`w-16 shrink-0 rounded px-1.5 py-0.5 text-center text-[10px] font-medium uppercase ${
-                      log.action === "CREATE" ? "bg-green-900/50 text-green-300"
-                      : log.action === "UPDATE" ? "bg-blue-900/50 text-blue-300"
-                      : log.action === "DELETE" ? "bg-red-900/50 text-red-300"
-                      : "bg-zinc-800 text-zinc-400"
-                    }`}>{log.action}</span>
-                    <span className="truncate">{describeLog(log)}</span>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {hasPerm("audit.view") && (
+          <div className="col-span-full rounded-xl border border-zinc-800 bg-zinc-900/30 p-5">
+            <h3 className="mb-3 text-sm font-semibold text-zinc-300">Последние действия</h3>
+            {data.recentLogs.length === 0 ? (
+              <p className="text-xs text-zinc-600">Нет записей</p>
+            ) : (
+              <div className="space-y-2">
+                {data.recentLogs.map(log => (
+                  <div key={log.id} className="flex items-center gap-3 text-xs text-zinc-500">
+                    <Link href="/admin/audit-logs" className="flex items-center gap-3 truncate transition-colors hover:text-zinc-300">
+                      <span className={`w-16 shrink-0 rounded px-1.5 py-0.5 text-center text-[10px] font-medium uppercase ${
+                        log.action === "CREATE" ? "bg-green-900/50 text-green-300"
+                        : log.action === "UPDATE" ? "bg-blue-900/50 text-blue-300"
+                        : log.action === "DELETE" ? "bg-red-900/50 text-red-300"
+                        : "bg-zinc-800 text-zinc-400"
+                      }`}>{log.action}</span>
+                      <span className="truncate">{describeLog(log)}</span>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
