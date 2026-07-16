@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface DashLog {
-  id: string; action: string; entity: string; entityId: string;
+  id: string; userId: string; action: string; entity: string; entityId: string;
   createdAt: string; userName?: string; userLogin?: string; details?: string | null;
 }
 

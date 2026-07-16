@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { getAuthUser } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
+import { validateOrResponse } from "@/shared/lib/validation";
+import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 
 export async function PUT(
@@ -15,11 +17,14 @@ export async function PUT(
   }
 
   const { slug } = await params;
+  const body = await request.json().catch(() => ({}));
+  const parsed = validateOrResponse(ServiceSchema.partial(), body);
+  if (!("validated" in parsed)) return parsed;
+
   const serviceRepo = container.get<ServiceRepository>("ServiceRepository");
 
   try {
-    const body = (await request.json()) as Record<string, unknown>;
-    const updated = await serviceRepo.update(slug, body);
+    const updated = await serviceRepo.update(slug, parsed.data);
 
     await createAuditLog({
       userId: user.id,
@@ -31,7 +36,7 @@ export async function PUT(
 
     return NextResponse.json({ ok: true, data: updated });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Invalid request";
+    const message = e instanceof Error ? e.message : "Неверный запрос";
     return NextResponse.json({ ok: false, error: message }, { status: message === "Услуга не найдена" ? 404 : 400 });
   }
 }

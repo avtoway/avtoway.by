@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { getAuthUser } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
+import { validateOrResponse } from "@/shared/lib/validation";
+import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 
 export async function PUT(
@@ -15,11 +17,14 @@ export async function PUT(
   }
 
   const { id } = await params;
+  const body = await request.json().catch(() => ({}));
+  const parsed = validateOrResponse(PartnerSchema.partial(), body);
+  if (!("validated" in parsed)) return parsed;
+
   const partnerRepo = container.get<PartnerRepository>("PartnerRepository");
 
   try {
-    const body = (await request.json()) as Record<string, unknown>;
-    const updated = await partnerRepo.update(id, body);
+    const updated = await partnerRepo.update(id, parsed.data);
 
     await createAuditLog({
       userId: user.id,
@@ -31,7 +36,7 @@ export async function PUT(
 
     return NextResponse.json({ ok: true, data: updated });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Invalid request";
+    const message = e instanceof Error ? e.message : "Неверный запрос";
     const status = message === "Партнёр не найден" ? 404 : 400;
     return NextResponse.json({ ok: false, error: message }, { status });
   }
@@ -62,7 +67,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true, data: { deleted: id } });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Invalid request";
+    const message = e instanceof Error ? e.message : "Неверный запрос";
     return NextResponse.json({ ok: false, error: message }, { status: 404 });
   }
 }
