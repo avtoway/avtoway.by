@@ -28,44 +28,61 @@ const ENTITY_LABEL: Record<string, string> = {
   Partner: "Партнёр",
 };
 
-function cleanLogin(login?: string) {
-  return login ? `@${login}` : "";
+const FIELD_LABEL: Record<string, string> = {
+  name: "имя", login: "логин", email: "email", phone: "телефон",
+  birthDate: "дату рождения", telegram: "Telegram", position: "должность",
+  workSchedule: "график", hireDate: "дату найма", bio: "о себе",
+  photo: "фото", password: "пароль",
+  title: "название", description: "описание", slug: "slug",
+  icon: "иконку", color: "цвет", isActive: "активность",
+  sortOrder: "порядок",
+};
+
+function describeWho(log: LogEntry): string {
+  return log.userName || log.userLogin || log.userId.slice(0, 8);
+}
+
+function describeChanges(fields: string[]): string {
+  const labels = fields.map(f => FIELD_LABEL[f] || f).filter(Boolean);
+  if (labels.length === 0) return "";
+  if (labels.length <= 3) return labels.join(", ");
+  return labels.slice(0, 3).join(", ") + ` и ещё ${labels.length - 3}`;
 }
 
 function actionDescription(log: LogEntry): string {
   const action = ACTION_LABEL[log.action] ?? log.action;
+  const who = describeWho(log);
+
+  if (log.details) {
+    try {
+      const d = JSON.parse(log.details);
+
+      if (log.entity === "User" && log.action === "CREATE" && d.login) {
+        return `${who} создал(а) пользователя ${d.login}`;
+      }
+      if (log.entity === "User" && log.action === "DELETE") {
+        return `${who} удалил(а) пользователя`;
+      }
+      if (log.entity === "User" && log.action === "UPDATE") {
+        const changed = describeChanges(d.changes);
+        if (changed) return `${who} изменил(а) ${changed}`;
+      }
+
+      if (log.entity === "Service" && d.title) {
+        return `${who} ${action.toLowerCase()} услугу «${d.title}»`;
+      }
+
+      if (log.entity === "Partner" && d.name) {
+        return `${who} ${action.toLowerCase()} партнёра «${d.name}»`;
+      }
+
+      if (log.entity === "Role" && d.name) {
+        return `${who} ${action.toLowerCase()} роль «${d.name}»`;
+      }
+    } catch {}
+  }
+
   const entity = ENTITY_LABEL[log.entity] ?? log.entity;
-  const who = log.userName ?? log.userLogin ?? log.userId.slice(0, 8);
-
-  if (log.entity === "User" && log.details) {
-    try {
-      const d = JSON.parse(log.details);
-      if (d.login) return `${who} ${action.toLowerCase()} пользователя ${d.login}`;
-      if (d.changes?.length) return `${who} изменил(а) профиль`;
-    } catch {}
-  }
-
-  if (log.entity === "Service" && log.details) {
-    try {
-      const d = JSON.parse(log.details);
-      if (d.title) return `${who} ${action.toLowerCase()} услугу «${d.title}»`;
-    } catch {}
-  }
-
-  if (log.entity === "Partner" && log.details) {
-    try {
-      const d = JSON.parse(log.details);
-      if (d.name) return `${who} ${action.toLowerCase()} партнёра «${d.name}»`;
-    } catch {}
-  }
-
-  if (log.entity === "Role" && log.details) {
-    try {
-      const d = JSON.parse(log.details);
-      if (d.name) return `${who} ${action.toLowerCase()} роль «${d.name}»`;
-    } catch {}
-  }
-
   return `${who} — ${action.toLowerCase()} ${entity.toLowerCase()}`;
 }
 
@@ -140,7 +157,7 @@ export default function AdminAuditLogsPage() {
                     <tr key={`${l.id}-detail`} className="bg-slate-900/30">
                       <td colSpan={3} className="px-4 py-3">
                         <div className="space-y-1 text-xs text-slate-400">
-                          <p><span className="text-slate-500">Пользователь:</span> {l.userName ?? l.userLogin ?? l.userId} {cleanLogin(l.userLogin)}</p>
+                          <p><span className="text-slate-500">Пользователь:</span> {describeWho(l)}{l.userLogin ? ` @${l.userLogin}` : ""}</p>
                           <p><span className="text-slate-500">Тип:</span> {badge(l.action)} <span className="ml-2 text-slate-500">{ENTITY_LABEL[l.entity] ?? l.entity}</span></p>
                           <p><span className="text-slate-500">ID сущности:</span> <span className="font-mono">{l.entityId}</span></p>
                           {l.details && (

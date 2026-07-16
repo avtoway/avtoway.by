@@ -12,8 +12,8 @@ function toAuditLog(row: any): AuditLog {
     entityId: row.entityId,
     details: row.details,
     createdAt: row.createdAt?.toISOString?.() ?? row.createdAt,
-    userName: row.user?.profile?.name ?? row.user?.login ?? undefined,
-    userLogin: row.user?.login ?? undefined,
+    userName: (row.user?.profile?.name || row.user?.login || undefined) as string | undefined,
+    userLogin: (row.user?.login || undefined) as string | undefined,
   };
 }
 
