@@ -30,6 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Prisma
+prisma/migrations/*/migration_lock.toml
+
 # snapshot backups (local copies, not needed in repo)
 snapshots/
 
@@ -42,3 +45,12 @@ snapshots/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# Allure report
+/allure-report/
+/allure-results/
+
+# Local SQLite database
+/data/

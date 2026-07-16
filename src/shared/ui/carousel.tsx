@@ -31,11 +31,11 @@ export default function Carousel<T>({
 
   const wrap = (i: number) => ((i % n) + n) % n;
 
-  const peekLeft = items[wrap(current - 1)];
-  const card0 = items[wrap(current)];
-  const card1 = items[wrap(current + 1)];
-  const card2 = items[wrap(current + 2)];
-  const peekRight = items[wrap(current + 3)];
+  const peekLeft = items[wrap(current - 1)]!;
+  const card0 = items[wrap(current)]!;
+  const card1 = items[wrap(current + 1)]!;
+  const card2 = items[wrap(current + 2)]!;
+  const peekRight = items[wrap(current + 3)]!;
 
   const viewportWidth = 2 * peekWidth + 3 * cardWidth + 4 * gap;
 

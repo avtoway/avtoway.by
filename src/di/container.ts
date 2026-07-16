@@ -1,14 +1,16 @@
-import { MemoryServiceRepository } from "@/entities/service/service.memory.repository";
-import type { ServiceRepository } from "@/entities/service/service.repository";
-
 class Container {
-  private _serviceRepo: ServiceRepository | null = null;
+  private registry = new Map<string, unknown>();
 
-  getServiceRepository(): ServiceRepository {
-    if (!this._serviceRepo) {
-      this._serviceRepo = new MemoryServiceRepository();
+  register<T>(token: string, instance: T): void {
+    this.registry.set(token, instance);
+  }
+
+  get<T>(token: string): T {
+    const instance = this.registry.get(token);
+    if (!instance) {
+      throw new Error(`No instance registered for token: ${token}`);
     }
-    return this._serviceRepo;
+    return instance as T;
   }
 }
 

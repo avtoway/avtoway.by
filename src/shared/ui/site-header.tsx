@@ -1,8 +1,6 @@
-"use client";
-
-import ScrollProgress from "@/components/scroll-progress";
-import SiteLogo from "@/components/site-logo";
-import MainNav from "@/components/main-nav";
+import ScrollProgress from "@/shared/ui/scroll-progress";
+import SiteLogo from "@/shared/ui/site-logo";
+import MainNav from "@/shared/ui/main-nav";
 
 export default function SiteHeader() {
   return (
