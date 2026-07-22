@@ -5,6 +5,7 @@ import { container } from "@/di/container";
 import { getAuthUser, hasPermission } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
+import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError, toApiError } from "@/shared/lib/errors";
 import { ProfileUpdateSchema } from "@/entities/user/user.schema";
 import type { UserRepository } from "@/entities/user/user.repository";
 
@@ -12,115 +13,96 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const currentUser = await getAuthUser();
-  if (!currentUser) {
-    return NextResponse.json({ ok: false, error: "Не авторизован" }, { status: 401 });
-  }
+  try {
+    const currentUser = await getAuthUser();
+    if (!currentUser) throw new AuthError();
 
-  const { id } = await params;
-  if (id !== currentUser.id && !hasPermission(currentUser, "users.manage")) {
-    return NextResponse.json({ ok: false, error: "Доступ запрещён" }, { status: 403 });
-  }
+    const { id } = await params;
+    if (id !== currentUser.id && !hasPermission(currentUser, "users.manage")) throw new ForbiddenError();
 
-  const repo = container.get<UserRepository>("UserRepository");
-  const data = await repo.getById(id);
-  if (!data) {
-    return NextResponse.json({ ok: false, error: "Пользователь не найден" }, { status: 404 });
-  }
+    const repo = container.get<UserRepository>("UserRepository");
+    const data = await repo.getById(id);
+    if (!data) throw new NotFoundError("Пользователь не найден");
 
-  return NextResponse.json({ ok: true, data });
+    return NextResponse.json({ ok: true, data });
+  } catch (e) { return toApiError(e); }
 }
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const currentUser = await getAuthUser();
-  if (!currentUser) {
-    return NextResponse.json({ ok: false, error: "Не авторизован" }, { status: 401 });
-  }
+  try {
+    const currentUser = await getAuthUser();
+    if (!currentUser) throw new AuthError();
 
-  const { id } = await params;
-  if (id !== currentUser.id && !hasPermission(currentUser, "users.manage")) {
-    return NextResponse.json({ ok: false, error: "Доступ запрещён" }, { status: 403 });
-  }
-  const canAssignRoles = hasPermission(currentUser, "users.roles");
+    const { id } = await params;
+    if (id !== currentUser.id && !hasPermission(currentUser, "users.manage")) throw new ForbiddenError();
+    const canAssignRoles = hasPermission(currentUser, "users.roles");
 
-  const repo = container.get<UserRepository>("UserRepository");
-  const existing = await repo.getById(id);
-  if (!existing) {
-    return NextResponse.json({ ok: false, error: "Пользователь не найден" }, { status: 404 });
-  }
+    const repo = container.get<UserRepository>("UserRepository");
+    const existing = await repo.getById(id);
+    if (!existing) throw new NotFoundError("Пользователь не найден");
 
-  const body = await request.json().catch(() => ({}));
-  const parsed = validateOrResponse(ProfileUpdateSchema, body);
-  if (!("validated" in parsed)) return parsed;
+    const body = await request.json().catch(() => ({}));
+    const parsed = validateOrResponse(ProfileUpdateSchema, body);
+    if (!("validated" in parsed)) return parsed;
 
-  // Password change
-  let hashedPassword: string | undefined;
-  if (typeof body.newPassword === "string" && body.newPassword.length > 0) {
-    if (body.newPassword.length < 6) {
-      return NextResponse.json({ ok: false, error: "Минимум 6 символов" }, { status: 400 });
+    let hashedPassword: string | undefined;
+    if (typeof body.newPassword === "string" && body.newPassword.length > 0) {
+      if (body.newPassword.length < 6) throw new ValidationError("Минимум 6 символов");
+      const auth = await repo.getByLogin(existing.login);
+      if (!auth || !body.oldPassword || !await bcrypt.compare(body.oldPassword as string, auth.password)) {
+        throw new ForbiddenError("Неверный текущий пароль");
+      }
+      hashedPassword = await bcrypt.hash(body.newPassword as string, 10);
     }
-    const auth = await repo.getByLogin(existing.login);
-    if (!auth || !body.oldPassword || !await bcrypt.compare(body.oldPassword as string, auth.password)) {
-      return NextResponse.json({ ok: false, error: "Неверный текущий пароль" }, { status: 403 });
+
+    const updateData: Record<string, unknown> = {};
+    for (const field of ["name", "email", "phone", "photo", "position",
+      "birthDate", "workSchedule", "hireDate", "telegram", "bio"]) {
+      if ((body as Record<string, unknown>)[field] !== undefined) updateData[field] = (body as Record<string, unknown>)[field];
     }
-    hashedPassword = await bcrypt.hash(body.newPassword as string, 10);
-  }
-
-  // Update user
-  const updateData: Record<string, unknown> = {};
-  for (const field of ["name", "email", "phone", "photo", "position",
-    "birthDate", "workSchedule", "hireDate", "telegram", "bio"]) {
-    if ((body as Record<string, unknown>)[field] !== undefined) updateData[field] = (body as Record<string, unknown>)[field];
-  }
-  if (typeof body.login === "string") {
-    const dup = await repo.getByLogin(body.login);
-    if (dup && dup.id !== id) {
-      return NextResponse.json({ ok: false, error: "Этот логин уже занят" }, { status: 409 });
+    if (typeof body.login === "string") {
+      const dup = await repo.getByLogin(body.login);
+      if (dup && dup.id !== id) throw new ConflictError("Этот логин уже занят");
+      updateData.login = body.login;
     }
-    updateData.login = body.login;
-  }
-  await repo.update(id, updateData, hashedPassword);
+    await repo.update(id, updateData, hashedPassword);
 
-  // Update roles
-  if (Array.isArray(body.roleIds)) {
-    if (!canAssignRoles) {
-      return NextResponse.json({ ok: false, error: "Нет прав для назначения ролей" }, { status: 403 });
+    if (Array.isArray(body.roleIds)) {
+      if (!canAssignRoles) throw new ForbiddenError("Нет прав для назначения ролей");
+      await repo.assignRoles(id, body.roleIds as string[]);
     }
-    await repo.assignRoles(id, body.roleIds as string[]);
-  }
 
-  await createAuditLog({
-    userId: currentUser!.id, action: "UPDATE", entity: "User", entityId: id,
-    details: { changes: Object.keys(body) },
-  });
+    await createAuditLog({
+      userId: currentUser!.id, action: "UPDATE", entity: "User", entityId: id,
+      details: { changes: Object.keys(body) },
+    });
 
-  const data = await repo.getById(id);
-  return NextResponse.json({ ok: true, data });
+    const data = await repo.getById(id);
+    return NextResponse.json({ ok: true, data });
+  } catch (e) { return toApiError(e); }
 }
 
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const currentUser = await getAuthUser();
-  if (!hasPermission(currentUser, "users.manage")) {
-    return NextResponse.json({ ok: false, error: "Доступ запрещён" }, { status: 403 });
-  }
+  try {
+    const currentUser = await getAuthUser();
+    if (!hasPermission(currentUser, "users.manage")) throw new ForbiddenError();
 
-  const { id } = await params;
-  if (id === currentUser!.id) {
-    return NextResponse.json({ ok: false, error: "Нельзя удалить себя" }, { status: 400 });
-  }
+    const { id } = await params;
+    if (id === currentUser!.id) throw new ValidationError("Нельзя удалить себя");
 
-  const repo = container.get<UserRepository>("UserRepository");
-  await repo.delete(id);
+    const repo = container.get<UserRepository>("UserRepository");
+    await repo.delete(id);
 
-  await createAuditLog({
-    userId: currentUser!.id, action: "DELETE", entity: "User", entityId: id, details: {},
-  });
+    await createAuditLog({
+      userId: currentUser!.id, action: "DELETE", entity: "User", entityId: id, details: {},
+    });
 
-  return NextResponse.json({ ok: true, data: { deleted: id } });
+    return NextResponse.json({ ok: true, data: { deleted: id } });
+  } catch (e) { return toApiError(e); }
 }

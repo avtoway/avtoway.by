@@ -1,3 +1,4 @@
+import { NotFoundError } from "@/shared/lib/errors";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 import type { Partner } from "@/entities/partner/partner";
 
@@ -40,14 +41,14 @@ export class MemoryPartnerRepository implements PartnerRepository {
 
   async update(id: string, data: Partial<Omit<Partner, "id">>): Promise<Partner> {
     const existing = store.get(id);
-    if (!existing) throw new Error("Партнёр не найден");
+    if (!existing) throw new NotFoundError("Партнёр не найден");
     const updated: Partner = { ...existing, ...data };
     store.set(id, updated);
     return updated;
   }
 
   async delete(id: string): Promise<void> {
-    if (!store.has(id)) throw new Error("Партнёр не найден");
+    if (!store.has(id)) throw new NotFoundError("Партнёр не найден");
     store.delete(id);
   }
 }

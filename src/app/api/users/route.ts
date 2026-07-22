@@ -6,6 +6,7 @@ import { container } from "@/di/container";
 import { getAuthUser, hasPermission } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
+import { ForbiddenError, ConflictError, toApiError } from "@/shared/lib/errors";
 import { UserCreateSchema } from "@/entities/user/user.schema";
 import type { UserRepository } from "@/entities/user/user.repository";
 
@@ -34,9 +35,7 @@ export async function POST(request: Request) {
 
   const repo = container.get<UserRepository>("UserRepository");
   const existing = await repo.getByLogin(login);
-  if (existing) {
-    return NextResponse.json({ ok: false, error: "Логин уже занят" }, { status: 409 });
-  }
+  if (existing) throw new ConflictError("Логин уже занят");
 
   const id = randomUUID();
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -51,9 +50,7 @@ export async function POST(request: Request) {
   });
 
   if (roleIds?.length) {
-    if (!hasPermission(currentUser, "users.roles")) {
-      return NextResponse.json({ ok: false, error: "Нет прав для назначения ролей" }, { status: 403 });
-    }
+    if (!hasPermission(currentUser, "users.roles")) throw new ForbiddenError("Нет прав для назначения ролей");
     await repo.assignRoles(id, roleIds);
   }
 

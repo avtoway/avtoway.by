@@ -22,6 +22,8 @@ function toService(s: ServiceData, index: number): Service {
   };
 }
 
+import { NotFoundError } from "@/shared/lib/errors";
+
 export class MemoryServiceRepository implements ServiceRepository {
   private services: Service[] = SERVICES.map(toService);
 
@@ -39,7 +41,7 @@ export class MemoryServiceRepository implements ServiceRepository {
 
   async update(slug: string, data: Partial<Service>): Promise<Service> {
     const existing = this.services.find((s) => s.slug === slug);
-    if (!existing) throw new Error("Услуга не найдена");
+    if (!existing) throw new NotFoundError("Услуга не найдена");
     const updated: Service = { ...existing, ...data };
     this.services = this.services.map((s) => (s.slug === slug ? updated : s));
     return updated;
@@ -47,7 +49,7 @@ export class MemoryServiceRepository implements ServiceRepository {
 
   async delete(slug: string): Promise<void> {
     const existing = this.services.find((s) => s.slug === slug);
-    if (!existing) throw new Error("Услуга не найдена");
+    if (!existing) throw new NotFoundError("Услуга не найдена");
     this.services = this.services.filter((s) => s.slug !== slug);
   }
 }

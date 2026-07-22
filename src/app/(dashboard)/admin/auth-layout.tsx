@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Sidebar from "@/shared/ui/admin/sidebar";
 import Breadcrumbs from "@/shared/ui/admin/breadcrumbs";
+import { ErrorBoundary } from "@/shared/ui/error-boundary";
 import { DirtyFormProvider, useDirtyForm } from "@/shared/lib/dirty-form-context";
 import { ToastProvider } from "@/shared/lib/toat-context";
 
@@ -151,7 +152,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <Breadcrumbs pathname={pathname} items={menu} />
               <h1 className="mt-1 text-xl font-bold text-white">{pageTitle}</h1>
             </div>
-            <div className="flex-1 overflow-auto p-8">{children}</div>
+            <div className="flex-1 overflow-auto p-8"><ErrorBoundary>{children}</ErrorBoundary></div>
           </main>
         </div>
         <DirtyFormGuard router={router} />
