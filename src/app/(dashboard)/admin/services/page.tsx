@@ -33,7 +33,12 @@ export default function AdminServicesPage() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchServices(); }, []);
+  useEffect(() => {
+    fetch("/api/services").then(r => r.json()).then(json => {
+      if (json.ok) setServices(json.data);
+      setLoading(false);
+    });
+  }, []);
 
   function openCreate() { resetForm({ slug: "", title: "", desc: "", href: "/", color: "#ef4444", iconName: "car", isActive: true, sortOrder: services.length }); setEditing(null); setModalOpen(true); }
 

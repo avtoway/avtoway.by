@@ -37,7 +37,12 @@ export default function AdminPartnersPage() {
     setLoading(false);
   }
 
-  useEffect(() => { loadPartners(); }, []);
+  useEffect(() => {
+    fetch("/api/partners").then(r => r.json()).then(json => {
+      if (json.ok) setPartners(json.data);
+      setLoading(false);
+    });
+  }, []);
 
   function openCreate() { resetForm({ ...EMPTY }); setEditing(null); setModalOpen(true); }
 

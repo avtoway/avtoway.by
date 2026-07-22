@@ -40,7 +40,16 @@ export default function AdminUsersPage() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/users").then(r => r.json()),
+      fetch("/api/roles").then(r => r.json()),
+    ]).then(([uRes, rRes]) => {
+      if (uRes.ok) setUsers(uRes.data);
+      if (rRes.ok) setAllRoles(rRes.data);
+      setLoading(false);
+    });
+  }, []);
 
   const roleOptions: SelectOption[] = allRoles.map(r => ({ value: r.id, label: r.name }));
 

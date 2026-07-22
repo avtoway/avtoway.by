@@ -4,7 +4,7 @@ import { container } from "@/di/container";
 import { getAuthUser } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
-import { AuthError, NotFoundError, toApiError } from "@/shared/lib/errors";
+import { AuthError, toApiError } from "@/shared/lib/errors";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 

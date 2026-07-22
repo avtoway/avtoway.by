@@ -29,7 +29,12 @@ export default function AdminRolesPage() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchRoles(); }, []);
+  useEffect(() => {
+    fetch("/api/roles").then(r => r.json()).then(json => {
+      if (json.ok) setRoles(json.data);
+      setLoading(false);
+    });
+  }, []);
 
   function openCreate() { resetForm({ ...INITIAL }); setEditing(null); setModalOpen(true); }
 

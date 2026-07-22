@@ -6,7 +6,7 @@ import { container } from "@/di/container";
 import { getAuthUser, hasPermission } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
-import { ForbiddenError, ConflictError, toApiError } from "@/shared/lib/errors";
+import { ForbiddenError, ConflictError } from "@/shared/lib/errors";
 import { UserCreateSchema } from "@/entities/user/user.schema";
 import type { UserRepository } from "@/entities/user/user.repository";
 
