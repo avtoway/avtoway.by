@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { randomUUID } from "node:crypto";
 
 let testPrisma: PrismaClient | null = null;
@@ -8,8 +7,7 @@ let testPrisma: PrismaClient | null = null;
 export function getTestDb(): PrismaClient {
   if (testPrisma) return testPrisma;
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL ?? "postgresql://avtoway:avtoway@localhost:5432/avtoway_dev" });
-  const adapter = new PrismaPg(pool);
+  const adapter = new PrismaLibSql({ url: "file:./data/test.db" });
   testPrisma = new PrismaClient({ adapter });
   return testPrisma;
 }
