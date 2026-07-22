@@ -5,6 +5,7 @@ import AdminModal from "@/shared/ui/admin-modal";
 import ServiceForm from "@/features/admin/services/ui/service-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
 import { useToast } from "@/shared/lib/toat-context";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceFormData } from "@/features/admin/services/ui/service-form";
 
@@ -20,6 +21,7 @@ export default function AdminServicesPage() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const { toast } = useToast();
+  const { confirm, dialog } = useConfirm();
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(ServiceSchema, INITIAL_SERVICE as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
@@ -55,7 +57,8 @@ export default function AdminServicesPage() {
   }
 
   async function handleDelete(slug: string) {
-    if (!confirm("Удалить услугу?")) return;
+    const ok = await confirm({ title: "Удаление услуги", message: "Вы действительно хотите удалить услугу?", confirmLabel: "Удалить", variant: "danger" });
+    if (!ok) return;
     const res = await fetch(`/api/services/${slug}`, { method: "DELETE" });
     if (res.ok) { await fetchServices(); toast("Услуга удалена"); }
   }
@@ -136,6 +139,7 @@ export default function AdminServicesPage() {
           </button>
         </div>
       </AdminModal>
+      {dialog}
     </div>
   );
 }

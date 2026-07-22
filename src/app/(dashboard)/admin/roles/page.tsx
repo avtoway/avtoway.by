@@ -5,6 +5,7 @@ import AdminModal from "@/shared/ui/admin-modal";
 import RoleForm, { PERMISSION_OPTIONS } from "@/features/admin/roles/ui/role-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
 import { useToast } from "@/shared/lib/toat-context";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { RoleSchema } from "@/entities/role/role.schema";
 import type { Role } from "@/features/admin/roles/types";
 
@@ -17,6 +18,7 @@ export default function AdminRolesPage() {
   const [editing, setEditing] = useState<Role | null>(null);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { confirm, dialog } = useConfirm();
   const { form, setField, errors, validateField, validateAll, resetForm } = useFormValidation(RoleSchema, { ...INITIAL });
 
   async function fetchRoles() {
@@ -47,9 +49,10 @@ export default function AdminRolesPage() {
   }
 
   async function handleDelete(id: string, name: string) {
-    if (!confirm(`Удалить роль «${name}»?`)) return;
+    const ok = await confirm({ title: "Удаление роли", message: `Вы действительно хотите удалить роль «${name}»?`, confirmLabel: "Удалить", variant: "danger" });
+    if (!ok) return;
     const res = await fetch(`/api/roles/${id}`, { method: "DELETE" });
-    if (res.ok) await fetchRoles();
+    if (res.ok) { await fetchRoles(); toast("Роль удалена"); }
   }
 
   const permLabel = (value: string) => PERMISSION_OPTIONS.find(o => o.value === value)?.label ?? value;
@@ -113,6 +116,7 @@ export default function AdminRolesPage() {
           </button>
         </div>
       </AdminModal>
+      {dialog}
     </div>
   );
 }

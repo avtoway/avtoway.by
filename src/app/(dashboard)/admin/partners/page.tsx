@@ -6,6 +6,7 @@ import PartnerCard from "@/features/admin/partners/ui/partner-card";
 import PartnerForm from "@/features/admin/partners/ui/partner-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
 import { useToast } from "@/shared/lib/toat-context";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { Partner } from "@/features/admin/partners/types";
 
@@ -24,6 +25,7 @@ export default function AdminPartnersPage() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const { toast } = useToast();
+  const { confirm, dialog } = useConfirm();
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(PartnerSchema, EMPTY as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
@@ -70,7 +72,8 @@ export default function AdminPartnersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Удалить партнёра?")) return;
+    const ok = await confirm({ title: "Удаление партнёра", message: "Вы действительно хотите удалить партнёра?", confirmLabel: "Удалить", variant: "danger" });
+    if (!ok) return;
     await fetch(`/api/partners/${id}`, { method: "DELETE" });
     await loadPartners();
     toast("Партнёр удалён");
@@ -128,6 +131,7 @@ export default function AdminPartnersPage() {
           </button>
         </div>
       </AdminModal>
+      {dialog}
     </div>
   );
 }

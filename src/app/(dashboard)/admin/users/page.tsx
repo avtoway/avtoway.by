@@ -6,6 +6,7 @@ import AdminModal from "@/shared/ui/admin-modal";
 import CreateUserForm from "@/features/admin/users-list/ui/create-user-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
 import { useToast } from "@/shared/lib/toat-context";
+import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { UserCreateSchema } from "@/entities/user/user.schema";
 import type { SelectOption } from "@/shared/ui/admin/multi-select";
 
@@ -28,6 +29,7 @@ export default function AdminUsersPage() {
   const [editing, setEditing] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { confirm, dialog } = useConfirm();
   const { form, setField, errors, validateField, validateAll, resetForm } = useFormValidation(UserCreateSchema, { ...INITIAL });
 
   async function fetchAll() {
@@ -66,9 +68,11 @@ export default function AdminUsersPage() {
   }
 
   async function handleDelete(id: string, name: string) {
-    if (!confirm(`Удалить пользователя «${name}»?`)) return;
+    const ok = await confirm({ title: "Удаление пользователя", message: `Вы действительно хотите удалить пользователя «${name}»? Это действие нельзя отменить.`, confirmLabel: "Удалить", variant: "danger" });
+    if (!ok) return;
     await fetch(`/api/users/${id}`, { method: "DELETE" });
     await fetchAll();
+    toast("Пользователь удалён");
   }
 
   return (
@@ -121,6 +125,7 @@ export default function AdminUsersPage() {
           </button>
         </div>
       </AdminModal>
+      {dialog}
     </div>
   );
 }
