@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import CreateUserForm from "@/features/admin/users-list/ui/create-user-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { useToast } from "@/shared/lib/toat-context";
 import { UserCreateSchema } from "@/entities/user/user.schema";
 import type { SelectOption } from "@/shared/ui/admin/multi-select";
 
@@ -26,6 +27,7 @@ export default function AdminUsersPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
   const { form, setField, errors, validateField, validateAll, resetForm } = useFormValidation(UserCreateSchema, { ...INITIAL });
 
   async function fetchAll() {
@@ -58,8 +60,8 @@ export default function AdminUsersPage() {
     const method = editing ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const json = await res.json();
-    if (json.ok) { setModalOpen(false); await fetchAll(); }
-    else alert(json.error ?? "Ошибка сохранения");
+    if (json.ok) { setModalOpen(false); await fetchAll(); toast(editing ? "Сохранено" : "Пользователь создан"); }
+    else toast(json.error ?? "Ошибка сохранения", "error");
     setSaving(false);
   }
 

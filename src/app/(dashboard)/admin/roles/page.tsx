@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import RoleForm, { PERMISSION_OPTIONS } from "@/features/admin/roles/ui/role-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { useToast } from "@/shared/lib/toat-context";
 import { RoleSchema } from "@/entities/role/role.schema";
 import type { Role } from "@/features/admin/roles/types";
 
@@ -15,6 +16,7 @@ export default function AdminRolesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Role | null>(null);
   const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
   const { form, setField, errors, validateField, validateAll, resetForm } = useFormValidation(RoleSchema, { ...INITIAL });
 
   async function fetchRoles() {
@@ -39,8 +41,8 @@ export default function AdminRolesPage() {
     const method = editing ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const json = await res.json();
-    if (json.ok) { setModalOpen(false); await fetchRoles(); }
-    else alert(json.error ?? "Ошибка сохранения");
+    if (json.ok) { setModalOpen(false); await fetchRoles(); toast(editing ? "Сохранено" : "Роль создана"); }
+    else toast(json.error ?? "Ошибка сохранения", "error");
     setSaving(false);
   }
 

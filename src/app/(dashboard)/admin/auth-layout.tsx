@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/shared/ui/admin/sidebar";
 import Breadcrumbs from "@/shared/ui/admin/breadcrumbs";
 import { DirtyFormProvider, useDirtyForm } from "@/shared/lib/dirty-form-context";
+import { ToastProvider } from "@/shared/lib/toat-context";
 
 interface AuthUser {
   id: string;
@@ -134,25 +135,27 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <DirtyFormProvider>
-      <div className="flex min-h-dvh bg-slate-950 text-slate-100">
-        {user && (
-          <Sidebar
-            items={menu}
-            pathname={pathname}
-            user={{ id: user.id, name: user.name, login: user.login, photo: user.photo, role: user.role }}
-            onLogout={handleLogout}
-          />
-        )}
+      <ToastProvider>
+        <div className="flex min-h-dvh bg-slate-950 text-slate-100">
+          {user && (
+            <Sidebar
+              items={menu}
+              pathname={pathname}
+              user={{ id: user.id, name: user.name, login: user.login, photo: user.photo, role: user.role }}
+              onLogout={handleLogout}
+            />
+          )}
 
-        <main className="flex flex-1 flex-col overflow-hidden">
-          <div className="border-b border-slate-800 bg-slate-900/40 px-8 py-4">
-            <Breadcrumbs pathname={pathname} items={menu} />
-            <h1 className="mt-1 text-xl font-bold text-white">{pageTitle}</h1>
-          </div>
-          <div className="flex-1 overflow-auto p-8">{children}</div>
-        </main>
-      </div>
-      <DirtyFormGuard router={router} />
+          <main className="flex flex-1 flex-col overflow-hidden">
+            <div className="border-b border-slate-800 bg-slate-900/40 px-8 py-4">
+              <Breadcrumbs pathname={pathname} items={menu} />
+              <h1 className="mt-1 text-xl font-bold text-white">{pageTitle}</h1>
+            </div>
+            <div className="flex-1 overflow-auto p-8">{children}</div>
+          </main>
+        </div>
+        <DirtyFormGuard router={router} />
+      </ToastProvider>
     </DirtyFormProvider>
   );
 }

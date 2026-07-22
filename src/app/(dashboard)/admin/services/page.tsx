@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import ServiceForm from "@/features/admin/services/ui/service-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { useToast } from "@/shared/lib/toat-context";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceFormData } from "@/features/admin/services/ui/service-form";
 
@@ -17,8 +18,8 @@ export default function AdminServicesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ServiceFormData | null>(null);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState("");
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(ServiceSchema, INITIAL_SERVICE as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
@@ -43,8 +44,8 @@ export default function AdminServicesPage() {
     const method = editing ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     const json = await res.json();
-    if (json.ok) { setModalOpen(false); await fetchServices(); showMsg("Сохранено"); }
-    else alert(json.error ?? "Ошибка");
+    if (json.ok) { setModalOpen(false); await fetchServices(); toast(editing ? "Сохранено" : "Услуга создана"); }
+    else toast(json.error ?? "Ошибка", "error");
     setSaving(false);
   }
 
@@ -56,7 +57,7 @@ export default function AdminServicesPage() {
   async function handleDelete(slug: string) {
     if (!confirm("Удалить услугу?")) return;
     const res = await fetch(`/api/services/${slug}`, { method: "DELETE" });
-    if (res.ok) { await fetchServices(); showMsg("Удалено"); }
+    if (res.ok) { await fetchServices(); toast("Услуга удалена"); }
   }
 
   async function handleDrop() {
@@ -72,9 +73,6 @@ export default function AdminServicesPage() {
     }
   }
 
-  let msgTimer: any;
-  function showMsg(text: string) { setMsg(text); clearTimeout(msgTimer); msgTimer = setTimeout(() => setMsg(""), 2000); }
-
   const filtered = services.filter(s => s.title.toLowerCase().includes(search.toLowerCase()) || s.slug.includes(search));
 
   return (
@@ -85,8 +83,6 @@ export default function AdminServicesPage() {
       </div>
 
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск услуг..." className="mb-4 w-full max-w-xs rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
-      {msg && <div className="mb-4 rounded-lg bg-green-900/50 px-4 py-2 text-sm text-green-300">{msg}</div>}
-
       {loading ? <p className="text-slate-500">Загрузка...</p> : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
           <table className="w-full text-left text-sm">

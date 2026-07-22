@@ -5,6 +5,7 @@ import AdminModal from "@/shared/ui/admin-modal";
 import PartnerCard from "@/features/admin/partners/ui/partner-card";
 import PartnerForm from "@/features/admin/partners/ui/partner-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { useToast } from "@/shared/lib/toat-context";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { Partner } from "@/features/admin/partners/types";
 
@@ -21,8 +22,8 @@ export default function AdminPartnersPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Partner | null>(null);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState("");
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(PartnerSchema, EMPTY as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
@@ -58,8 +59,8 @@ export default function AdminPartnersPage() {
     }
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const json = await res.json();
-    if (json.ok) { setModalOpen(false); await loadPartners(); showMsg("Сохранено"); }
-    else alert(json.error ?? "Ошибка");
+    if (json.ok) { setModalOpen(false); await loadPartners(); toast(editing ? "Сохранено" : "Партнёр создан"); }
+    else toast(json.error ?? "Ошибка", "error");
     setSaving(false);
   }
 
@@ -72,7 +73,7 @@ export default function AdminPartnersPage() {
     if (!confirm("Удалить партнёра?")) return;
     await fetch(`/api/partners/${id}`, { method: "DELETE" });
     await loadPartners();
-    showMsg("Удалён");
+    toast("Партнёр удалён");
   }
 
   async function handleDrop() {
@@ -87,9 +88,6 @@ export default function AdminPartnersPage() {
       await fetch(`/api/partners/${p.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sortOrder: i }) });
     }
   }
-
-  let msgTimer: ReturnType<typeof setTimeout>;
-  function showMsg(text: string) { setMsg(text); clearTimeout(msgTimer); msgTimer = setTimeout(() => setMsg(""), 2000); }
 
   const filtered = partners.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -111,8 +109,6 @@ export default function AdminPartnersPage() {
       </div>
 
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск партнёров..." className="mb-4 w-full max-w-xs rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
-      {msg && <div className="mb-4 rounded-lg bg-green-900/50 px-4 py-2 text-sm text-green-300">{msg}</div>}
-
       {loading ? <p className="text-slate-500">Загрузка...</p> : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p, idx) => (
