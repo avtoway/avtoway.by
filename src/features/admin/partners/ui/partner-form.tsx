@@ -2,14 +2,17 @@
 
 import { useRef, useState } from "react";
 import UploadZone from "@/shared/ui/admin/upload-zone";
+import FieldError from "@/shared/ui/field-error";
 import type { Partner } from "../types";
 
 export default function PartnerForm({
   form,
   onChange,
+  errors,
 }: {
   form: Partner;
   onChange: (field: string, value: unknown) => void;
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="flex flex-col gap-5">
@@ -19,7 +22,8 @@ export default function PartnerForm({
         <label className="flex flex-col gap-1 col-span-2">
           <span className="text-xs font-medium text-slate-400">Название *</span>
           <input value={form.name} onChange={e => onChange("name", e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" required />
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.name ? "border-red-500" : "border-slate-700"}`} />
+          <FieldError error={errors?.name} />
         </label>
         <label className="flex flex-col gap-1 col-span-2">
           <span className="text-xs font-medium text-slate-400">Описание</span>

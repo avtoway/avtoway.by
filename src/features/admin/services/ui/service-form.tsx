@@ -1,5 +1,7 @@
 "use client";
 
+import FieldError from "@/shared/ui/field-error";
+
 const ICONS = ["youtube", "car", "check-circle", "dollar"];
 const ICON_MAP: Record<string, string> = { youtube: "▶", car: "🚗", "check-circle": "✓", dollar: "$" };
 
@@ -15,12 +17,14 @@ export interface ServiceFormData {
 }
 
 export default function ServiceForm({
-  form, onChange, editing,
+  form, onChange, editing, errors,
 }: {
   form: ServiceFormData;
   onChange: (field: string, value: any) => void;
   editing: boolean;
+  errors?: Record<string, string>;
 }) {
+  const eb = (key: string) => errors?.[key] ? "border-red-500" : "border-slate-700";
   return (
     <div className="flex flex-col gap-6">
       <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
@@ -37,27 +41,32 @@ export default function ServiceForm({
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Slug</span>
           <input value={form.slug} onChange={e => onChange("slug", e.target.value)} disabled={editing}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("slug")}`} />
+          <FieldError error={errors?.slug} /></label>
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Название</span>
           <input value={form.title} onChange={e => onChange("title", e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("title")}`} />
+          <FieldError error={errors?.title} /></label>
         <label className="flex flex-col gap-1 col-span-2"><span className="text-xs font-medium text-slate-400">Описание</span>
           <textarea value={form.desc} onChange={e => onChange("desc", e.target.value)} rows={2}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("desc")}`} />
+          <FieldError error={errors?.desc} /></label>
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Ссылка (href)</span>
           <input value={form.href} onChange={e => onChange("href", e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("href")}`} />
+          <FieldError error={errors?.href} /></label>
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Цвет</span>
           <input type="color" value={form.color} onChange={e => onChange("color", e.target.value)}
-            className="h-9 w-full rounded-lg border border-slate-700 bg-slate-900" /></label>
+            className={`h-9 w-full rounded-lg border bg-slate-900 ${eb("color")}`} /></label>
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Иконка</span>
           <select value={form.iconName} onChange={e => onChange("iconName", e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("iconName")}`}>
             {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
           </select></label>
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Порядок</span>
           <input type="number" value={form.sortOrder} onChange={e => onChange("sortOrder", Number(e.target.value))}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("sortOrder")}`} />
+          <FieldError error={errors?.sortOrder} /></label>
         <label className="flex items-center gap-2 mt-1.5">
           <input type="checkbox" checked={form.isActive} onChange={e => onChange("isActive", e.target.checked)}
             className="h-4 w-4 accent-red-600" />

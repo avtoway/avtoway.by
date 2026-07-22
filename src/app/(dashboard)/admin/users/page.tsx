@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import CreateUserForm from "@/features/admin/users-list/ui/create-user-form";
+import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { UserCreateSchema } from "@/entities/user/user.schema";
 import type { SelectOption } from "@/shared/ui/admin/multi-select";
 
 interface Role { id: string; name: string; }
@@ -15,6 +17,8 @@ const ROLE_COLORS: Record<string, string> = {
   "Наблюдатель": "bg-slate-800 text-slate-400",
 };
 
+const INITIAL = { name: "", login: "", email: "", password: "", roleIds: [] as string[] };
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [allRoles, setAllRoles] = useState<Role[]>([]);
@@ -22,11 +26,7 @@ export default function AdminUsersPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
-  const [name, setName] = useState("");
-  const [login, setLogin] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const { form, setField, errors, validateField, validateAll, resetForm } = useFormValidation(UserCreateSchema, { ...INITIAL });
 
   async function fetchAll() {
     setLoading(true);
@@ -40,15 +40,20 @@ export default function AdminUsersPage() {
 
   const roleOptions: SelectOption[] = allRoles.map(r => ({ value: r.id, label: r.name }));
 
-  function openCreate() { setName(""); setLogin(""); setEmail(""); setPassword(""); setSelectedRoles([]); setEditing(null); setModalOpen(true); }
+  function openCreate() { resetForm({ ...INITIAL }); setEditing(null); setModalOpen(true); }
 
-  function openEdit(u: User) { setName(u.name); setLogin(u.login); setEmail(u.email ?? ""); setPassword(""); setSelectedRoles(u.roles.map(r => r.id)); setEditing(u); setModalOpen(true); }
+  function openEdit(u: User) {
+    resetForm({ name: u.name, login: u.login, email: u.email ?? "", password: "", roleIds: u.roles.map(r => r.id) });
+    setEditing(u);
+    setModalOpen(true);
+  }
 
   async function handleSave() {
+    if (!validateAll()) return;
     setSaving(true);
-    const body: Record<string, unknown> = { name, login, roleIds: selectedRoles };
-    if (email) body.email = email;
-    if (password) body.password = password;
+    const body: Record<string, unknown> = { name: form.name, login: form.login, roleIds: form.roleIds! };
+    if (form.email) body.email = form.email;
+    if (form.password) body.password = form.password;
     const url = editing ? `/api/users/${editing.id}` : "/api/users";
     const method = editing ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -101,9 +106,12 @@ export default function AdminUsersPage() {
       )}
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Редактировать сотрудника" : "Новый сотрудник"}>
-        <CreateUserForm name={name} onNameChange={setName} login={login} onLoginChange={setLogin}
-          email={email} onEmailChange={setEmail} password={password} onPasswordChange={setPassword}
-          isEditing={!!editing} roleOptions={roleOptions} selectedRoles={selectedRoles} onRolesChange={setSelectedRoles} />
+        <CreateUserForm name={form.name} onNameChange={v => setField("name", v)} onNameBlur={() => validateField("name", form.name)}
+          login={form.login} onLoginChange={v => setField("login", v)} onLoginBlur={() => validateField("login", form.login)}
+          email={form.email ?? ""} onEmailChange={v => setField("email", v)}
+          password={form.password} onPasswordChange={v => setField("password", v)}
+          isEditing={!!editing} roleOptions={roleOptions} selectedRoles={form.roleIds ?? []} onRolesChange={v => setField("roleIds", v)}
+          errors={errors} />
         <div className="flex justify-end gap-3 pt-4">
           <button onClick={() => setModalOpen(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
           <button onClick={handleSave} disabled={saving} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">

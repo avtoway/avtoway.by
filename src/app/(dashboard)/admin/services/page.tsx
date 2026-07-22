@@ -3,9 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import ServiceForm from "@/features/admin/services/ui/service-form";
+import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceFormData } from "@/features/admin/services/ui/service-form";
 
 const ICON_MAP: Record<string, string> = { youtube: "▶", car: "🚗", "check-circle": "✓", dollar: "$" };
+
+const INITIAL_SERVICE: ServiceFormData = { slug: "", title: "", desc: "", href: "", color: "#ef4444", iconName: "car", isActive: true, sortOrder: 0 };
 
 export default function AdminServicesPage() {
   const [services, setServices] = useState<ServiceFormData[]>([]);
@@ -15,7 +19,7 @@ export default function AdminServicesPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState<ServiceFormData>({ slug: "", title: "", desc: "", href: "", color: "#ef4444", iconName: "car", isActive: true, sortOrder: 0 });
+  const { form, setField, errors, validateAll, resetForm } = useFormValidation(ServiceSchema, INITIAL_SERVICE as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
 
@@ -28,20 +32,19 @@ export default function AdminServicesPage() {
 
   useEffect(() => { fetchServices(); }, []);
 
-  function openCreate() { setForm({ slug: "", title: "", desc: "", href: "/", color: "#ef4444", iconName: "car", isActive: true, sortOrder: services.length }); setEditing(null); setModalOpen(true); }
+  function openCreate() { resetForm({ slug: "", title: "", desc: "", href: "/", color: "#ef4444", iconName: "car", isActive: true, sortOrder: services.length }); setEditing(null); setModalOpen(true); }
 
-  function openEdit(s: ServiceFormData) { setForm({ ...s }); setEditing(s); setModalOpen(true); }
-
-  function set(field: string, value: any) { setForm(prev => ({ ...prev, [field]: value })); }
+  function openEdit(s: ServiceFormData) { resetForm({ ...s }); setEditing(s); setModalOpen(true); }
 
   async function handleSave() {
+    if (!validateAll()) return;
     setSaving(true);
     const url = editing ? `/api/services/${editing.slug}` : "/api/services";
     const method = editing ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     const json = await res.json();
     if (json.ok) { setModalOpen(false); await fetchServices(); showMsg("Сохранено"); }
-    else alert(json.error ?? "Failed to save");
+    else alert(json.error ?? "Ошибка");
     setSaving(false);
   }
 
@@ -129,7 +132,7 @@ export default function AdminServicesPage() {
       )}
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Редактировать услугу" : "Новая услуга"}>
-        <ServiceForm form={form} onChange={set} editing={!!editing} />
+        <ServiceForm form={form as any} onChange={setField} editing={!!editing} errors={errors} />
         <div className="flex justify-end gap-3 pt-4">
           <button onClick={() => setModalOpen(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
           <button onClick={handleSave} disabled={saving} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">

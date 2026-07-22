@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import RoleForm, { PERMISSION_OPTIONS } from "@/features/admin/roles/ui/role-form";
+import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { RoleSchema } from "@/entities/role/role.schema";
 import type { Role } from "@/features/admin/roles/types";
+
+const INITIAL = { name: "", description: "", level: 0, permissions: [] as string[] };
 
 export default function AdminRolesPage() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -11,10 +15,7 @@ export default function AdminRolesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Role | null>(null);
   const [saving, setSaving] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [level, setLevel] = useState(0);
-  const [permissions, setPermissions] = useState<string[]>([]);
+  const { form, setField, errors, validateField, validateAll, resetForm } = useFormValidation(RoleSchema, { ...INITIAL });
 
   async function fetchRoles() {
     setLoading(true);
@@ -26,13 +27,14 @@ export default function AdminRolesPage() {
 
   useEffect(() => { fetchRoles(); }, []);
 
-  function openCreate() { setName(""); setDescription(""); setLevel(0); setPermissions([]); setEditing(null); setModalOpen(true); }
+  function openCreate() { resetForm({ ...INITIAL }); setEditing(null); setModalOpen(true); }
 
-  function openEdit(r: Role) { setName(r.name); setDescription(r.description ?? ""); setLevel(r.level); setPermissions([...r.permissions]); setEditing(r); setModalOpen(true); }
+  function openEdit(r: Role) { resetForm({ name: r.name, description: r.description ?? "", level: r.level, permissions: [...r.permissions] }); setEditing(r); setModalOpen(true); }
 
   async function handleSave() {
+    if (!validateAll()) return;
     setSaving(true);
-    const body: Record<string, unknown> = { name, description, level, permissions };
+    const body: Record<string, unknown> = { name: form.name!, description: form.description, level: form.level, permissions: form.permissions! };
     const url = editing ? `/api/roles/${editing.id}` : "/api/roles";
     const method = editing ? "PUT" : "POST";
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -97,8 +99,11 @@ export default function AdminRolesPage() {
       )}
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Редактировать роль" : "Новая роль"}>
-        <RoleForm name={name} onNameChange={setName} description={description} onDescriptionChange={setDescription}
-          level={level} onLevelChange={setLevel} permissions={permissions} onPermissionsChange={setPermissions} />
+        <RoleForm name={form.name!} onNameChange={v => setField("name", v)} onNameBlur={() => validateField("name", form.name!)}
+          description={form.description ?? ""} onDescriptionChange={v => setField("description", v)}
+          level={form.level} onLevelChange={v => setField("level", v)}
+          permissions={form.permissions ?? []} onPermissionsChange={v => setField("permissions", v)}
+          errors={errors} />
         <div className="flex justify-end gap-3 pt-4">
           <button onClick={() => setModalOpen(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
           <button onClick={handleSave} disabled={saving} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">

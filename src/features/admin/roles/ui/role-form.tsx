@@ -1,6 +1,7 @@
 "use client";
 
 import MultiSelect from "@/shared/ui/admin/multi-select";
+import FieldError from "@/shared/ui/field-error";
 import type { SelectOption } from "@/shared/ui/admin/multi-select";
 
 export const PERMISSION_OPTIONS: SelectOption[] = [
@@ -21,28 +22,32 @@ export const PERMISSION_OPTIONS: SelectOption[] = [
 ];
 
 export default function RoleForm({
-  name, onNameChange,
+  name, onNameChange, onNameBlur,
   description, onDescriptionChange,
   level, onLevelChange,
   permissions, onPermissionsChange,
+  errors,
 }: {
-  name: string; onNameChange: (v: string) => void;
+  name: string; onNameChange: (v: string) => void; onNameBlur?: () => void;
   description: string; onDescriptionChange: (v: string) => void;
   level: number; onLevelChange: (v: number) => void;
   permissions: string[]; onPermissionsChange: (v: string[]) => void;
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-slate-400">Название</span>
-          <input value={name} onChange={e => onNameChange(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" required />
+          <input value={name} onChange={e => onNameChange(e.target.value)} onBlur={onNameBlur}
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.name ? "border-red-500" : "border-slate-700"}`} />
+          <FieldError error={errors?.name} />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-slate-400">Уровень доступа</span>
           <input type="number" value={level} onChange={e => onLevelChange(Number(e.target.value))}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.level ? "border-red-500" : "border-slate-700"}`} />
+          <FieldError error={errors?.level} />
         </label>
       </div>
       <label className="flex flex-col gap-1">

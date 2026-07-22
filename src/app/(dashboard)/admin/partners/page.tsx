@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import PartnerCard from "@/features/admin/partners/ui/partner-card";
 import PartnerForm from "@/features/admin/partners/ui/partner-form";
+import { useFormValidation } from "@/shared/lib/use-form-validation";
+import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { Partner } from "@/features/admin/partners/types";
 
 const EMPTY: Partner = {
@@ -21,7 +23,7 @@ export default function AdminPartnersPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState<Partner>(EMPTY);
+  const { form, setField, errors, validateAll, resetForm } = useFormValidation(PartnerSchema, EMPTY as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
 
@@ -34,10 +36,10 @@ export default function AdminPartnersPage() {
 
   useEffect(() => { loadPartners(); }, []);
 
-  function openCreate() { setForm({ ...EMPTY }); setEditing(null); setModalOpen(true); }
+  function openCreate() { resetForm({ ...EMPTY }); setEditing(null); setModalOpen(true); }
 
   function openEdit(p: Partner) {
-    setForm({ ...p, photo: p.photo ?? "", photos: p.photos ?? [],
+    resetForm({ ...p, photo: p.photo ?? "", photos: p.photos ?? [],
       description: p.description ?? "", phone: p.phone ?? "", email: p.email ?? "",
       address: p.address ?? "", contactPerson: p.contactPerson ?? "", website: p.website ?? "",
       instagram: p.instagram ?? "", telegram: p.telegram ?? "", vk: p.vk ?? "", youtube: p.youtube ?? "" });
@@ -45,15 +47,13 @@ export default function AdminPartnersPage() {
     setModalOpen(true);
   }
 
-  function set(field: string, value: unknown) { setForm(prev => ({ ...prev, [field]: value })); }
-
   async function handleSave() {
+    if (!validateAll()) return;
     setSaving(true);
     const url = editing ? `/api/partners/${editing.id}` : "/api/partners";
     const method = editing ? "PUT" : "POST";
     const body: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(form)) {
-      if (k === "id") continue;
       body[k] = v === "" ? null : v;
     }
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -124,7 +124,7 @@ export default function AdminPartnersPage() {
       )}
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} size="lg" title={editing ? "Редактировать партнёра" : "Новый партнёр"}>
-        <PartnerForm form={form} onChange={set} />
+        <PartnerForm form={form} onChange={setField} errors={errors} />
         <div className="flex justify-end gap-3 pt-5">
           <button onClick={() => setModalOpen(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
           <button onClick={handleSave} disabled={saving} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
