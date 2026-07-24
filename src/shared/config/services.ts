@@ -13,7 +13,7 @@ export const SERVICES: ServiceData[] = [
   {
     slug: "rent",
     title: "Аренда",
-    desc: "Надёжные авто под ваши задачи. По дням, неделям и месяцам.",
+    desc: "Техника под ваши задачи. По дням, неделям и месяцам.",
     href: "/services/rent",
     color: "#3b82f6",
     isActive: true,

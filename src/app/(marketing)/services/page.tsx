@@ -14,7 +14,7 @@ export default async function ServicesPage() {
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">Наши услуги</h1>
           <p className="mt-3 text-base text-zinc-400 max-w-xl mx-auto">
-            Полный спектр услуг для вашего автомобиля. От аренды до полного выкупа.
+            Полный спектр услуг. От аренды до полного выкупа.
           </p>
         </div>
 
