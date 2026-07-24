@@ -86,16 +86,18 @@ export default function AdminRentPage() {
 
   const handleSave = useCallback(async () => {
     setSaving(true);
-    const body: Record<string, any> = {};
-    for (const [k, v] of Object.entries(form)) {
-      body[k] = v === "" ? null : v;
-    }
-    const url = editing ? `/api/rent/${editing.id}` : "/api/rent";
-    const method = editing ? "PUT" : "POST";
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const json = await res.json();
-    if (json.ok) { setModal(false); await load(); toast(editing ? "Сохранено" : "Авто добавлено"); }
-    else toast(json.error ?? "Ошибка", "error");
+    try {
+      const body: Record<string, any> = {};
+      for (const [k, v] of Object.entries(form)) {
+        body[k] = v === "" ? null : v;
+      }
+      const url = editing ? `/api/rent/${editing.id}` : "/api/rent";
+      const method = editing ? "PUT" : "POST";
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const json = await res.json();
+      if (json.ok) { setModal(false); await load(); toast(editing ? "Сохранено" : "Авто добавлено"); }
+      else toast(json.error ?? "Ошибка", "error");
+    } catch { toast("Ошибка при сохранении", "error"); }
     setSaving(false);
   }, [form, editing, toast]);
 
