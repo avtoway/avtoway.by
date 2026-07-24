@@ -5,6 +5,8 @@ export interface ServiceData {
   href: string;
   color: string;
   isActive: boolean;
+  photo?: string;
+  content?: string;
 }
 
 export const SERVICES: ServiceData[] = [

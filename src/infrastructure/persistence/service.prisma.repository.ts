@@ -46,5 +46,7 @@ function toService(record: any): Service {
     iconName: record.icon ?? "default",
     isActive: record.isActive,
     sortOrder: record.sortOrder,
+    photo: record.photo ?? undefined,
+    content: record.content ?? undefined,
   };
 }

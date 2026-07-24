@@ -91,6 +91,8 @@ model Service {
   slug        String   @unique
   title       String
   description String?
+  content     String?
+  photo       String?
   icon        String   @default("car")
   color       String   @default("#E74C3C")
   isActive    Boolean  @default(true) @map("is_active")

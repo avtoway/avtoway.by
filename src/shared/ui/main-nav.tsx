@@ -37,10 +37,11 @@ export default function MainNav() {
           return (
             <span key={item.href} className="group relative">
               <Link href="/services"
-                className={`relative cursor-pointer rounded-full px-4 py-2 no-underline transition-all duration-300 ${
+                className={`group/link relative cursor-pointer rounded-full px-4 py-2 no-underline transition-all duration-300 ${
                   active ? "text-white" : "text-zinc-400 hover:text-white"
                 }`}>
                 {item.label}
+                <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover/link:scale-x-100" />
                 {active && <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-primary" />}
               </Link>
               {services.length > 0 && (
@@ -63,10 +64,11 @@ export default function MainNav() {
 
         return (
           <Link key={item.href} href={item.href}
-            className={`relative cursor-pointer rounded-full px-4 py-2 no-underline transition-all duration-300 ${
+            className={`group relative cursor-pointer rounded-full px-4 py-2 no-underline transition-all duration-300 ${
               active ? "text-white" : "text-zinc-400 hover:text-white"
             }`}>
             {item.label}
+            <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
             {active && <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-primary" />}
           </Link>
         );

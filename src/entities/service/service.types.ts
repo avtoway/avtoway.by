@@ -7,4 +7,6 @@ export interface Service {
   iconName: string;
   isActive: boolean;
   sortOrder: number;
+  photo?: string;
+  content?: string;
 }

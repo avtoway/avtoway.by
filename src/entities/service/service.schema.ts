@@ -11,6 +11,8 @@ export const ServiceSchema = z.object({
   iconName: z.enum(ICONS).optional(),
   isActive: z.boolean().optional(),
   sortOrder: z.number().int().min(0).optional(),
+  photo: z.string().optional().or(z.literal("")),
+  content: z.string().optional().or(z.literal("")),
 });
 
 export type ServiceInput = z.infer<typeof ServiceSchema>;

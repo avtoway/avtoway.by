@@ -19,6 +19,8 @@ function toService(s: ServiceData, index: number): Service {
     iconName: iconNames[s.color] ?? "default",
     isActive: s.isActive,
     sortOrder: index,
+    photo: s.photo,
+    content: s.content,
   };
 }
 
