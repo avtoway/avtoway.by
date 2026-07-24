@@ -143,6 +143,26 @@ model RentType {
   @@map("rent_types")
 }
 
+model CarBrand {
+  id     String     @id @default(uuid())
+  name   String     @unique
+  slug   String     @unique
+  models CarModel[]
+
+  @@map("car_brands")
+}
+
+model CarModel {
+  id       String   @id @default(uuid())
+  brandId  String   @map("brand_id")
+  brand    CarBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  name     String
+  slug     String
+
+  @@unique([brandId, slug])
+  @@map("car_models")
+}
+
 model RentCar {
   id            String   @id @default(uuid())
   name          String

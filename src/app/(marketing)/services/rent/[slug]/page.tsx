@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceRows } from "@/shared/lib/price";
+import PhotoGallery from "@/shared/ui/photo-gallery";
 import type { Metadata } from "next";
 
 interface Props { params: Promise<{ slug: string }> }
@@ -61,18 +62,8 @@ export default async function RentCarDetailPage({ params }: Props) {
 
       {/* Photo gallery */}
       <section className="bg-zinc-900/30">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-8">
-          {photos.length > 0 ? (
-            <div className={`grid gap-3 ${photos.length > 1 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-1"}`}>
-              {photos.map((url, i) => (
-                <div key={i} className={`overflow-hidden rounded-xl bg-zinc-800 ${i === 0 ? "sm:col-span-2 sm:row-span-2" : ""}`}>
-                  <img src={url} alt={`${car.name} - ${i + 1}`} className="h-full w-full object-cover" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex h-48 items-center justify-center rounded-xl bg-zinc-800 text-6xl text-zinc-700">🚗</div>
-          )}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-24 pb-8">
+          <PhotoGallery photos={photos} mainPhoto={mainPhoto} />
         </div>
       </section>
 

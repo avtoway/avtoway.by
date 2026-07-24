@@ -2,6 +2,7 @@
 
 import UploadZone from "@/shared/ui/admin/upload-zone";
 import FieldError from "@/shared/ui/field-error";
+import { useEffect, useState } from "react";
 
 const TRANSMISSIONS = [
   { value: "auto", label: "Автомат" },
@@ -38,6 +39,7 @@ interface FormData {
 }
 
 interface RentType { id: string; name: string; slug: string; }
+interface Brand { id: string; name: string; slug: string; models: { id: string; name: string; slug: string }[]; }
 
 export default function RentCarForm({
   form, onChange, rentTypes, errors,
@@ -47,6 +49,22 @@ export default function RentCarForm({
   rentTypes: RentType[];
   errors?: Record<string, string>;
 }) {
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [models, setModels] = useState<Brand["models"]>([]);
+
+  useEffect(() => {
+    fetch("/api/cars").then(r => r.json()).then(j => { if (j.ok) setBrands(j.data); });
+  }, []);
+
+  useEffect(() => {
+    if (form.brand) {
+      const brand = brands.find(b => b.slug === form.brand || b.name === form.brand);
+      setModels(brand?.models ?? []);
+    } else {
+      setModels([]);
+    }
+  }, [form.brand, brands]);
+
   const eb = (key: string) => errors?.[key] ? "border-red-500" : "border-slate-700";
 
   const selectedFeatures: string[] = form.features ? form.features.split(",").filter(Boolean) : [];
@@ -116,11 +134,17 @@ export default function RentCarForm({
               className={`rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("slug")}`} />
             <FieldError error={errors?.slug} /></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Марка</span>
-            <input value={form.brand} onChange={e => onChange("brand", e.target.value)}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            <select value={form.brand} onChange={e => { onChange("brand", e.target.value); onChange("model", ""); }}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+              <option value="">Выберите</option>
+              {brands.map(b => <option key={b.id} value={b.slug}>{b.name}</option>)}
+            </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Модель</span>
-            <input value={form.model} onChange={e => onChange("model", e.target.value)}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
+            <select value={form.model} onChange={e => onChange("model", e.target.value)}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+              <option value="">Выберите</option>
+              {models.map(m => <option key={m.id} value={m.slug}>{m.name}</option>)}
+            </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Год</span>
             <input type="number" value={form.year} onChange={e => onChange("year", e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>

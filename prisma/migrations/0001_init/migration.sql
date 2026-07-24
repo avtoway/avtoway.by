@@ -118,6 +118,22 @@ CREATE TABLE "rent_types" (
 );
 
 -- CreateTable
+CREATE TABLE "car_brands" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "car_models" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "brand_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    CONSTRAINT "car_models_brand_id_fkey" FOREIGN KEY ("brand_id") REFERENCES "car_brands" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "rent_cars" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -177,6 +193,15 @@ CREATE UNIQUE INDEX "settings_key_key" ON "settings"("key");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "rent_types_slug_key" ON "rent_types"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "car_brands_name_key" ON "car_brands"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "car_brands_slug_key" ON "car_brands"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "car_models_brand_id_slug_key" ON "car_models"("brand_id", "slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "rent_cars_slug_key" ON "rent_cars"("slug");
