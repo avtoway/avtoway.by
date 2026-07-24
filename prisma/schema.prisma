@@ -147,16 +147,25 @@ model RentCar {
   id            String   @id @default(uuid())
   name          String
   slug          String   @unique
-  photos        String?
-  description   String?
-  price         Int?
-  rentTypeId    String?  @map("rent_type_id")
-  rentType      RentType? @relation(fields: [rentTypeId], references: [id])
+  brand         String?
+  model         String?
   year          Int?
+  color         String?
   transmission  String?
   fuel          String?
-  seats         Int?
   engineVolume  String?  @map("engine_volume")
+  seats         Int?
+  features      String?
+  photos        String?
+  description   String?
+  priceDay      Int?     @map("price_day")
+  price3Days    Int?     @map("price_3days")
+  price7Days    Int?     @map("price_7days")
+  priceMonth    Int?     @map("price_month")
+  priceWeekTaxi Int?     @map("price_week_taxi")
+  priceDayTaxi  Int?     @map("price_day_taxi")
+  rentTypeId    String?  @map("rent_type_id")
+  rentType      RentType? @relation(fields: [rentTypeId], references: [id])
   isActive      Boolean  @default(true) @map("is_active")
   sortOrder     Int      @default(0) @map("sort_order")
   createdAt     DateTime @default(now()) @map("created_at")
