@@ -1,0 +1,145 @@
+import { notFound } from "next/navigation";
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import type { Metadata } from "next";
+
+interface Props { params: Promise<{ slug: string }> }
+
+const TRANSMISSION_LABEL: Record<string, string> = {
+  auto: "Автомат", manual: "Механика", robot: "Робот", variator: "Вариатор",
+};
+const FUEL_LABEL: Record<string, string> = {
+  gasoline: "Бензин", diesel: "Дизель", electric: "Электро", hybrid: "Гибрид",
+  propane: "Газ (пропан)", methane: "Газ (метан)",
+};
+
+async function getCar(slug: string) {
+  const db = getPrismaClient();
+  return db.rentCar.findUnique({
+    where: { slug, isActive: true },
+    include: { rentType: true },
+  });
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const car = await getCar(slug);
+  if (!car) return { title: "Авто не найдено" };
+  return { title: `${car.name} — Аренда | АВТОWAY`, description: car.description ?? "" };
+}
+
+export default async function RentCarDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const car = await getCar(slug);
+  if (!car) notFound();
+
+  const photos = (car.photos ?? "").split(",").filter(Boolean);
+  const features = (car.features ?? "").split(",").filter(Boolean);
+
+  return (
+    <div className="min-h-screen bg-zinc-950">
+      {/* Photo gallery */}
+      <section className="bg-zinc-900/30">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-8">
+          {photos.length > 0 ? (
+            <div className={`grid gap-3 ${photos.length > 1 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-1"}`}>
+              {photos.map((url, i) => (
+                <div key={i} className={`overflow-hidden rounded-xl bg-zinc-800 ${i === 0 ? "sm:col-span-2 sm:row-span-2" : ""}`}>
+                  <img src={url} alt={`${car.name} - ${i + 1}`} className="h-full w-full object-cover" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-48 items-center justify-center rounded-xl bg-zinc-800 text-6xl text-zinc-700">🚗</div>
+          )}
+        </div>
+      </section>
+
+      {/* Info */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+        <div className="mt-8 grid gap-10 lg:grid-cols-3">
+          {/* Main info */}
+          <div className="lg:col-span-2">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-white sm:text-4xl">{car.name}</h1>
+                {car.rentType && (
+                  <span className="mt-2 inline-block rounded bg-red-600/20 px-2.5 py-0.5 text-sm font-medium text-red-400">
+                    {car.rentType.name}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Specs grid */}
+            <div className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 sm:grid-cols-3">
+              <Spec label="Год" value={car.year?.toString()} />
+              <Spec label="Коробка" value={TRANSMISSION_LABEL[car.transmission ?? ""] ?? car.transmission ?? undefined} />
+              <Spec label="Топливо" value={FUEL_LABEL[car.fuel ?? ""] ?? car.fuel ?? undefined} />
+              <Spec label="Объём" value={car.engineVolume ? `${car.engineVolume} л` : undefined} />
+              <Spec label="Мест" value={car.seats?.toString()} />
+              {car.color && <Spec label="Цвет" value={car.color ?? undefined} />}
+            </div>
+
+            {/* Features */}
+            {features.length > 0 && (
+              <div className="mt-6">
+                <h2 className="mb-3 text-lg font-semibold text-white">Комфорт и опции</h2>
+                <div className="flex flex-wrap gap-2">
+                  {features.map(f => (
+                    <span key={f} className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300">
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            {car.description && (
+              <div className="mt-6">
+                <h2 className="mb-3 text-lg font-semibold text-white">Описание</h2>
+                <p className="text-sm leading-relaxed text-zinc-400 whitespace-pre-line">{car.description}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Price card */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-28 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+              <h2 className="text-lg font-semibold text-white">Цены</h2>
+              <div className="mt-4 space-y-3">
+                {car.priceDay && <PriceRow label="1 день" value={`${car.priceDay} ₽`} />}
+                {car.price3Days && <PriceRow label="3 дня" value={`${car.price3Days} ₽`} />}
+                {car.price7Days && <PriceRow label="7 дней" value={`${car.price7Days} ₽`} />}
+                {car.priceMonth && <PriceRow label="Месяц" value={`${car.priceMonth} ₽`} />}
+                {car.priceWeekTaxi && <PriceRow label="Такси — неделя" value={`${car.priceWeekTaxi} ₽`} />}
+                {car.priceDayTaxi && <PriceRow label="Такси — день (среднее)" value={`${car.priceDayTaxi} ₽`} />}
+              </div>
+              {!car.priceDay && !car.price3Days && !car.price7Days && !car.priceMonth && !car.priceWeekTaxi && (
+                <p className="text-sm text-zinc-500">Цена не указана</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Spec({ label, value }: { label: string; value?: string }) {
+  return (
+    <div>
+      <p className="text-xs text-zinc-500">{label}</p>
+      <p className="mt-0.5 text-sm font-medium text-white">{value ?? "—"}</p>
+    </div>
+  );
+}
+
+function PriceRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0">
+      <span className="text-sm text-zinc-400">{label}</span>
+      <span className="text-base font-bold text-green-400">{value}</span>
+    </div>
+  );
+}
