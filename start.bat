@@ -1,5 +1,6 @@
 @echo off
 title avtoway.by - dev
+set DATABASE_URL=file:./data/avtoway.db
 
 echo 1/3 Migrations...
 call npx prisma migrate dev
