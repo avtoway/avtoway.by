@@ -148,8 +148,8 @@ export default function RentPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white sm:text-4xl">Аренда авто</h1>
-            <p className="mt-1 text-sm text-zinc-500">Подберите авто под свои задачи</p>
+            <h1 className="text-3xl font-bold text-white sm:text-4xl">Аренда</h1>
+            <p className="mt-1 text-sm text-zinc-500">Надёжные авто под любые задачи — на день, неделю или месяц</p>
           </div>
           <button onClick={() => setShowFilters(!showFilters)}
             className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-400 hover:text-white lg:hidden">

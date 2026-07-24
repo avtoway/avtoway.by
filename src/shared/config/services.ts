@@ -12,8 +12,8 @@ export interface ServiceData {
 export const SERVICES: ServiceData[] = [
   {
     slug: "rent",
-    title: "Аренда авто",
-    desc: "Авто под такси, просто аренда и подкаты. Прозрачно и честно.",
+    title: "Аренда",
+    desc: "Надёжные авто под ваши задачи. По дням, неделям и месяцам.",
     href: "/services/rent",
     color: "#3b82f6",
     isActive: true,

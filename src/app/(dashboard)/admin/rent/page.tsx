@@ -123,7 +123,7 @@ export default function AdminRentPage() {
     <div>
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Аренда авто</h1>
+          <h1 className="text-2xl font-bold">Аренда</h1>
           <p className="mt-0.5 text-sm text-slate-500">Управление автомобилями</p>
         </div>
         <div className="flex gap-2">
