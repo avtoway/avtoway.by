@@ -183,7 +183,7 @@ export default function AdminRentPage() {
                     {c.seats && ` · ${c.seats} мест`}
                   </td>
                   <td className="px-4 py-3 text-sm text-green-400">
-                    {c.priceDay ? `${c.priceDay} ₽/день` : c.price7Days ? `${c.price7Days} ₽/нед` : "—"}
+                    {c.priceDay ? `${c.priceDay} BYN/день` : c.price7Days ? `${c.price7Days} BYN/нед` : "—"}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`rounded px-2 py-0.5 text-xs ${c.isActive ? "bg-green-900/50 text-green-300" : "bg-slate-800 text-slate-500"}`}>

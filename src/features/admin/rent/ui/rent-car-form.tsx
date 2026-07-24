@@ -171,7 +171,7 @@ export default function RentCarForm({
 
       {/* Цены */}
       <fieldset className="rounded-xl border border-slate-800 p-4">
-        <legend className="px-1 text-xs font-medium text-slate-400">Цены (в рублях)</legend>
+        <legend className="px-1 text-xs font-medium text-slate-400">Цены (BYN)</legend>
         <div className="mt-3 grid grid-cols-3 gap-4">
           <PriceInput label="За сутки" value={form.priceDay} onChange={v => onChange("priceDay", v)} />
           <PriceInput label="На 3 дня" value={form.price3Days} onChange={v => onChange("price3Days", v)} />
@@ -210,7 +210,7 @@ function PriceInput({ label, value, onChange }: { label: string; value: string; 
       <div className="relative">
         <input type="number" value={value} onChange={e => onChange(e.target.value)}
           className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 pr-8 text-sm text-white outline-none focus:border-red-500" />
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">₽</span>
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">BYN</span>
       </div>
     </label>
   );

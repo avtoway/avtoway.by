@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import { getUsdRate } from "@/shared/lib/exchange-rate";
+import { getPriceRows } from "@/shared/lib/price";
 import type { Metadata } from "next";
 
 interface Props { params: Promise<{ slug: string }> }
@@ -35,6 +37,8 @@ export default async function RentCarDetailPage({ params }: Props) {
   const photos = (car.photos ?? "").split(",").filter(Boolean);
   const features = (car.features ?? "").split(",").filter(Boolean);
   const mainPhoto = car.mainPhoto ?? photos[0];
+  const priceRows = getPriceRows(car);
+  const usdRate = await getUsdRate();
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -125,16 +129,23 @@ export default async function RentCarDetailPage({ params }: Props) {
           <div className="lg:col-span-1">
             <div className="sticky top-28 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
               <h2 className="text-lg font-semibold text-white">Цены</h2>
-              <div className="mt-4 space-y-3">
-                {car.priceDay && <PriceRow label="1 день" value={`${car.priceDay} ₽`} />}
-                {car.price3Days && <PriceRow label="3 дня" value={`${car.price3Days} ₽`} />}
-                {car.price7Days && <PriceRow label="7 дней" value={`${car.price7Days} ₽`} />}
-                {car.priceMonth && <PriceRow label="Месяц" value={`${car.priceMonth} ₽`} />}
-                {car.priceWeekTaxi && <PriceRow label="Такси — неделя" value={`${car.priceWeekTaxi} ₽`} />}
-                {car.priceDayTaxi && <PriceRow label="Такси — день (среднее)" value={`${car.priceDayTaxi} ₽`} />}
-              </div>
-              {!car.priceDay && !car.price3Days && !car.price7Days && !car.priceMonth && !car.priceWeekTaxi && (
-                <p className="text-sm text-zinc-500">Цена не указана</p>
+              {priceRows.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  {priceRows.map((r, i) => {
+                    const usdVal = usdRate ? Math.round(parseInt(r.value.replace(/\D/g, "")) / usdRate) : null;
+                    return (
+                      <div key={i} className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0">
+                        <div>
+                          <span className="text-sm text-zinc-400">{r.label}</span>
+                          {usdVal && <p className="text-[10px] text-zinc-600">≈ ${usdVal.toLocaleString()}</p>}
+                        </div>
+                        <span className="text-base font-bold text-green-400">{r.value}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-zinc-500">Цена не указана</p>
               )}
             </div>
           </div>

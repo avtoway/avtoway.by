@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getPriceLabel } from "@/shared/lib/price";
 
 interface RentType { id: string; name: string; slug: string; }
 interface RentCar {
@@ -34,6 +35,7 @@ const ALL_FEATURES = [
 export default function RentPage() {
   const [cars, setCars] = useState<RentCar[]>([]);
   const [types, setTypes] = useState<RentType[]>([]);
+  const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
@@ -48,9 +50,11 @@ export default function RentPage() {
     Promise.all([
       fetch("/api/rent").then(r => r.json()),
       fetch("/api/rent?types=true").then(r => r.json()),
-    ]).then(([cRes, tRes]) => {
+      fetch("/api/exchange-rate").then(r => r.json()),
+    ]).then(([cRes, tRes, eRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (tRes.ok) setTypes(tRes.data);
+      if (eRes.ok) setUsdRate(eRes.rate);
       setLoading(false);
     });
   }, []);
@@ -178,8 +182,8 @@ export default function RentPage() {
             ) : filtered.length === 0 ? (
               <p className="pt-10 text-center text-zinc-600">Нет автомобилей под ваши фильтры</p>
             ) : (
-              <div className="flex flex-col gap-4">
-                {filtered.map(c => <CarCard key={c.id} car={c} />)}
+                  <div className="flex flex-col gap-4">
+                {filtered.map(c => <CarCard key={c.id} car={c} usdRate={usdRate} />)}
               </div>
             )}
           </div>
@@ -189,10 +193,12 @@ export default function RentPage() {
   );
 }
 
-function CarCard({ car }: { car: RentCar }) {
+function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
   const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
-  const priceLabel = car.priceDay ? `${car.priceDay} ₽/день` : car.price7Days ? `${car.price7Days} ₽/нед` : null;
+  const priceLabel = getPriceLabel(car);
+  const priceValue = car.priceDay ?? car.price7Days ?? car.priceWeekTaxi ?? car.price3Days ?? null;
+  const usdValue = usdRate && priceValue ? Math.round(priceValue / usdRate) : null;
 
   return (
     <Link href={`/services/rent/${car.slug}`}
@@ -237,13 +243,18 @@ function CarCard({ car }: { car: RentCar }) {
       </div>
 
       {/* Price + button */}
-      <div className="flex shrink-0 flex-col items-end justify-center gap-3 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-44">
+      <div className="flex shrink-0 flex-col items-end justify-center gap-1 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-48">
         {priceLabel ? (
-          <p className="text-xl font-bold text-green-400 whitespace-nowrap">{priceLabel}</p>
+          <>
+            <p className="text-xl font-bold text-green-400 whitespace-nowrap">{priceLabel}</p>
+            {usdValue && (
+              <p className="text-xs text-zinc-500">≈ ${usdValue.toLocaleString()}</p>
+            )}
+          </>
         ) : (
           <p className="text-sm text-zinc-600">Цена не указана</p>
         )}
-        <span className="rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full">
+        <span className="rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full mt-1">
           Подробнее →
         </span>
       </div>
