@@ -84,12 +84,15 @@ export default function AdminRentPage() {
     setModal(true);
   }
 
+  const NUM_FIELDS = new Set(["year", "seats", "priceDay", "price3Days", "price7Days", "priceMonth", "priceWeekTaxi", "priceDayTaxi", "sortOrder"]);
+
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {
       const body: Record<string, any> = {};
       for (const [k, v] of Object.entries(form)) {
-        body[k] = v === "" ? null : v;
+        if (v === "" || v === null || v === undefined) { body[k] = null; continue; }
+        body[k] = NUM_FIELDS.has(k) ? Number(v) : v;
       }
       const url = editing ? `/api/rent/${editing.id}` : "/api/rent";
       const method = editing ? "PUT" : "POST";
