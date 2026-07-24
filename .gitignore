@@ -36,6 +36,9 @@ prisma/migrations/*/migration_lock.toml
 # snapshot backups (local copies, not needed in repo)
 snapshots/
 
+# uploaded files
+/public/uploads/
+
 # env files (can opt-in for committing if needed)
 .env*
 
