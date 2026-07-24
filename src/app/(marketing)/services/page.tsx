@@ -24,7 +24,6 @@ export default async function ServicesPage() {
               className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-900 hover:-translate-y-0.5 sm:flex-row"
               style={{ animationDelay: `${i * 0.05}s` }}>
 
-              {/* Photo side */}
               <div className="relative h-48 shrink-0 overflow-hidden sm:h-auto sm:w-56 lg:w-72">
                 <div className="absolute inset-0 bg-zinc-900" />
                 {s.photo ? (
@@ -38,7 +37,6 @@ export default async function ServicesPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent to-zinc-900/90 sm:to-zinc-900/95" />
               </div>
 
-              {/* Content side */}
               <div className="flex flex-1 flex-col justify-center p-6 sm:p-8">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
