@@ -1,63 +1,76 @@
+"use client";
+
 import Link from "next/link";
-import { container } from "@/di/container";
-import type { ServiceRepository } from "@/entities/service/service.repository";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import type { Service } from "@/entities/service/service.types";
 
-async function getServices() {
-  try {
-    const repo = container.get<ServiceRepository>("ServiceRepository");
-    return await repo.getActive();
-  } catch { return []; }
-}
+const NAV_ITEMS = [
+  { label: "Главная", href: "/", end: true },
+  { label: "Услуги", href: "/services" },
+  { label: "О нас", href: "/about" },
+  { label: "Партнёры", href: "/partners" },
+  { label: "Контакты", href: "/contacts" },
+];
 
-export default async function MainNav() {
-  const services = await getServices();
+export default function MainNav() {
+  const pathname = usePathname();
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    fetch("/api/services").then(r => r.json()).then(json => {
+      if (json.ok) setServices(json.data.filter((s: Service) => s.isActive));
+    }).catch(() => {});
+  }, []);
+
+  const isActive = (href: string, end?: boolean) => {
+    if (end) return pathname === href;
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
-    <nav className="animate-nav flex items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5 text-base font-medium backdrop-blur-sm sm:gap-3 sm:px-4">
-      <Link href="/" className="animate-nav-item group relative cursor-pointer rounded-full px-4 py-2 text-zinc-400 no-underline transition-all duration-300 hover:text-white" style={{ animationDelay: "0.05s" }}>
-        Главная
-        <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
-      </Link>
+    <nav className="flex items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5 text-base font-medium backdrop-blur-sm sm:gap-3 sm:px-4">
+      {NAV_ITEMS.map(item => {
+        const active = isActive(item.href, (item as any).end);
 
-      {/* Services dropdown */}
-      <span className="group relative" style={{ animationDelay: "0.1s" }}>
-        <span className="animate-nav-item flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-2 text-zinc-400 transition-all duration-300 hover:text-white">
-          Услуги
-          <svg className="size-3 transition-transform duration-300 group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-        </span>
-        {services.length > 0 && (
-          <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-56 -translate-x-1/2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/95 p-2 shadow-2xl backdrop-blur-xl">
-              {services.map(s => (
-                <Link key={s.slug} href={s.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-md text-xs" style={{ backgroundColor: s.color + "20", color: s.color }}>
-                    {ICON_MAP[s.iconName] ?? "⚙"}
-                  </span>
-                  {s.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-      </span>
+        if (item.href === "/services") {
+          return (
+            <span key={item.href} className="group relative">
+              <Link href="/services"
+                className={`relative cursor-pointer rounded-full px-4 py-2 no-underline transition-all duration-300 ${
+                  active ? "text-white" : "text-zinc-400 hover:text-white"
+                }`}>
+                {item.label}
+                {active && <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-primary" />}
+              </Link>
+              {services.length > 0 && (
+                <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-56 -translate-x-1/2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-950/95 p-2 shadow-2xl backdrop-blur-xl">
+                    {services.map(s => (
+                      <Link key={s.slug} href={s.href}
+                        className={`block rounded-lg px-3 py-2.5 text-sm transition ${
+                          pathname === s.href ? "text-white bg-zinc-800" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                        }`}>
+                        {s.title}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </span>
+          );
+        }
 
-      <Link href="/about" className="animate-nav-item group relative cursor-pointer rounded-full px-4 py-2 text-zinc-400 no-underline transition-all duration-300 hover:text-white" style={{ animationDelay: "0.15s" }}>
-        О нас
-        <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
-      </Link>
-
-      <Link href="/partners" className="animate-nav-item group relative cursor-pointer rounded-full px-4 py-2 text-zinc-400 no-underline transition-all duration-300 hover:text-white" style={{ animationDelay: "0.2s" }}>
-        Партнёры
-        <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
-      </Link>
-
-      <Link href="/contacts" className="animate-nav-item group relative cursor-pointer rounded-full px-4 py-2 text-zinc-400 no-underline transition-all duration-300 hover:text-white" style={{ animationDelay: "0.25s" }}>
-        Контакты
-        <span className="absolute inset-x-3 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
-      </Link>
+        return (
+          <Link key={item.href} href={item.href}
+            className={`relative cursor-pointer rounded-full px-4 py-2 no-underline transition-all duration-300 ${
+              active ? "text-white" : "text-zinc-400 hover:text-white"
+            }`}>
+            {item.label}
+            {active && <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-primary" />}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
-
-const ICON_MAP: Record<string, string> = { youtube: "▶", car: "🚗", "check-circle": "✓", dollar: "$" };

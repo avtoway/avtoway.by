@@ -19,8 +19,8 @@ export type NavItem = NavLink | NavDropdown | NavPlaceholder;
 
 export const NAV_ITEMS: NavItem[] = [
   { type: "link", label: "Главная", href: "/" },
-  { type: "dropdown", label: "Услуги", items: [] },
+  { type: "link", label: "Услуги", href: "/services" },
   { type: "link", label: "О нас", href: "/about" },
-  { type: "placeholder", label: "Партнёры" },
-  { type: "placeholder", label: "Контакты" },
+  { type: "link", label: "Партнёры", href: "/partners" },
+  { type: "link", label: "Контакты", href: "/contacts" },
 ];
