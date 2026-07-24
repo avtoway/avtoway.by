@@ -70,6 +70,19 @@ async function main() {
     await prisma.userRole.create({ data: { userId, roleId: role.id } });
   }
 
+  // Seed rent types
+  const rentTypes = [
+    { slug: "rent", name: "Аренда", sortOrder: 1 },
+    { slug: "taxi", name: "Под такси", sortOrder: 2 },
+  ];
+  for (const rt of rentTypes) {
+    const existing = await prisma.rentType.findUnique({ where: { slug: rt.slug } });
+    if (!existing) {
+      await prisma.rentType.create({ data: rt });
+      console.log(`  Тип аренды: ${rt.name}`);
+    }
+  }
+
   console.log("База данных готова");
   console.log("  Логин: admin / admin123");
   console.log("  Роли: Администратор, Редактор, Наблюдатель");

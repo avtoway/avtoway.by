@@ -132,6 +132,7 @@ CREATE TABLE "rent_cars" (
     "seats" INTEGER,
     "features" TEXT,
     "photos" TEXT,
+    "main_photo" TEXT,
     "description" TEXT,
     "price_day" INTEGER,
     "price_3days" INTEGER,

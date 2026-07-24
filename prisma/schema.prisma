@@ -157,6 +157,7 @@ model RentCar {
   seats         Int?
   features      String?
   photos        String?
+  mainPhoto     String?  @map("main_photo")
   description   String?
   priceDay      Int?     @map("price_day")
   price3Days    Int?     @map("price_3days")

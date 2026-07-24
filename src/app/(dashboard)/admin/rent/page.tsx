@@ -13,7 +13,7 @@ interface RentCar {
   year?: number; transmission?: string; fuel?: string; seats?: number;
   priceDay?: number; price3Days?: number; price7Days?: number;
   rentTypeId?: string; rentType?: { id: string; name: string };
-  isActive: boolean; photos?: string;
+  isActive: boolean; photos?: string; mainPhoto?: string;
 }
 
 const TRANSMISSION_LABEL: Record<string, string> = {
@@ -28,7 +28,7 @@ const FUEL_LABEL: Record<string, string> = {
 const EMPTY_FORM = {
   name: "", slug: "", brand: "", model: "", year: "", color: "",
   transmission: "", fuel: "", engineVolume: "", seats: "", features: "",
-  photos: "", description: "",
+  photos: "", mainPhoto: "", description: "",
   priceDay: "", price3Days: "", price7Days: "", priceMonth: "",
   priceWeekTaxi: "", priceDayTaxi: "",
   rentTypeId: "", isActive: true,
@@ -74,7 +74,7 @@ export default function AdminRentPage() {
       year: c.year?.toString() ?? "", color: "",
       transmission: c.transmission ?? "", fuel: c.fuel ?? "",
       engineVolume: "", seats: c.seats?.toString() ?? "",
-      features: "", photos: c.photos ?? "", description: "",
+      features: "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "", description: "",
       priceDay: c.priceDay?.toString() ?? "", price3Days: c.price3Days?.toString() ?? "",
       price7Days: c.price7Days?.toString() ?? "", priceMonth: "",
       priceWeekTaxi: "", priceDayTaxi: "",

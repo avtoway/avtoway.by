@@ -31,7 +31,7 @@ interface FormData {
   name: string; slug: string; brand: string; model: string;
   year: string; color: string; transmission: string; fuel: string;
   engineVolume: string; seats: string; features: string;
-  photos: string; description: string;
+  photos: string; mainPhoto: string; description: string;
   priceDay: string; price3Days: string; price7Days: string; priceMonth: string;
   priceWeekTaxi: string; priceDayTaxi: string;
   rentTypeId: string; isActive: boolean;
@@ -61,22 +61,42 @@ export default function RentCarForm({
     <div className="flex flex-col gap-6">
       {/* Фото */}
       <div className="rounded-xl border border-slate-800 p-4">
-        <p className="mb-3 text-xs font-medium text-slate-500">Фотография авто</p>
-        <UploadZone label="Загрузить фото" currentPreview={form.photos?.split(",")[0]}
-          onUpload={url => onChange("photos", form.photos ? form.photos + "," + url : url)} />
-        {form.photos && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {form.photos.split(",").map((url, i) => (
-              <div key={i} className="group relative h-16 w-24 overflow-hidden rounded-lg bg-slate-800">
-                <img src={url} alt="" className="h-full w-full object-cover" />
-                <button type="button" onClick={() => {
-                  const arr = form.photos!.split(",");
-                  arr.splice(i, 1);
-                  onChange("photos", arr.join(","));
-                }}
-                  className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[10px] text-white opacity-0 transition group-hover:opacity-100">×</button>
-              </div>
-            ))}
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs font-medium text-slate-500">Фотографии ({photosCount(form.photos)} / 20)</p>
+        </div>
+        <UploadZone label="Загрузить фото" onUpload={url => {
+          const arr = photosArr(form.photos);
+          if (arr.length >= 20) return;
+          const updated = [...arr, url].join(",");
+          onChange("photos", updated);
+          if (!form.mainPhoto) onChange("mainPhoto", url);
+        }} />
+        {photosCount(form.photos) > 0 && (
+          <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">
+            {photosArr(form.photos).map((url, i) => {
+              const isMain = url === form.mainPhoto;
+              return (
+                <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-slate-800">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  {isMain && (
+                    <span className="absolute left-1 top-1 rounded bg-red-600 px-1.5 py-0.5 text-[9px] font-medium text-white">Главная</span>
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/0 opacity-0 transition group-hover:bg-black/50 group-hover:opacity-100">
+                    {!isMain && (
+                      <button type="button" onClick={() => onChange("mainPhoto", url)}
+                        className="rounded bg-white/20 px-2 py-1 text-[10px] text-white backdrop-blur-sm hover:bg-white/40">Главная</button>
+                    )}
+                    <button type="button" onClick={() => {
+                      const arr = photosArr(form.photos);
+                      arr.splice(i, 1);
+                      onChange("photos", arr.join(","));
+                      if (isMain) onChange("mainPhoto", arr[0] ?? "");
+                    }}
+                      className="rounded bg-red-600/80 px-2 py-1 text-[10px] text-white hover:bg-red-600">×</button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -177,6 +197,9 @@ export default function RentCarForm({
     </div>
   );
 }
+
+function photosCount(photos: string) { return photos ? photos.split(",").filter(Boolean).length : 0; }
+function photosArr(photos: string) { return photos ? photos.split(",").filter(Boolean) : []; }
 
 function PriceInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (

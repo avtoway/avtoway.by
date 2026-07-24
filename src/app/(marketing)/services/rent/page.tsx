@@ -8,7 +8,7 @@ interface RentCar {
   id: string; name: string; slug: string; brand?: string; model?: string;
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string;
-  photos?: string; description?: string;
+  photos?: string; mainPhoto?: string; description?: string;
   priceDay?: number; price3Days?: number; price7Days?: number;
   priceMonth?: number; priceWeekTaxi?: number; priceDayTaxi?: number;
   rentType?: { id: string; name: string; slug: string };
@@ -183,7 +183,7 @@ export default function RentPage() {
 }
 
 function CarCard({ car }: { car: RentCar }) {
-  const firstPhoto = car.photos?.split(",")[0];
+  const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
 
   return (

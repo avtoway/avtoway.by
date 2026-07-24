@@ -34,6 +34,7 @@ export default async function RentCarDetailPage({ params }: Props) {
 
   const photos = (car.photos ?? "").split(",").filter(Boolean);
   const features = (car.features ?? "").split(",").filter(Boolean);
+  const mainPhoto = car.mainPhoto ?? photos[0];
 
   return (
     <div className="min-h-screen bg-zinc-950">
