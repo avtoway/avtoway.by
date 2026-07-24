@@ -132,3 +132,35 @@ model Setting {
 
   @@map("settings")
 }
+
+model RentType {
+  id        String    @id @default(uuid())
+  slug      String    @unique
+  name      String
+  sortOrder Int       @default(0)
+  cars      RentCar[]
+
+  @@map("rent_types")
+}
+
+model RentCar {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  photos        String?
+  description   String?
+  price         Int?
+  rentTypeId    String?  @map("rent_type_id")
+  rentType      RentType? @relation(fields: [rentTypeId], references: [id])
+  year          Int?
+  transmission  String?
+  fuel          String?
+  seats         Int?
+  engineVolume  String?  @map("engine_volume")
+  isActive      Boolean  @default(true) @map("is_active")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("rent_cars")
+}

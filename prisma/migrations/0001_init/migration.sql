@@ -71,6 +71,8 @@ CREATE TABLE "services" (
     "slug" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
+    "content" TEXT,
+    "photo" TEXT,
     "icon" TEXT NOT NULL DEFAULT 'car',
     "color" TEXT NOT NULL DEFAULT '#E74C3C',
     "is_active" BOOLEAN NOT NULL DEFAULT true,
@@ -107,6 +109,35 @@ CREATE TABLE "settings" (
     "value" TEXT NOT NULL
 );
 
+-- CreateTable
+CREATE TABLE "rent_types" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0
+);
+
+-- CreateTable
+CREATE TABLE "rent_cars" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "photos" TEXT,
+    "description" TEXT,
+    "price" INTEGER,
+    "rent_type_id" TEXT,
+    "year" INTEGER,
+    "transmission" TEXT,
+    "fuel" TEXT,
+    "seats" INTEGER,
+    "engine_volume" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "sort_order" INTEGER NOT NULL DEFAULT 0,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL,
+    CONSTRAINT "rent_cars_rent_type_id_fkey" FOREIGN KEY ("rent_type_id") REFERENCES "rent_types" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_login_key" ON "users"("login");
 
@@ -133,4 +164,10 @@ CREATE UNIQUE INDEX "services_slug_key" ON "services"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "settings_key_key" ON "settings"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "rent_types_slug_key" ON "rent_types"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "rent_cars_slug_key" ON "rent_cars"("slug");
 

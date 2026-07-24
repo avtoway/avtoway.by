@@ -11,9 +11,11 @@ import type { VideoSource } from "@/entities/video/video-source";
 import type { UserRepository } from "@/entities/user/user.repository";
 import type { RoleRepository } from "@/entities/role/role.repository";
 import type { AuditLogRepository } from "@/entities/audit/audit.repository";
+import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 import { PrismaUserRepository } from "@/infrastructure/persistence/user.prisma.repository";
 import { PrismaRoleRepository } from "@/infrastructure/persistence/role.prisma.repository";
 import { PrismaAuditLogRepository } from "@/infrastructure/persistence/audit.prisma.repository";
+import { PrismaRentCarRepository } from "@/infrastructure/persistence/rent.prisma.repository";
 
 function configureDevelopment() {
   container.register<ServiceRepository>("ServiceRepository", new MemoryServiceRepository());
@@ -26,6 +28,7 @@ function configureDevelopment() {
   container.register<UserRepository>("UserRepository", new PrismaUserRepository());
   container.register<RoleRepository>("RoleRepository", new PrismaRoleRepository());
   container.register<AuditLogRepository>("AuditLogRepository", new PrismaAuditLogRepository());
+  container.register<RentCarRepository>("RentCarRepository", new PrismaRentCarRepository());
 }
 
 async function configureProduction() {
@@ -41,6 +44,7 @@ async function configureProduction() {
   container.register<UserRepository>("UserRepository", new PrismaUserRepository());
   container.register<RoleRepository>("RoleRepository", new PrismaRoleRepository());
   container.register<AuditLogRepository>("AuditLogRepository", new PrismaAuditLogRepository());
+  container.register<RentCarRepository>("RentCarRepository", new PrismaRentCarRepository());
 }
 
 const isProduction = process.env.NODE_ENV === "production" && !!process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith("postgresql://");
