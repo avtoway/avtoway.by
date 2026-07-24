@@ -1,9 +1,9 @@
 "use client";
 
 import FieldError from "@/shared/ui/field-error";
+import UploadZone from "@/shared/ui/admin/upload-zone";
 
 const ICONS = ["youtube", "car", "check-circle", "dollar"];
-const ICON_MAP: Record<string, string> = { youtube: "▶", car: "🚗", "check-circle": "✓", dollar: "$" };
 
 export interface ServiceFormData {
   slug: string;
@@ -14,6 +14,8 @@ export interface ServiceFormData {
   iconName: string;
   isActive: boolean;
   sortOrder: number;
+  photo?: string;
+  content?: string;
 }
 
 export default function ServiceForm({
@@ -27,17 +29,6 @@ export default function ServiceForm({
   const eb = (key: string) => errors?.[key] ? "border-red-500" : "border-slate-700";
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-        <p className="mb-2 text-xs font-medium text-slate-500">Превью карточки на сайте</p>
-        <div className="flex items-center gap-4 rounded-lg p-4" style={{ background: `linear-gradient(135deg, ${form.color}15, ${form.color}05)`, borderLeft: `3px solid ${form.color}` }}>
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl text-xl" style={{ backgroundColor: form.color + "25", color: form.color }}>{ICON_MAP[form.iconName] ?? "⚙"}</span>
-          <div>
-            <p className="font-semibold text-white">{form.title || "Название услуги"}</p>
-            <p className="text-xs text-slate-400">{form.desc || "Описание услуги"}</p>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Slug</span>
           <input value={form.slug} onChange={e => onChange("slug", e.target.value)} disabled={editing}
@@ -47,11 +38,15 @@ export default function ServiceForm({
           <input value={form.title} onChange={e => onChange("title", e.target.value)}
             className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("title")}`} />
           <FieldError error={errors?.title} /></label>
-        <label className="flex flex-col gap-1 col-span-2"><span className="text-xs font-medium text-slate-400">Описание</span>
+        <label className="flex flex-col gap-1 col-span-2"><span className="text-xs font-medium text-slate-400">Краткое описание (на карточке)</span>
           <textarea value={form.desc} onChange={e => onChange("desc", e.target.value)} rows={2}
             className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("desc")}`} />
           <FieldError error={errors?.desc} /></label>
-        <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Ссылка (href)</span>
+        <label className="flex flex-col gap-1 col-span-2"><span className="text-xs font-medium text-slate-400">Подробное описание (на странице услуги)</span>
+          <textarea value={form.content ?? ""} onChange={e => onChange("content", e.target.value)} rows={5}
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("content")}`} />
+          <FieldError error={errors?.content} /></label>
+        <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Ссылка</span>
           <input value={form.href} onChange={e => onChange("href", e.target.value)}
             className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("href")}`} />
           <FieldError error={errors?.href} /></label>
@@ -67,11 +62,16 @@ export default function ServiceForm({
           <input type="number" value={form.sortOrder} onChange={e => onChange("sortOrder", Number(e.target.value))}
             className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("sortOrder")}`} />
           <FieldError error={errors?.sortOrder} /></label>
-        <label className="flex items-center gap-2 mt-1.5">
+        <label className="flex items-center gap-2">
           <input type="checkbox" checked={form.isActive} onChange={e => onChange("isActive", e.target.checked)}
             className="h-4 w-4 accent-red-600" />
           <span className="text-sm text-slate-400">{form.isActive ? "Показывать на сайте" : "Скрыта"}</span>
         </label>
+      </div>
+
+      <div className="rounded-xl border border-slate-800 p-4">
+        <p className="mb-3 text-xs font-medium text-slate-500">Фото услуги</p>
+        <UploadZone label="Загрузить фото" currentPreview={form.photo} onUpload={url => onChange("photo", url)} />
       </div>
     </div>
   );
