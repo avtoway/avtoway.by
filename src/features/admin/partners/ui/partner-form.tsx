@@ -79,17 +79,24 @@ function AlbumSection({ photos, onAdd, onRemove }: { photos: string[]; onAdd: (u
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
+  async function uploadFile(file: File): Promise<string | null> {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const json = await res.json();
+    return json.ok ? json.url : null;
+  }
+
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
     setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (json.ok) onAdd(json.url);
-    } finally { setUploading(false); }
+    for (const file of Array.from(files)) {
+      const url = await uploadFile(file);
+      if (url) onAdd(url);
+    }
+    setUploading(false);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
@@ -104,7 +111,7 @@ function AlbumSection({ photos, onAdd, onRemove }: { photos: string[]; onAdd: (u
               className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-xs text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600">×</button>
           </div>
         ))}
-        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        <input ref={inputRef} type="file" accept="image/*" className="hidden" multiple onChange={handleFile} />
         <button type="button" disabled={uploading} onClick={() => inputRef.current?.click()}
           className="flex aspect-video items-center justify-center rounded-lg border-2 border-dashed border-slate-700 text-2xl text-slate-600 transition hover:border-slate-500 hover:text-slate-400 disabled:opacity-50">
           {uploading ? "..." : "+"}

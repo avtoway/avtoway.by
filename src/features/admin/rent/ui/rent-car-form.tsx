@@ -64,12 +64,14 @@ export default function RentCarForm({
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-medium text-slate-500">Фотографии ({photosCount(form.photos)} / 20)</p>
         </div>
-        <UploadZone label="Загрузить фото" onUpload={url => {
+        <UploadZone label="Загрузить фото" multiple onUploadMultiple={urls => {
           const arr = photosArr(form.photos);
-          if (arr.length >= 20) return;
-          const updated = [...arr, url].join(",");
+          const remaining = 20 - arr.length;
+          const toAdd = urls.slice(0, remaining);
+          if (toAdd.length === 0) return;
+          const updated = [...arr, ...toAdd].join(",");
           onChange("photos", updated);
-          if (!form.mainPhoto) onChange("mainPhoto", url);
+          if (!form.mainPhoto) onChange("mainPhoto", toAdd[0]);
         }} />
         {photosCount(form.photos) > 0 && (
           <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">

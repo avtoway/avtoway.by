@@ -3,43 +3,55 @@
 import { useRef, useState } from "react";
 
 interface UploadZoneProps {
-  onUpload: (url: string) => void;
+  onUpload?: (url: string) => void;
+  onUploadMultiple?: (urls: string[]) => void;
   currentPreview?: string;
   label?: string;
+  multiple?: boolean;
 }
 
-export default function UploadZone({ onUpload, currentPreview, label = "Загрузить фото" }: UploadZoneProps) {
+export default function UploadZone({ onUpload, onUploadMultiple, currentPreview, label = "Загрузить фото", multiple }: UploadZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentPreview || "");
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function uploadFile(file: File): Promise<string | null> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const json = await res.json();
+    return json.ok ? json.url : null;
+  }
 
-    // Show local preview immediately
-    const localUrl = URL.createObjectURL(file);
-    setPreview(localUrl);
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
     setUploading(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const json = await res.json();
-      if (json.ok) {
-        setPreview(json.url);
-        onUpload(json.url);
+    if (multiple && onUploadMultiple) {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFile(file);
+        if (url) urls.push(url);
+      }
+      if (urls.length > 0) onUploadMultiple(urls);
+    } else {
+      const file = files[0];
+      if (!file) { setUploading(false); return; }
+      const localUrl = URL.createObjectURL(file);
+      setPreview(localUrl);
+      const url = await uploadFile(file);
+      if (url) {
+        setPreview(url);
+        onUpload?.(url);
       } else {
         setPreview(currentPreview || "");
-        alert(json.error ?? "Upload failed");
       }
-    } catch {
-      setPreview(currentPreview || "");
-      alert("Upload failed");
-    } finally {
-      setUploading(false);
     }
+
+    setUploading(false);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
@@ -48,7 +60,7 @@ export default function UploadZone({ onUpload, currentPreview, label = "Загр
         {preview ? (
           <img src={preview} alt="" className="h-full w-full rounded-xl object-cover" />
         ) : (
-          <span className="text-2xl font-bold text-slate-500">?</span>
+          <span className={`text-2xl font-bold ${multiple ? "text-slate-600" : "text-slate-500"}`}>{multiple ? "+" : "?"}</span>
         )}
       </div>
       <div className="flex-1">
@@ -57,6 +69,7 @@ export default function UploadZone({ onUpload, currentPreview, label = "Загр
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           className="hidden"
+          multiple={multiple}
           onChange={handleFile}
         />
         <button
@@ -67,10 +80,10 @@ export default function UploadZone({ onUpload, currentPreview, label = "Загр
         >
           {uploading ? "Загрузка..." : label}
         </button>
-        {preview && (
+        {preview && !multiple && (
           <button
             type="button"
-            onClick={() => { setPreview(""); onUpload(""); }}
+            onClick={() => { setPreview(""); onUpload?.(""); }}
             className="ml-2 rounded px-2 py-1 text-xs text-red-400 hover:bg-red-950"
           >
             Удалить
