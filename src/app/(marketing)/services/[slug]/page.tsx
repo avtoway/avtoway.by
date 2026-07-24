@@ -30,7 +30,15 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      {/* Hero with photo background */}
+      <div className="mx-auto max-w-4xl px-6 pt-24 pb-2">
+        <div className="text-xs text-zinc-500">
+          <a href="/" className="hover:text-white transition">Главная</a>
+          <span className="mx-1">/</span>
+          <a href="/services" className="hover:text-white transition">Услуги</a>
+          <span className="mx-1">/</span>
+          <span className="text-zinc-400">{service.title}</span>
+        </div>
+      </div>
       <section className="relative flex min-h-[60dvh] items-center overflow-hidden">
         {service.photo && (
           <div className="absolute inset-0">

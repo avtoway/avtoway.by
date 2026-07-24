@@ -38,6 +38,23 @@ export default async function RentCarDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-zinc-950">
+      {/* Breadcrumbs + back */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-2">
+        <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <a href="/" className="hover:text-white transition">Главная</a>
+          <span>/</span>
+          <a href="/services" className="hover:text-white transition">Услуги</a>
+          <span>/</span>
+          <a href="/services/rent" className="hover:text-white transition">Аренда</a>
+          <span>/</span>
+          <span className="text-zinc-400">{car.name}</span>
+        </div>
+        <a href="/services/rent"
+          className="mt-3 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition">
+          ← Назад к списку
+        </a>
+      </div>
+
       {/* Photo gallery */}
       <section className="bg-zinc-900/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-8">

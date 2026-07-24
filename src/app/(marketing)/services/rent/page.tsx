@@ -146,6 +146,13 @@ export default function RentPage() {
   return (
     <div className="min-h-screen bg-zinc-950 pt-24 pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-4 text-xs text-zinc-500">
+          <a href="/" className="hover:text-white transition">Главная</a>
+          <span className="mx-1">/</span>
+          <a href="/services" className="hover:text-white transition">Услуги</a>
+          <span className="mx-1">/</span>
+          <span className="text-zinc-400">Аренда</span>
+        </div>
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white sm:text-4xl">Аренда</h1>
@@ -171,7 +178,7 @@ export default function RentPage() {
             ) : filtered.length === 0 ? (
               <p className="pt-10 text-center text-zinc-600">Нет автомобилей под ваши фильтры</p>
             ) : (
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="flex flex-col gap-4">
                 {filtered.map(c => <CarCard key={c.id} car={c} />)}
               </div>
             )}
@@ -185,11 +192,13 @@ export default function RentPage() {
 function CarCard({ car }: { car: RentCar }) {
   const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
+  const priceLabel = car.priceDay ? `${car.priceDay} ₽/день` : car.price7Days ? `${car.price7Days} ₽/нед` : null;
 
   return (
     <Link href={`/services/rent/${car.slug}`}
-      className="group block overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/30 transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-900 hover:-translate-y-0.5">
-      <div className="relative h-44 overflow-hidden bg-zinc-800 sm:h-48">
+      className="group flex flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/30 transition-all duration-300 hover:border-zinc-700 hover:bg-zinc-900 sm:flex-row">
+      {/* Photo */}
+      <div className="relative h-48 shrink-0 overflow-hidden bg-zinc-800 sm:h-auto sm:w-56">
         {firstPhoto ? (
           <img src={firstPhoto} alt={car.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -203,34 +212,40 @@ function CarCard({ car }: { car: RentCar }) {
         )}
       </div>
 
-      <div className="p-4">
-        <h3 className="font-semibold text-white">{car.name}</h3>
-        <p className="mt-0.5 text-xs text-zinc-500">
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <h3 className="text-xl font-bold text-white">{car.name}</h3>
+        <p className="mt-1 text-xs text-zinc-500">
           {car.year} · {TRANSMISSION_LABEL[car.transmission ?? ""] ?? car.transmission}
           {car.transmission && car.fuel && " · "}
           {FUEL_LABEL[car.fuel ?? ""] ?? car.fuel}
           {car.engineVolume && ` · ${car.engineVolume} л`}
         </p>
-
+        {car.description && (
+          <p className="mt-2 text-sm leading-relaxed text-zinc-400 line-clamp-2">{car.description}</p>
+        )}
         {carFeatures.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
-            {carFeatures.slice(0, 3).map(f => (
-              <span key={f} className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">{f}</span>
+            {carFeatures.slice(0, 4).map(f => (
+              <span key={f} className="rounded bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-400">{f}</span>
             ))}
-            {carFeatures.length > 3 && (
-              <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500">+{carFeatures.length - 3}</span>
+            {carFeatures.length > 4 && (
+              <span className="rounded bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-500">+{carFeatures.length - 4}</span>
             )}
           </div>
         )}
+      </div>
 
-        {car.description && (
-          <p className="mt-2 text-xs leading-relaxed text-zinc-500 line-clamp-2">{car.description}</p>
+      {/* Price + button */}
+      <div className="flex shrink-0 flex-col items-end justify-center gap-3 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-44">
+        {priceLabel ? (
+          <p className="text-xl font-bold text-green-400 whitespace-nowrap">{priceLabel}</p>
+        ) : (
+          <p className="text-sm text-zinc-600">Цена не указана</p>
         )}
-
-        <div className="mt-3 flex items-center justify-between border-t border-zinc-800 pt-3">
-          <p className="text-base font-bold text-green-400">{car.priceDay ? `${car.priceDay} ₽/день` : car.price7Days ? `${car.price7Days} ₽/нед` : "—"}</p>
-          <span className="text-xs font-medium text-red-500 transition-colors">Подробнее →</span>
-        </div>
+        <span className="rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full">
+          Подробнее →
+        </span>
       </div>
     </Link>
   );

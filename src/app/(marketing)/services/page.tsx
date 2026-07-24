@@ -11,6 +11,11 @@ export default async function ServicesPage() {
   return (
     <div className="min-h-screen bg-zinc-950 pt-32 pb-24">
       <div className="mx-auto max-w-5xl px-6">
+        <div className="mb-2 text-xs text-zinc-500">
+          <a href="/" className="hover:text-white transition">Главная</a>
+          <span className="mx-1">/</span>
+          <span className="text-zinc-400">Услуги</span>
+        </div>
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">Наши услуги</h1>
           <p className="mt-3 text-base text-zinc-400 max-w-xl mx-auto">
