@@ -10,8 +10,10 @@ interface RentType { id: string; name: string; slug: string; sortOrder: number; 
 
 interface RentCar {
   id: string; name: string; slug: string; brand?: string; model?: string;
-  year?: number; transmission?: string; fuel?: string; seats?: number;
+  year?: number; color?: string; transmission?: string; fuel?: string;
+  engineVolume?: string; seats?: number; features?: string; description?: string;
   priceDay?: number; price3Days?: number; price7Days?: number;
+  priceMonth?: number; priceWeekTaxi?: number; priceDayTaxi?: number;
   rentTypeId?: string; rentType?: { id: string; name: string };
   isActive: boolean; photos?: string; mainPhoto?: string;
 }
@@ -71,13 +73,13 @@ export default function AdminRentPage() {
     setForm({
       name: c.name, slug: c.slug,
       brand: c.brand ?? "", model: c.model ?? "",
-      year: c.year?.toString() ?? "", color: "",
+      year: c.year?.toString() ?? "", color: c.color ?? "",
       transmission: c.transmission ?? "", fuel: c.fuel ?? "",
-      engineVolume: "", seats: c.seats?.toString() ?? "",
-      features: "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "", description: "",
+      engineVolume: c.engineVolume ?? "", seats: c.seats?.toString() ?? "",
+      features: c.features ?? "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "", description: c.description ?? "",
       priceDay: c.priceDay?.toString() ?? "", price3Days: c.price3Days?.toString() ?? "",
-      price7Days: c.price7Days?.toString() ?? "", priceMonth: "",
-      priceWeekTaxi: "", priceDayTaxi: "",
+      price7Days: c.price7Days?.toString() ?? "", priceMonth: c.priceMonth?.toString() ?? "",
+      priceWeekTaxi: c.priceWeekTaxi?.toString() ?? "", priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
       rentTypeId: c.rentTypeId ?? "", isActive: c.isActive,
     });
     setEditing(c);
