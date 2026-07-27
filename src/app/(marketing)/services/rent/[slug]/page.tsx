@@ -84,7 +84,8 @@ export default async function RentCarDetailPage({ params }: Props) {
 
       {/* Description below photos */}
       {car.description && (
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-6 pb-4">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-8 pb-4">
+          <h2 className="mb-4 text-lg font-semibold text-white">Описание</h2>
           <p className="text-base leading-relaxed text-zinc-300 whitespace-pre-line">{car.description}</p>
         </div>
       )}
@@ -94,6 +95,7 @@ export default async function RentCarDetailPage({ params }: Props) {
         <div className="mt-6 grid gap-8 lg:grid-cols-3">
           {/* Specs + features */}
           <div className="lg:col-span-2 space-y-6">
+            <h2 className="text-lg font-semibold text-white">Характеристики</h2>
             <div className="grid grid-cols-2 gap-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 sm:grid-cols-3">
               <Spec label="Год" value={car.year?.toString()} />
               <Spec label="Коробка" value={TRANSMISSION_LABEL[car.transmission ?? ""] ?? car.transmission ?? undefined} />
