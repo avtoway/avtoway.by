@@ -60,31 +60,41 @@ export default async function RentCarDetailPage({ params }: Props) {
         </a>
       </div>
 
+      {/* Title + price row (before photos) */}
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-8 pb-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">{car.name}</h1>
+            {car.rentType && (
+              <span className="mt-2 inline-block rounded bg-red-600/20 px-2.5 py-0.5 text-sm font-medium text-red-400">
+                {car.rentType.name}
+              </span>
+            )}
+          </div>
+          {priceRows.length > 0 && <PriceHero priceRow={priceRows[0]!} usdRate={usdRate} />}
+        </div>
+      </div>
+
       {/* Photo gallery */}
       <section className="bg-zinc-900/30">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-24 pb-8">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
           <PhotoGallery photos={photos} mainPhoto={mainPhoto} />
         </div>
       </section>
 
-      {/* Info */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
-        <div className="mt-8 grid gap-10 lg:grid-cols-3">
-          {/* Main info */}
-          <div className="lg:col-span-2">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-white sm:text-4xl">{car.name}</h1>
-                {car.rentType && (
-                  <span className="mt-2 inline-block rounded bg-red-600/20 px-2.5 py-0.5 text-sm font-medium text-red-400">
-                    {car.rentType.name}
-                  </span>
-                )}
-              </div>
-            </div>
+      {/* Description below photos */}
+      {car.description && (
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-6 pb-4">
+          <p className="text-base leading-relaxed text-zinc-300 whitespace-pre-line">{car.description}</p>
+        </div>
+      )}
 
-            {/* Specs grid */}
-            <div className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 sm:grid-cols-3">
+      {/* Specs + price grid */}
+      <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-16">
+        <div className="mt-6 grid gap-8 lg:grid-cols-3">
+          {/* Specs + features */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-2 gap-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 sm:grid-cols-3">
               <Spec label="Год" value={car.year?.toString()} />
               <Spec label="Коробка" value={TRANSMISSION_LABEL[car.transmission ?? ""] ?? car.transmission ?? undefined} />
               <Spec label="Топливо" value={FUEL_LABEL[car.fuel ?? ""] ?? car.fuel ?? undefined} />
@@ -93,34 +103,23 @@ export default async function RentCarDetailPage({ params }: Props) {
               {car.color && <Spec label="Цвет" value={car.color ?? undefined} />}
             </div>
 
-            {/* Features */}
             {features.length > 0 && (
-              <div className="mt-6">
+              <div>
                 <h2 className="mb-3 text-lg font-semibold text-white">Комфорт и опции</h2>
                 <div className="flex flex-wrap gap-2">
                   {features.map(f => (
-                    <span key={f} className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300">
-                      {f}
-                    </span>
+                    <span key={f} className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-300">{f}</span>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Description */}
-            {car.description && (
-              <div className="mt-6">
-                <h2 className="mb-3 text-lg font-semibold text-white">Описание</h2>
-                <p className="text-sm leading-relaxed text-zinc-400 whitespace-pre-line">{car.description}</p>
-              </div>
-            )}
           </div>
 
-          {/* Price card */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-28 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <h2 className="text-lg font-semibold text-white">Цены</h2>
-              {priceRows.length > 0 ? (
+          {/* All prices */}
+          {priceRows.length > 0 && (
+            <div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+                <h2 className="text-lg font-semibold text-white">Все цены</h2>
                 <div className="mt-4 space-y-3">
                   {priceRows.map((r, i) => {
                     const usdVal = usdRate ? Math.round(parseInt(r.value.replace(/\D/g, "")) / usdRate) : null;
@@ -135,11 +134,9 @@ export default async function RentCarDetailPage({ params }: Props) {
                     );
                   })}
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-zinc-500">Цена не указана</p>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </div>
@@ -151,6 +148,17 @@ function Spec({ label, value }: { label: string; value?: string }) {
     <div>
       <p className="text-xs text-zinc-500">{label}</p>
       <p className="mt-0.5 text-sm font-medium text-white">{value ?? "—"}</p>
+    </div>
+  );
+}
+
+function PriceHero({ priceRow, usdRate }: { priceRow: { label: string; value: string }; usdRate: number | null }) {
+  const usdVal = usdRate ? Math.round(parseInt(priceRow.value.replace(/\D/g, "")) / usdRate) : null;
+  return (
+    <div className="flex shrink-0 items-baseline gap-3 rounded-xl border border-green-800/50 bg-green-950/20 px-5 py-3 sm:flex-col sm:items-end">
+      <p className="text-sm text-zinc-500">от</p>
+      <p className="text-2xl font-bold text-green-400 sm:text-3xl">{priceRow.value}</p>
+      {usdVal && <p className="text-xs text-zinc-500">≈ ${usdVal.toLocaleString()}</p>}
     </div>
   );
 }

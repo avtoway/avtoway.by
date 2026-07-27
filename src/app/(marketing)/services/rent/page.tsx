@@ -32,12 +32,17 @@ const ALL_FEATURES = [
   "Камера заднего вида", "Кожаный салон",
 ];
 
+interface Brand { id: string; name: string; slug: string; models: { id: string; name: string; slug: string }[]; }
+
 export default function RentPage() {
   const [cars, setCars] = useState<RentCar[]>([]);
   const [types, setTypes] = useState<RentType[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [modelFilter, setModelFilter] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
   const [priceTo, setPriceTo] = useState("");
   const [transmissionFilter, setTransmissionFilter] = useState("");
@@ -50,17 +55,24 @@ export default function RentPage() {
     Promise.all([
       fetch("/api/rent").then(r => r.json()),
       fetch("/api/rent?types=true").then(r => r.json()),
+      fetch("/api/cars").then(r => r.json()),
       fetch("/api/exchange-rate").then(r => r.json()),
-    ]).then(([cRes, tRes, eRes]) => {
+    ]).then(([cRes, tRes, bRes, eRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (tRes.ok) setTypes(tRes.data);
+      if (bRes.ok) setBrands(bRes.data);
       if (eRes.ok) setUsdRate(eRes.rate);
       setLoading(false);
     });
   }, []);
 
+  const selectedBrand = brands.find(b => b.slug === brandFilter);
+  const selectedModels = selectedBrand?.models ?? [];
+
   const filtered = cars.filter(c => {
     if (typeFilter && c.rentType?.slug !== typeFilter) return false;
+    if (brandFilter && c.brand !== brandFilter && c.brand !== selectedBrand?.name) return false;
+    if (modelFilter && c.model !== modelFilter) return false;
     if (transmissionFilter && c.transmission !== transmissionFilter) return false;
     if (fuelFilter && c.fuel !== fuelFilter) return false;
     if (seatsFilter && (c.seats ?? 0) < parseInt(seatsFilter)) return false;
