@@ -5,6 +5,7 @@ import AdminModal from "@/shared/ui/admin-modal";
 import RentCarForm from "@/features/admin/rent/ui/rent-car-form";
 import { useToast } from "@/shared/lib/toat-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
+import { getPriceLabel } from "@/shared/lib/price";
 
 interface RentType { id: string; name: string; slug: string; sortOrder: number; }
 
@@ -185,7 +186,7 @@ export default function AdminRentPage() {
                     {c.seats && ` · ${c.seats} мест`}
                   </td>
                   <td className="px-4 py-3 text-sm text-green-400">
-                    {c.priceDay ? `${c.priceDay} BYN/день` : c.price7Days ? `${c.price7Days} BYN/нед` : "—"}
+                    {getPriceLabel(c) ?? "—"}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`rounded px-2 py-0.5 text-xs ${c.isActive ? "bg-green-900/50 text-green-300" : "bg-slate-800 text-slate-500"}`}>
