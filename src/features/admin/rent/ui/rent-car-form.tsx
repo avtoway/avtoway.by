@@ -34,7 +34,7 @@ interface FormData {
   engineVolume: string; seats: string; features: string;
   photos: string; mainPhoto: string; description: string;
   priceDay: string; price3Days: string; price7Days: string; priceMonth: string;
-  priceWeekTaxi: string; priceDayTaxi: string;
+  priceDayTaxi: string;
   rentTypeId: string; isActive: boolean;
 }
 
@@ -199,9 +199,8 @@ export default function RentCarForm({
         <div className="mt-3 grid grid-cols-3 gap-4">
           <PriceInput label="За сутки" value={form.priceDay} onChange={v => onChange("priceDay", v)} />
           <PriceInput label="На 3 дня" value={form.price3Days} onChange={v => onChange("price3Days", v)} />
-          <PriceInput label="На 7 дней" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
+          <PriceInput label="На 7 дней / неделя" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
           <PriceInput label="На месяц" value={form.priceMonth} onChange={v => onChange("priceMonth", v)} />
-          <PriceInput label="Такси — неделя" value={form.priceWeekTaxi} onChange={v => onChange("priceWeekTaxi", v)} />
           <PriceInput label="Такси — день (среднее)" value={form.priceDayTaxi} onChange={v => onChange("priceDayTaxi", v)} />
         </div>
       </fieldset>

@@ -14,7 +14,7 @@ interface RentCar {
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string; description?: string;
   priceDay?: number; price3Days?: number; price7Days?: number;
-  priceMonth?: number; priceWeekTaxi?: number; priceDayTaxi?: number;
+  priceMonth?: number; priceDayTaxi?: number;
   rentTypeId?: string; rentType?: { id: string; name: string };
   isActive: boolean; photos?: string; mainPhoto?: string;
 }
@@ -33,7 +33,7 @@ const EMPTY_FORM = {
   transmission: "", fuel: "", engineVolume: "", seats: "", features: "",
   photos: "", mainPhoto: "", description: "",
   priceDay: "", price3Days: "", price7Days: "", priceMonth: "",
-  priceWeekTaxi: "", priceDayTaxi: "",
+  priceDayTaxi: "",
   rentTypeId: "", isActive: true,
 };
 
@@ -80,14 +80,14 @@ export default function AdminRentPage() {
       features: c.features ?? "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "", description: c.description ?? "",
       priceDay: c.priceDay?.toString() ?? "", price3Days: c.price3Days?.toString() ?? "",
       price7Days: c.price7Days?.toString() ?? "", priceMonth: c.priceMonth?.toString() ?? "",
-      priceWeekTaxi: c.priceWeekTaxi?.toString() ?? "", priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
+      priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
       rentTypeId: c.rentTypeId ?? "", isActive: c.isActive,
     });
     setEditing(c);
     setModal(true);
   }
 
-  const NUM_FIELDS = new Set(["year", "seats", "priceDay", "price3Days", "price7Days", "priceMonth", "priceWeekTaxi", "priceDayTaxi", "sortOrder"]);
+  const NUM_FIELDS = new Set(["year", "seats", "priceDay", "price3Days", "price7Days", "priceMonth", "priceDayTaxi", "sortOrder"]);
 
   const handleSave = useCallback(async () => {
     setSaving(true);

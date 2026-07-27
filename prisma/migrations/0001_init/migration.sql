@@ -154,7 +154,6 @@ CREATE TABLE "rent_cars" (
     "price_3days" INTEGER,
     "price_7days" INTEGER,
     "price_month" INTEGER,
-    "price_week_taxi" INTEGER,
     "price_day_taxi" INTEGER,
     "rent_type_id" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,

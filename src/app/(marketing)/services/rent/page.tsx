@@ -11,7 +11,7 @@ interface RentCar {
   engineVolume?: string; seats?: number; features?: string;
   photos?: string; mainPhoto?: string; description?: string;
   priceDay?: number; price3Days?: number; price7Days?: number;
-  priceMonth?: number; priceWeekTaxi?: number; priceDayTaxi?: number;
+  priceMonth?: number; priceDayTaxi?: number;
   rentType?: { id: string; name: string; slug: string };
   isActive: boolean;
 }
@@ -209,7 +209,7 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
   const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
   const priceLabel = getPriceLabel(car);
-  const priceValue = car.priceDay ?? car.price7Days ?? car.priceWeekTaxi ?? car.price3Days ?? null;
+  const priceValue = car.priceDay ?? car.price7Days ?? car.price3Days ?? null;
   const usdValue = usdRate && priceValue ? Math.round(priceValue / usdRate) : null;
 
   return (

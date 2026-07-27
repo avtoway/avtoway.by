@@ -18,7 +18,6 @@ export interface RentCar {
   price3Days?: number;
   price7Days?: number;
   priceMonth?: number;
-  priceWeekTaxi?: number;
   priceDayTaxi?: number;
   rentTypeId?: string;
   rentType?: { id: string; name: string; slug: string };
