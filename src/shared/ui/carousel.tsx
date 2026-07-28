@@ -10,6 +10,7 @@ interface CarouselProps<T> {
   cardWidth?: number;
   gap?: number;
   peekWidth?: number;
+  visibleCards?: number;
   autoScroll?: number;
   showDots?: boolean;
   showArrows?: boolean;
@@ -20,7 +21,8 @@ export default function Carousel<T>({
   renderItem,
   cardWidth = 340,
   gap = 24,
-  peekWidth = 64,
+  peekWidth = 80,
+  visibleCards = 3,
   autoScroll,
   showDots = true,
   showArrows = true,
@@ -31,78 +33,80 @@ export default function Carousel<T>({
 
   const wrap = (i: number) => ((i % n) + n) % n;
 
-  const peekLeft = items[wrap(current - 1)]!;
-  const card0 = items[wrap(current)]!;
-  const card1 = items[wrap(current + 1)]!;
-  const peekRight = items[wrap(current + 2)]!;
+  const visible = n > visibleCards ? visibleCards : n;
+  const cards: ReactNode[] = [];
+  for (let i = 0; i < visible + 2; i++) {
+    const idx = wrap(current - 1 + i);
+    const item = items[idx];
+    if (!item) break;
+    if (i === 0 || i === visible + 1) {
+      cards.push(
+        <div key={i === 0 ? "prev" : "next"} className="relative shrink-0">
+          <div
+            className="overflow-hidden h-full"
+            style={{
+              width: peekWidth,
+              WebkitMaskImage: i === 0
+                ? "linear-gradient(to right, transparent 0%, black 30%, black 100%)"
+                : "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
+              maskImage: i === 0
+                ? "linear-gradient(to right, transparent 0%, black 30%, black 100%)"
+                : "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
+              borderRadius: i === 0 ? "0 1rem 1rem 0" : "1rem 0 0 1rem",
+            }}
+          >
+            <div className="h-full" style={{ width: cardWidth, marginLeft: i === 0 ? -(cardWidth - peekWidth) : 0 }}>
+              {renderItem(item, idx)}
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      cards.push(
+        <div key={`card-${i}`} className="shrink-0" style={{ width: cardWidth }}>
+          {renderItem(item, idx)}
+        </div>
+      );
+    }
+  }
 
-  const viewportWidth = 2 * peekWidth + 2 * cardWidth + 3 * gap;
+  const fullWidth = visible * cardWidth + (visible - 1) * gap;
+  const totalWidth = fullWidth + 2 * peekWidth + 2 * gap;
 
   return (
     <div
       className="relative select-none mx-auto"
-      style={{ width: viewportWidth, maxWidth: "calc(100vw - 48px)" }}
+      style={{ maxWidth: totalWidth + 120 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center" style={{ gap }}>
-        {/* Left peek */}
-        <div className="relative shrink-0">
-          {showArrows && (
-            <button
-              onClick={goPrev}
-              className="absolute left-1/2 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
-              aria-label="Назад"
-            >
-              <IconChevronLeft />
-            </button>
-          )}
-          <div
-            className="overflow-hidden rounded-r-2xl"
-            style={{
-              width: peekWidth,
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
-              maskImage: "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
-            }}
-          >
-            <div className="h-full" style={{ width: cardWidth, marginLeft: -(cardWidth - peekWidth) }}>
-              {renderItem(peekLeft, wrap(current - 1))}
-            </div>
-          </div>
-        </div>
+      {showArrows && (
+        <button
+          onClick={goPrev}
+          className="absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
+          aria-label="Назад"
+          style={{ left: -60 }}
+        >
+          <IconChevronLeft />
+        </button>
+      )}
 
-        <div className="shrink-0" style={{ width: cardWidth }}>
-          {renderItem(card0, wrap(current))}
-        </div>
-        <div className="shrink-0" style={{ width: cardWidth }}>
-          {renderItem(card1, wrap(current + 1))}
-        </div>
-
-        {/* Right peek */}
-        <div className="relative shrink-0">
-          {showArrows && (
-            <button
-              onClick={goNext}
-              className="absolute left-1/2 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
-              aria-label="Вперёд"
-            >
-              <IconChevronRight />
-            </button>
-          )}
-          <div
-            className="overflow-hidden rounded-l-2xl"
-            style={{
-              width: peekWidth,
-              WebkitMaskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
-              maskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
-            }}
-          >
-            <div className="h-full" style={{ width: cardWidth }}>
-              {renderItem(peekRight, wrap(current + 2))}
-            </div>
-          </div>
+      <div className="mx-auto" style={{ maxWidth: totalWidth }}>
+        <div className="flex items-center" style={{ gap }}>
+          {cards}
         </div>
       </div>
+
+      {showArrows && (
+        <button
+          onClick={goNext}
+          className="absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
+          aria-label="Вперёд"
+          style={{ right: -60 }}
+        >
+          <IconChevronRight />
+        </button>
+      )}
 
       {showDots && (
         <div className="relative z-10 mt-6 flex justify-center gap-2">
