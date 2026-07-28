@@ -34,40 +34,40 @@ export default function Carousel<T>({
   const peekLeft = items[wrap(current - 1)]!;
   const card0 = items[wrap(current)]!;
   const card1 = items[wrap(current + 1)]!;
-  const card2 = items[wrap(current + 2)]!;
-  const peekRight = items[wrap(current + 3)]!;
+  const peekRight = items[wrap(current + 2)]!;
 
-  const viewportWidth = 2 * peekWidth + 3 * cardWidth + 4 * gap;
+  const viewportWidth = 2 * peekWidth + 2 * cardWidth + 3 * gap;
 
   return (
     <div
       className="relative select-none mx-auto"
-      style={{ width: viewportWidth, maxWidth: "calc(100vw - 144px)" }}
+      style={{ width: viewportWidth, maxWidth: "calc(100vw - 48px)" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {showArrows && (
-        <button
-          onClick={goPrev}
-          className="absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
-          aria-label="Назад"
-          style={{ left: -60 }}
-        >
-          <IconChevronLeft />
-        </button>
-      )}
-
-      <div className="flex" style={{ gap }}>
-        <div
-          className="shrink-0 overflow-hidden relative rounded-r-2xl"
-          style={{
-            width: peekWidth,
-            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 20%, black 100%)",
-            maskImage: "linear-gradient(to right, transparent 0%, black 20%, black 100%)",
-          }}
-        >
-          <div className="h-full" style={{ width: cardWidth, marginLeft: -(cardWidth - peekWidth) }}>
-            {renderItem(peekLeft, wrap(current - 1))}
+      <div className="flex items-center" style={{ gap }}>
+        {/* Left peek */}
+        <div className="relative shrink-0">
+          {showArrows && (
+            <button
+              onClick={goPrev}
+              className="absolute left-1/2 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
+              aria-label="Назад"
+            >
+              <IconChevronLeft />
+            </button>
+          )}
+          <div
+            className="overflow-hidden rounded-r-2xl"
+            style={{
+              width: peekWidth,
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+              maskImage: "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+            }}
+          >
+            <div className="h-full" style={{ width: cardWidth, marginLeft: -(cardWidth - peekWidth) }}>
+              {renderItem(peekLeft, wrap(current - 1))}
+            </div>
           </div>
         </div>
 
@@ -77,34 +77,32 @@ export default function Carousel<T>({
         <div className="shrink-0" style={{ width: cardWidth }}>
           {renderItem(card1, wrap(current + 1))}
         </div>
-        <div className="shrink-0" style={{ width: cardWidth }}>
-          {renderItem(card2, wrap(current + 2))}
-        </div>
 
-        <div
-          className="shrink-0 overflow-hidden relative rounded-l-2xl"
-          style={{
-            width: peekWidth,
-            WebkitMaskImage: "linear-gradient(to left, transparent 0%, black 20%, black 100%)",
-            maskImage: "linear-gradient(to left, transparent 0%, black 20%, black 100%)",
-          }}
-        >
-          <div className="h-full" style={{ width: cardWidth }}>
-            {renderItem(peekRight, wrap(current + 3))}
+        {/* Right peek */}
+        <div className="relative shrink-0">
+          {showArrows && (
+            <button
+              onClick={goNext}
+              className="absolute left-1/2 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
+              aria-label="Вперёд"
+            >
+              <IconChevronRight />
+            </button>
+          )}
+          <div
+            className="overflow-hidden rounded-l-2xl"
+            style={{
+              width: peekWidth,
+              WebkitMaskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
+              maskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
+            }}
+          >
+            <div className="h-full" style={{ width: cardWidth }}>
+              {renderItem(peekRight, wrap(current + 2))}
+            </div>
           </div>
         </div>
       </div>
-
-      {showArrows && (
-        <button
-          onClick={goNext}
-          className="absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
-          aria-label="Вперёд"
-          style={{ right: -60 }}
-        >
-          <IconChevronRight />
-        </button>
-      )}
 
       {showDots && (
         <div className="relative z-10 mt-6 flex justify-center gap-2">
