@@ -58,7 +58,7 @@ export default function Carousel<T>({
   // Previous peek
   if (n > 1) {
     elements.push(
-      <div key="peek-l" className="shrink-0 relative" style={{ width: peekWidth }}>
+      <div key="peek-l" className="shrink-0 relative" style={{ width: peekWidth, minHeight: 320 }}>
         <div className="h-full overflow-hidden rounded-r-2xl" style={{
           width: cardWidth,
           marginLeft: -(cardWidth - peekWidth),
@@ -77,7 +77,7 @@ export default function Carousel<T>({
     const item = items[idx];
     if (!item) break;
     elements.push(
-      <div key={`c${i}`} className="shrink-0" style={{ width: cardWidth }}>
+      <div key={`c${i}`} className="shrink-0" style={{ width: cardWidth, minHeight: 320 }}>
         {renderItem(item, idx)}
       </div>
     );
@@ -86,7 +86,7 @@ export default function Carousel<T>({
   // Next peek
   if (n > 1) {
     elements.push(
-      <div key="peek-r" className="shrink-0 relative" style={{ width: peekWidth }}>
+      <div key="peek-r" className="shrink-0 relative" style={{ width: peekWidth, minHeight: 320 }}>
         <div className="h-full overflow-hidden rounded-l-2xl" style={{
           width: cardWidth,
           WebkitMaskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
@@ -124,7 +124,7 @@ export default function Carousel<T>({
           </button>
         )}
 
-        <div className="flex items-center" style={{ gap }}>
+        <div className="flex items-stretch" style={{ gap }}>
           {elements}
         </div>
 
