@@ -9,6 +9,7 @@ interface CarouselProps<T> {
   renderItem: (item: T, index: number) => ReactNode;
   cardWidth?: number;
   gap?: number;
+  peekWidth?: number;
   autoScroll?: number;
   showDots?: boolean;
   showArrows?: boolean;
@@ -19,6 +20,7 @@ export default function Carousel<T>({
   renderItem,
   cardWidth = 340,
   gap = 16,
+  peekWidth = 60,
   autoScroll,
   showDots = true,
   showArrows = true,
@@ -40,27 +42,70 @@ export default function Carousel<T>({
   }, []);
 
   const CARD_STEP = cardWidth + gap;
-  const ARROW_MARGIN = 44;
+  const ARROW_GAP = 12;
 
-  let visible = 2;
-  if (containerWidth >= ARROW_MARGIN * 2 + CARD_STEP * 4) visible = 4;
-  else if (containerWidth >= ARROW_MARGIN * 2 + CARD_STEP * 3) visible = 3;
-  visible = Math.min(visible, n);
+  let fullVisible = 2;
+  const available = containerWidth - 2 * peekWidth;
+  if (available >= CARD_STEP * 4) fullVisible = 4;
+  else if (available >= CARD_STEP * 3) fullVisible = 3;
+  else if (available >= CARD_STEP * 2) fullVisible = 2;
+  fullVisible = Math.min(fullVisible, n);
 
   const wrap = (i: number) => ((i % n) + n) % n;
-  const trackWidth = visible * CARD_STEP - gap;
 
-  const cards: ReactNode[] = [];
-  for (let i = 0; i < visible; i++) {
+  const elements: ReactNode[] = [];
+
+  // Previous peek
+  if (n > 1) {
+    elements.push(
+      <div key="peek-l" className="shrink-0 relative" style={{ width: peekWidth }}>
+        <div className="h-full overflow-hidden rounded-r-2xl" style={{
+          width: cardWidth,
+          marginLeft: -(cardWidth - peekWidth),
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+          maskImage: "linear-gradient(to right, transparent 0%, black 30%, black 100%)",
+        }}>
+          {renderItem(items[wrap(current - 1)]!, wrap(current - 1))}
+        </div>
+      </div>
+    );
+  }
+
+  // Full cards
+  for (let i = 0; i < fullVisible; i++) {
     const idx = wrap(current + i);
     const item = items[idx];
     if (!item) break;
-    cards.push(
-      <div key={i} className="shrink-0" style={{ width: cardWidth }}>
+    elements.push(
+      <div key={`c${i}`} className="shrink-0" style={{ width: cardWidth }}>
         {renderItem(item, idx)}
       </div>
     );
   }
+
+  // Next peek
+  if (n > 1) {
+    elements.push(
+      <div key="peek-r" className="shrink-0 relative" style={{ width: peekWidth }}>
+        <div className="h-full overflow-hidden rounded-l-2xl" style={{
+          width: cardWidth,
+          WebkitMaskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
+          maskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
+        }}>
+          {renderItem(items[wrap(current + fullVisible)]!, wrap(current + fullVisible))}
+        </div>
+      </div>
+    );
+  }
+
+  const hasLeftPeek = n > 1;
+  const hasRightPeek = n > 1;
+  const innerWidth = (hasLeftPeek ? peekWidth : 0)
+    + fullVisible * cardWidth
+    + (hasRightPeek ? peekWidth : 0)
+    + (hasLeftPeek ? gap : 0)
+    + (fullVisible - 1) * gap
+    + (hasRightPeek ? gap : 0);
 
   const arrowBtn =
     "absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800";
@@ -72,19 +117,19 @@ export default function Carousel<T>({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="mx-auto relative" style={{ maxWidth: trackWidth }}>
-        {showArrows && (
-          <button onClick={goPrev} className={arrowBtn} aria-label="Назад" style={{ left: -ARROW_MARGIN }}>
+      <div className="mx-auto relative" style={{ maxWidth: innerWidth }}>
+        {showArrows && n > 1 && (
+          <button onClick={goPrev} className={arrowBtn} aria-label="Назад" style={{ left: -ARROW_GAP }}>
             <IconChevronLeft />
           </button>
         )}
 
         <div className="flex items-center" style={{ gap }}>
-          {cards}
+          {elements}
         </div>
 
-        {showArrows && (
-          <button onClick={goNext} className={arrowBtn} aria-label="Вперёд" style={{ right: -ARROW_MARGIN }}>
+        {showArrows && n > 1 && (
+          <button onClick={goNext} className={arrowBtn} aria-label="Вперёд" style={{ right: -ARROW_GAP }}>
             <IconChevronRight />
           </button>
         )}
