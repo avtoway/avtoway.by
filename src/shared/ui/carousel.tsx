@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useRef, useEffect, useState } from "react";
 import { useCarousel } from "@/shared/lib/hooks/use-carousel";
 import { IconChevronLeft, IconChevronRight } from "@/shared/ui/icons";
 
@@ -9,8 +9,6 @@ interface CarouselProps<T> {
   renderItem: (item: T, index: number) => ReactNode;
   cardWidth?: number;
   gap?: number;
-  peekWidth?: number;
-  visibleCards?: number;
   autoScroll?: number;
   showDots?: boolean;
   showArrows?: boolean;
@@ -20,93 +18,81 @@ export default function Carousel<T>({
   items,
   renderItem,
   cardWidth = 340,
-  gap = 24,
-  peekWidth = 80,
-  visibleCards = 3,
+  gap = 16,
   autoScroll,
   showDots = true,
   showArrows = true,
 }: CarouselProps<T>) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
   const n = items.length;
-  const { current, setIsHovered, goNext, goPrev, setCurrent } =
-    useCarousel(n, autoScroll);
+  const { current, setIsHovered, goNext, goPrev, setCurrent } = useCarousel(n, autoScroll);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(entries => {
+      const entry = entries[0];
+      if (entry) setContainerWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  let visible = 2;
+  if (containerWidth >= 1100) visible = 4;
+  else if (containerWidth >= 780) visible = 3;
+  visible = Math.min(visible, n);
 
   const wrap = (i: number) => ((i % n) + n) % n;
+  const step = cardWidth + gap;
+  const trackWidth = visible * step - gap;
 
-  const visible = n > visibleCards ? visibleCards : n;
   const cards: ReactNode[] = [];
-  for (let i = 0; i < visible + 2; i++) {
-    const idx = wrap(current - 1 + i);
+  for (let i = 0; i < visible; i++) {
+    const idx = wrap(current + i);
     const item = items[idx];
     if (!item) break;
-    if (i === 0 || i === visible + 1) {
-      cards.push(
-        <div key={i === 0 ? "prev" : "next"} className="relative shrink-0">
-          <div
-            className="overflow-hidden h-full"
-            style={{
-              width: peekWidth,
-              WebkitMaskImage: i === 0
-                ? "linear-gradient(to right, transparent 0%, black 30%, black 100%)"
-                : "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
-              maskImage: i === 0
-                ? "linear-gradient(to right, transparent 0%, black 30%, black 100%)"
-                : "linear-gradient(to left, transparent 0%, black 30%, black 100%)",
-              borderRadius: i === 0 ? "0 1rem 1rem 0" : "1rem 0 0 1rem",
-            }}
-          >
-            <div className="h-full" style={{ width: cardWidth, marginLeft: i === 0 ? -(cardWidth - peekWidth) : 0 }}>
-              {renderItem(item, idx)}
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      cards.push(
-        <div key={`card-${i}`} className="shrink-0" style={{ width: cardWidth }}>
-          {renderItem(item, idx)}
-        </div>
-      );
-    }
+    cards.push(
+      <div key={i} className="shrink-0" style={{ width: cardWidth }}>
+        {renderItem(item, idx)}
+      </div>
+    );
   }
-
-  const fullWidth = visible * cardWidth + (visible - 1) * gap;
-  const totalWidth = fullWidth + 2 * peekWidth + 2 * gap;
 
   return (
     <div
-      className="relative select-none mx-auto"
-      style={{ maxWidth: totalWidth + 120 }}
+      ref={containerRef}
+      className="relative select-none mx-auto w-full max-w-full overflow-hidden px-2"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {showArrows && (
-        <button
-          onClick={goPrev}
-          className="absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
-          aria-label="Назад"
-          style={{ left: -60 }}
-        >
-          <IconChevronLeft />
-        </button>
-      )}
+      {/* Track */}
+      <div className="mx-auto relative" style={{ maxWidth: trackWidth + 100 }}>
+        {showArrows && (
+          <button
+            onClick={goPrev}
+            className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
+            aria-label="Назад"
+          >
+            <IconChevronLeft />
+          </button>
+        )}
 
-      <div className="mx-auto" style={{ maxWidth: totalWidth }}>
-        <div className="flex items-center" style={{ gap }}>
+        <div className="flex items-center justify-center" style={{ gap, margin: "0 44px" }}>
           {cards}
         </div>
-      </div>
 
-      {showArrows && (
-        <button
-          onClick={goNext}
-          className="absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800 sm:flex"
-          aria-label="Вперёд"
-          style={{ right: -60 }}
-        >
-          <IconChevronRight />
-        </button>
-      )}
+        {showArrows && (
+          <button
+            onClick={goNext}
+            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
+            aria-label="Вперёд"
+          >
+            <IconChevronRight />
+          </button>
+        )}
+      </div>
 
       {showDots && (
         <div className="relative z-10 mt-6 flex justify-center gap-2">
