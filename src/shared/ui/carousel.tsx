@@ -39,14 +39,16 @@ export default function Carousel<T>({
     return () => observer.disconnect();
   }, []);
 
+  const CARD_STEP = cardWidth + gap;
+  const ARROW_MARGIN = 44;
+
   let visible = 2;
-  if (containerWidth >= 1100) visible = 4;
-  else if (containerWidth >= 780) visible = 3;
+  if (containerWidth >= ARROW_MARGIN * 2 + CARD_STEP * 4) visible = 4;
+  else if (containerWidth >= ARROW_MARGIN * 2 + CARD_STEP * 3) visible = 3;
   visible = Math.min(visible, n);
 
   const wrap = (i: number) => ((i % n) + n) % n;
-  const step = cardWidth + gap;
-  const trackWidth = visible * step - gap;
+  const trackWidth = visible * CARD_STEP - gap;
 
   const cards: ReactNode[] = [];
   for (let i = 0; i < visible; i++) {
@@ -60,35 +62,29 @@ export default function Carousel<T>({
     );
   }
 
+  const arrowBtn =
+    "absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800";
+
   return (
     <div
       ref={containerRef}
-      className="relative select-none mx-auto w-full max-w-full overflow-hidden px-2"
+      className="relative select-none mx-auto w-full max-w-full overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Track */}
-      <div className="mx-auto relative" style={{ maxWidth: trackWidth + 100 }}>
+      <div className="mx-auto relative" style={{ maxWidth: trackWidth }}>
         {showArrows && (
-          <button
-            onClick={goPrev}
-            className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
-            aria-label="Назад"
-          >
+          <button onClick={goPrev} className={arrowBtn} aria-label="Назад" style={{ left: -ARROW_MARGIN }}>
             <IconChevronLeft />
           </button>
         )}
 
-        <div className="flex items-center justify-center" style={{ gap, margin: "0 44px" }}>
+        <div className="flex items-center" style={{ gap }}>
           {cards}
         </div>
 
         {showArrows && (
-          <button
-            onClick={goNext}
-            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 text-zinc-300 shadow-lg backdrop-blur-md transition-all hover:scale-110 hover:border-white/20 hover:bg-zinc-800"
-            aria-label="Вперёд"
-          >
+          <button onClick={goNext} className={arrowBtn} aria-label="Вперёд" style={{ right: -ARROW_MARGIN }}>
             <IconChevronRight />
           </button>
         )}
