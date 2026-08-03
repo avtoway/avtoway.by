@@ -13,11 +13,12 @@ const TRANSMISSIONS = [
 
 const FUELS = [
   { value: "gasoline", label: "Бензин" },
+  { value: "gas-propane", label: "Бензин (пропан-бутан)" },
+  { value: "gas-methane", label: "Бензин (метан)" },
+  { value: "gas-hybrid", label: "Бензин (гибрид)" },
   { value: "diesel", label: "Дизель" },
+  { value: "diesel-hybrid", label: "Дизель (гибрид)" },
   { value: "electric", label: "Электро" },
-  { value: "hybrid", label: "Гибрид" },
-  { value: "propane", label: "Газ (пропан)" },
-  { value: "methane", label: "Газ (метан)" },
 ];
 
 const FEATURES_LIST = [

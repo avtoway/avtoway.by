@@ -20,8 +20,16 @@ const TRANSMISSION_LABEL: Record<string, string> = {
   auto: "Автомат", manual: "Механика", robot: "Робот", variator: "Вариатор",
 };
 const FUEL_LABEL: Record<string, string> = {
-  gasoline: "Бензин", diesel: "Дизель", electric: "Электро", hybrid: "Гибрид",
-  propane: "Газ (пропан)", methane: "Газ (метан)",
+  gasoline: "Бензин",
+  "gas-propane": "Бензин (пропан-бутан)",
+  "gas-methane": "Бензин (метан)",
+  "gas-hybrid": "Бензин (гибрид)",
+  diesel: "Дизель",
+  "diesel-hybrid": "Дизель (гибрид)",
+  electric: "Электро",
+  hybrid: "Гибрид",
+  propane: "Газ",
+  methane: "Метан",
 };
 
 const ALL_FEATURES = [
