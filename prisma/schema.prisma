@@ -152,6 +152,22 @@ model CarBrand {
   @@map("car_brands")
 }
 
+model Fuel {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+
+  @@map("fuels")
+}
+
+model Transmission {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+
+  @@map("transmissions")
+}
+
 model CarModel {
   id       String   @id @default(uuid())
   brandId  String   @map("brand_id")

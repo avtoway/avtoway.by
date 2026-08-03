@@ -125,6 +125,20 @@ CREATE TABLE "car_brands" (
 );
 
 -- CreateTable
+CREATE TABLE "fuels" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "transmissions" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "car_models" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "brand_id" TEXT NOT NULL,
@@ -198,6 +212,18 @@ CREATE UNIQUE INDEX "car_brands_name_key" ON "car_brands"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "car_brands_slug_key" ON "car_brands"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "fuels_name_key" ON "fuels"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "fuels_slug_key" ON "fuels"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "transmissions_name_key" ON "transmissions"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "transmissions_slug_key" ON "transmissions"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "car_models_brand_id_slug_key" ON "car_models"("brand_id", "slug");

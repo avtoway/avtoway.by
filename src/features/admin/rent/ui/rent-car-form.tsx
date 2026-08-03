@@ -4,23 +4,6 @@ import UploadZone from "@/shared/ui/admin/upload-zone";
 import FieldError from "@/shared/ui/field-error";
 import { useEffect, useState } from "react";
 
-const TRANSMISSIONS = [
-  { value: "auto", label: "Автомат" },
-  { value: "manual", label: "Механика" },
-  { value: "robot", label: "Робот" },
-  { value: "variator", label: "Вариатор" },
-];
-
-const FUELS = [
-  { value: "gasoline", label: "Бензин" },
-  { value: "gas-propane", label: "Бензин (пропан-бутан)" },
-  { value: "gas-methane", label: "Бензин (метан)" },
-  { value: "gas-hybrid", label: "Бензин (гибрид)" },
-  { value: "diesel", label: "Дизель" },
-  { value: "diesel-hybrid", label: "Дизель (гибрид)" },
-  { value: "electric", label: "Электро" },
-];
-
 const FEATURES_LIST = [
   "Кондиционер", "Климат-контроль", "Подогрев сидений",
   "Вентиляция сидений", "Люк", "Панорамная крыша",
@@ -41,6 +24,8 @@ interface FormData {
 
 interface RentType { id: string; name: string; slug: string; }
 interface Brand { id: string; name: string; slug: string; models: { id: string; name: string; slug: string }[]; }
+interface FuelItem { id: string; name: string; slug: string; }
+interface TransItem { id: string; name: string; slug: string; }
 
 export default function RentCarForm({
   form, onChange, rentTypes, errors,
@@ -52,9 +37,14 @@ export default function RentCarForm({
 }) {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [models, setModels] = useState<Brand["models"]>([]);
+  const [fuels, setFuels] = useState<FuelItem[]>([]);
+  const [transmissions, setTransmissions] = useState<TransItem[]>([]);
 
   useEffect(() => {
     fetch("/api/cars").then(r => r.json()).then(j => { if (j.ok) setBrands(j.data); });
+    fetch("/api/refs").then(r => r.json()).then(j => {
+      if (j.ok) { setFuels(j.data.fuels); setTransmissions(j.data.transmissions); }
+    });
   }, []);
 
   useEffect(() => {
@@ -156,13 +146,13 @@ export default function RentCarForm({
             <select value={form.transmission} onChange={e => onChange("transmission", e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
               <option value="">Выберите</option>
-              {TRANSMISSIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {transmissions.map(t => <option key={t.slug} value={t.slug}>{t.name}</option>)}
             </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Топливо</span>
             <select value={form.fuel} onChange={e => onChange("fuel", e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
               <option value="">Выберите</option>
-              {FUELS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+              {fuels.map(f => <option key={f.slug} value={f.slug}>{f.name}</option>)}
             </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Объём двигателя</span>
             <input value={form.engineVolume} onChange={e => onChange("engineVolume", e.target.value)}

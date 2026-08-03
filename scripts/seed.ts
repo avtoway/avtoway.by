@@ -83,6 +83,33 @@ async function main() {
     }
   }
 
+  // Seed fuel types
+  const fuels = [
+    { slug: "gasoline", name: "Бензин" },
+    { slug: "gas-propane", name: "Бензин (пропан-бутан)" },
+    { slug: "gas-methane", name: "Бензин (метан)" },
+    { slug: "gas-hybrid", name: "Бензин (гибрид)" },
+    { slug: "diesel", name: "Дизель" },
+    { slug: "diesel-hybrid", name: "Дизель (гибрид)" },
+    { slug: "electric", name: "Электро" },
+  ];
+  for (const f of fuels) {
+    const exists = await prisma.fuel.findUnique({ where: { slug: f.slug } });
+    if (!exists) await prisma.fuel.create({ data: f });
+  }
+
+  // Seed transmission types
+  const transmissions = [
+    { slug: "auto", name: "Автомат" },
+    { slug: "manual", name: "Механика" },
+    { slug: "robot", name: "Робот" },
+    { slug: "variator", name: "Вариатор" },
+  ];
+  for (const t of transmissions) {
+    const exists = await prisma.transmission.findUnique({ where: { slug: t.slug } });
+    if (!exists) await prisma.transmission.create({ data: t });
+  }
+
   // Seed car brands + models
   const brands: { name: string; slug: string; models: { name: string; slug: string }[] }[] = [
     { name: "Audi", slug: "audi", models: [{ name: "A3", slug: "a3" }, { name: "A4", slug: "a4" }, { name: "A5", slug: "a5" }, { name: "A6", slug: "a6" }, { name: "A7", slug: "a7" }, { name: "A8", slug: "a8" }, { name: "Q3", slug: "q3" }, { name: "Q5", slug: "q5" }, { name: "Q7", slug: "q7" }, { name: "Q8", slug: "q8" }] },
