@@ -13,7 +13,7 @@ interface RentCar {
   priceDay?: number; price3Days?: number; price7Days?: number;
   priceMonth?: number; priceDayTaxi?: number;
   rentType?: { id: string; name: string; slug: string };
-  isActive: boolean;
+  isActive: boolean; bookedUntil?: string;
 }
 
 const TRANSMISSION_LABEL: Record<string, string> = {
@@ -219,6 +219,7 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
   const priceLabel = getPriceLabel(car);
   const priceValue = car.priceDay ?? car.price7Days ?? car.price3Days ?? null;
   const usdValue = usdRate && priceValue ? Math.round(priceValue / usdRate) : null;
+  const isBooked = car.bookedUntil && new Date(car.bookedUntil) > new Date();
 
   return (
     <Link href={`/services/rent/${car.slug}`}
@@ -234,6 +235,11 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
         {car.rentType && (
           <span className="absolute left-2 top-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
             {car.rentType.name}
+          </span>
+        )}
+        {isBooked && (
+          <span className="absolute right-2 top-2 rounded bg-amber-600/80 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+            Бронь до {new Date(car.bookedUntil!).toLocaleDateString("ru-RU")}
           </span>
         )}
       </div>
