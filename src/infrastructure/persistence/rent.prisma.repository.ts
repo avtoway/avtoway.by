@@ -28,6 +28,7 @@ function toRentCar(row: any): RentCar {
     rentTypeId: row.rentTypeId ?? undefined,
     rentType: row.rentType ? { id: row.rentType.id, name: row.rentType.name, slug: row.rentType.slug } : undefined,
     isActive: row.isActive,
+    bookedUntil: row.bookedUntil ?? undefined,
     sortOrder: row.sortOrder,
   };
 }
@@ -44,8 +45,8 @@ function toRentType(row: any): RentType {
 export class PrismaRentCarRepository implements RentCarRepository {
   private get db() { return getPrismaClient(); }
 
-  async getAll(filters?: { rentTypeSlug?: string }): Promise<RentCar[]> {
-    const where: Record<string, unknown> = { isActive: true };
+  async getAll(filters?: { rentTypeSlug?: string; showAll?: boolean }): Promise<RentCar[]> {
+    const where: Record<string, unknown> = filters?.showAll ? {} : { isActive: true };
     if (filters?.rentTypeSlug) {
       where.rentType = { slug: filters.rentTypeSlug };
     }
@@ -86,7 +87,9 @@ export class PrismaRentCarRepository implements RentCarRepository {
         price7Days: data.price7Days ?? null, priceMonth: data.priceMonth ?? null,
         priceDayTaxi: data.priceDayTaxi ?? null,
         rentTypeId: data.rentTypeId ?? null,
-        isActive: data.isActive ?? true, sortOrder: data.sortOrder ?? 0,
+        isActive: data.isActive ?? true,
+        bookedUntil: data.bookedUntil ?? null,
+        sortOrder: data.sortOrder ?? 0,
       },
       include: { rentType: true },
     });

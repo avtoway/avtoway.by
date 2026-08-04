@@ -1,7 +1,7 @@
 import type { RentCar, RentType } from "./rent-car.types";
 
 export interface RentCarRepository {
-  getAll(filters?: { rentTypeSlug?: string }): Promise<RentCar[]>;
+  getAll(filters?: { rentTypeSlug?: string; showAll?: boolean }): Promise<RentCar[]>;
   getBySlug(slug: string): Promise<RentCar | null>;
   getTypes(): Promise<RentType[]>;
   create(data: Omit<RentCar, "id" | "rentType">): Promise<RentCar>;

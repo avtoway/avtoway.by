@@ -19,7 +19,7 @@ interface FormData {
   photos: string; mainPhoto: string; description: string;
   priceDay: string; price3Days: string; price7Days: string; priceMonth: string;
   priceDayTaxi: string;
-  rentTypeId: string; isActive: boolean;
+  rentTypeId: string; isActive: boolean; bookedUntil: string;
 }
 
 interface RentType { id: string; name: string; slug: string; }
@@ -57,6 +57,9 @@ export default function RentCarForm({
   }, [form.brand, brands]);
 
   const eb = (key: string) => errors?.[key] ? "border-red-500" : "border-slate-700";
+  const selectedType = rentTypes.find(t => t.id === form.rentTypeId);
+  const isTaxi = selectedType?.slug === "taxi";
+  const isRent = selectedType?.slug === "rent";
 
   const selectedFeatures: string[] = form.features ? form.features.split(",").filter(Boolean) : [];
 
@@ -181,20 +184,34 @@ export default function RentCarForm({
               className="h-4 w-4 accent-red-600" />
             <span className="text-sm text-slate-400">Активно</span>
           </label>
+          <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Забронирован до</span>
+            <input type="date" value={form.bookedUntil} onChange={e => onChange("bookedUntil", e.target.value)}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" /></label>
         </div>
       </fieldset>
 
       {/* Цены */}
+      {selectedType && (
       <fieldset className="rounded-xl border border-slate-800 p-4">
         <legend className="px-1 text-xs font-medium text-slate-400">Цены (BYN)</legend>
         <div className="mt-3 grid grid-cols-3 gap-4">
-          <PriceInput label="За сутки" value={form.priceDay} onChange={v => onChange("priceDay", v)} />
-          <PriceInput label="На 3 дня" value={form.price3Days} onChange={v => onChange("price3Days", v)} />
-          <PriceInput label="На 7 дней / неделя" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
-          <PriceInput label="На месяц" value={form.priceMonth} onChange={v => onChange("priceMonth", v)} />
-          <PriceInput label="Такси — день (среднее)" value={form.priceDayTaxi} onChange={v => onChange("priceDayTaxi", v)} />
+          {isRent && (
+            <>
+              <PriceInput label="За сутки" value={form.priceDay} onChange={v => onChange("priceDay", v)} />
+              <PriceInput label="На 3 дня" value={form.price3Days} onChange={v => onChange("price3Days", v)} />
+              <PriceInput label="На 7 дней / неделя" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
+              <PriceInput label="На месяц" value={form.priceMonth} onChange={v => onChange("priceMonth", v)} />
+            </>
+          )}
+          {isTaxi && (
+            <>
+              <PriceInput label="За неделю" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
+              <PriceInput label="В день (среднее)" value={form.priceDayTaxi} onChange={v => onChange("priceDayTaxi", v)} />
+            </>
+          )}
         </div>
       </fieldset>
+      )}
 
       {/* Комфорт */}
       <fieldset className="rounded-xl border border-slate-800 p-4">

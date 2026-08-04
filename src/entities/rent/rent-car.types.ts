@@ -22,6 +22,7 @@ export interface RentCar {
   rentTypeId?: string;
   rentType?: { id: string; name: string; slug: string };
   isActive: boolean;
+  bookedUntil?: string;
   sortOrder: number;
 }
 

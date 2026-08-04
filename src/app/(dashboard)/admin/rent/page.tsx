@@ -16,7 +16,7 @@ interface RentCar {
   priceDay?: number; price3Days?: number; price7Days?: number;
   priceMonth?: number; priceDayTaxi?: number;
   rentTypeId?: string; rentType?: { id: string; name: string };
-  isActive: boolean; photos?: string; mainPhoto?: string;
+  isActive: boolean; bookedUntil?: string; photos?: string; mainPhoto?: string;
 }
 
 const TRANSMISSION_LABEL: Record<string, string> = {
@@ -39,7 +39,7 @@ const EMPTY_FORM = {
   photos: "", mainPhoto: "", description: "",
   priceDay: "", price3Days: "", price7Days: "", priceMonth: "",
   priceDayTaxi: "",
-  rentTypeId: "", isActive: true,
+  rentTypeId: "", isActive: true, bookedUntil: "",
 };
 
 export default function AdminRentPage() {
@@ -59,7 +59,7 @@ export default function AdminRentPage() {
   async function load() {
     setLoading(true);
     const [cRes, tRes] = await Promise.all([
-      fetch("/api/rent").then(r => r.json()),
+      fetch("/api/rent?showAll=true").then(r => r.json()),
       fetch("/api/rent?types=true").then(r => r.json()),
     ]);
     if (cRes.ok) setCars(cRes.data);
@@ -86,7 +86,7 @@ export default function AdminRentPage() {
       priceDay: c.priceDay?.toString() ?? "", price3Days: c.price3Days?.toString() ?? "",
       price7Days: c.price7Days?.toString() ?? "", priceMonth: c.priceMonth?.toString() ?? "",
       priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
-      rentTypeId: c.rentTypeId ?? "", isActive: c.isActive,
+      rentTypeId: c.rentTypeId ?? "", isActive: c.isActive, bookedUntil: c.bookedUntil ?? "",
     });
     setEditing(c);
     setModal(true);
@@ -168,7 +168,7 @@ export default function AdminRentPage() {
             </thead>
             <tbody>
               {cars.map(c => (
-                <tr key={c.id} className="border-b border-slate-800/50 hover:bg-slate-900/50">
+                <tr key={c.id} className={`border-b border-slate-800/50 hover:bg-slate-900/50 ${!c.isActive && !c.bookedUntil ? "opacity-50" : ""}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {c.photos && (
@@ -194,9 +194,15 @@ export default function AdminRentPage() {
                     {getPriceLabel(c) ?? "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-2 py-0.5 text-xs ${c.isActive ? "bg-green-900/50 text-green-300" : "bg-slate-800 text-slate-500"}`}>
-                      {c.isActive ? "Активен" : "Скрыт"}
-                    </span>
+                    {c.bookedUntil && new Date(c.bookedUntil) > new Date() ? (
+                      <span className="rounded bg-amber-900/50 px-2 py-0.5 text-xs text-amber-300">
+                        Бронь до {new Date(c.bookedUntil).toLocaleDateString("ru-RU")}
+                      </span>
+                    ) : c.isActive ? (
+                      <span className="rounded bg-green-900/50 px-2 py-0.5 text-xs text-green-300">Активен</span>
+                    ) : (
+                      <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-500">Скрыт</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
