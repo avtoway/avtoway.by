@@ -133,6 +133,57 @@ model Setting {
   @@map("settings")
 }
 
+model Contact {
+  id           String  @id @default(uuid())
+  phone        String?
+  email        String?
+  telegram     String?
+  viber        String?
+  whatsapp     String?
+  instagram    String?
+  youtube      String?
+  rutube       String?
+  vk           String?
+  address      String?
+  workingHours String? @map("working_hours")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("contacts")
+}
+
+model SentEmail {
+  id        String   @id @default(uuid())
+  to        String
+  subject   String
+  body      String
+  status    String   @default("sent")
+  error     String?
+  inReplyTo String?  @map("in_reply_to")
+  sentAt    DateTime @default(now()) @map("sent_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([sentAt])
+  @@map("sent_emails")
+}
+
+model InboxEmail {
+  id          String   @id @default(uuid())
+  messageId   String?  @unique @map("message_id")
+  from        String
+  to          String
+  subject     String
+  body        String
+  textBody    String?  @map("text_body")
+  isRead      Boolean  @default(false) @map("is_read")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  receivedAt  DateTime @map("received_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([receivedAt])
+  @@index([isRead])
+  @@map("inbox_emails")
+}
+
 model RentType {
   id        String    @id @default(uuid())
   slug      String    @unique
@@ -180,33 +231,57 @@ model CarModel {
 }
 
 model RentCar {
-  id            String   @id @default(uuid())
+  id            String           @id @default(uuid())
   name          String
-  slug          String   @unique
+  slug          String           @unique
   brand         String?
   model         String?
   year          Int?
   color         String?
   transmission  String?
   fuel          String?
-  engineVolume  String?  @map("engine_volume")
+  engineVolume  String?          @map("engine_volume")
   seats         Int?
   features      String?
   photos        String?
-  mainPhoto     String?  @map("main_photo")
+  mainPhoto     String?          @map("main_photo")
   description   String?
-  priceDay      Int?     @map("price_day")
-  price3Days    Int?     @map("price_3days")
-  price7Days    Int?     @map("price_7days")
-  priceMonth    Int?     @map("price_month")
-  priceDayTaxi  Int?     @map("price_day_taxi")
-  rentTypeId    String?  @map("rent_type_id")
-  rentType      RentType? @relation(fields: [rentTypeId], references: [id])
-  isActive      Boolean  @default(true) @map("is_active")
-  bookedUntil   String?  @map("booked_until")
-  sortOrder     Int      @default(0) @map("sort_order")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  priceDay      Int?             @map("price_day")
+  price3Days    Int?             @map("price_3days")
+  price7Days    Int?             @map("price_7days")
+  priceMonth    Int?             @map("price_month")
+  priceDayTaxi  Int?             @map("price_day_taxi")
+  rentTypeId    String?          @map("rent_type_id")
+  rentType      RentType?        @relation(fields: [rentTypeId], references: [id])
+  isActive      Boolean          @default(true) @map("is_active")
+  bookedUntil   String?          @map("booked_until")
+  sortOrder     Int              @default(0) @map("sort_order")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  history       RentCarHistory[]
 
   @@map("rent_cars")
+}
+
+model ComfortFeature {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  sortOrder Int      @default(0) @map("sort_order")
+
+  @@map("comfort_features")
+}
+
+model RentCarHistory {
+  id          String   @id @default(uuid())
+  carId       String   @map("car_id")
+  car         RentCar  @relation(fields: [carId], references: [id], onDelete: Cascade)
+  type        String
+  description String?
+  amount      Int?
+  date        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([carId])
+  @@map("rent_car_history")
 }

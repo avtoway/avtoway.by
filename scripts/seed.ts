@@ -151,6 +151,61 @@ async function main() {
     }
   }
 
+  // Seed comfort features
+  const comfortFeatures = [
+    { slug: "air-conditioner", name: "Кондиционер", sortOrder: 1 },
+    { slug: "climate-control", name: "Климат-контроль", sortOrder: 2 },
+    { slug: "seat-heating", name: "Подогрев сидений", sortOrder: 3 },
+    { slug: "seat-ventilation", name: "Вентиляция сидений", sortOrder: 4 },
+    { slug: "sunroof", name: "Люк", sortOrder: 5 },
+    { slug: "panoramic-roof", name: "Панорамная крыша", sortOrder: 6 },
+    { slug: "navigation", name: "Навигация", sortOrder: 7 },
+    { slug: "apple-carplay", name: "Apple CarPlay", sortOrder: 8 },
+    { slug: "android-auto", name: "Android Auto", sortOrder: 9 },
+    { slug: "bluetooth", name: "Bluetooth", sortOrder: 10 },
+    { slug: "cruise-control", name: "Круиз-контроль", sortOrder: 11 },
+    { slug: "parktronic", name: "Парктроники", sortOrder: 12 },
+    { slug: "rear-camera", name: "Камера заднего вида", sortOrder: 13 },
+    { slug: "leather-interior", name: "Кожаный салон", sortOrder: 14 },
+  ];
+  for (const cf of comfortFeatures) {
+    const exists = await prisma.comfortFeature.findUnique({ where: { slug: cf.slug } });
+    if (!exists) await prisma.comfortFeature.create({ data: cf });
+  }
+
+  // Seed contact settings (settings table)
+  const contactSettings: Record<string, string> = {
+    contact_phone: "+375 (29) 111-22-33",
+    contact_telegram: "@avtoway",
+    contact_viber: "+375291112233",
+    contact_whatsapp: "+375291112233",
+    contact_instagram: "@avtoway.by",
+  };
+  for (const [key, value] of Object.entries(contactSettings)) {
+    const exists = await prisma.setting.findUnique({ where: { key } });
+    if (!exists) await prisma.setting.create({ data: { key, value } });
+  }
+
+  // Seed contact info (contacts table — singleton)
+  const contactRow = await prisma.contact.findFirst();
+  if (!contactRow) {
+    await prisma.contact.create({
+      data: {
+        phone: "+375 (29) 111-22-33",
+        email: "info@avtoway.by",
+        telegram: "https://t.me/avtoway",
+        viber: "+375291112233",
+        whatsapp: "+375291112233",
+        instagram: "https://www.instagram.com/avtoway_by/",
+        youtube: "https://youtube.com/@avtoway",
+        rutube: "https://rutube.ru/channel/32699183/",
+        vk: "https://vk.com/video/@avtoway_channel",
+        address: "г. Минск, Беларусь",
+        workingHours: "Пн–Вс 9:00 – 21:00",
+      },
+    });
+  }
+
   console.log("База данных готова");
   console.log("  Логин: admin / admin123");
   console.log("  Роли: Администратор, Редактор, Наблюдатель");

@@ -38,6 +38,8 @@ export async function GET() {
       ],
     },
     { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
+    { label: "Контакты", icon: "phone", href: "/admin/contacts" },
+    { label: "Почта", icon: "mail", href: "/admin/email" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
     { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles" },
     { label: "Аудит", icon: "document-text", href: "/admin/audit-logs", perm: "audit.view" },
