@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import RentCarForm from "@/features/admin/rent/ui/rent-car-form";
+import RentCarHistoryPanel from "@/features/admin/rent/ui/rent-car-history-panel";
 import { useToast } from "@/shared/lib/toat-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { getPriceLabel } from "@/shared/lib/price";
@@ -220,6 +221,7 @@ export default function AdminRentPage() {
       {/* Car modal */}
       <AdminModal open={modal} onClose={() => setModal(false)} size="lg" title={editing ? "Редактировать авто" : "Новый автомобиль"}>
         <RentCarForm form={form} onChange={setFormField} rentTypes={types} />
+        {editing && <RentCarHistoryPanel carId={editing.id} />}
         <div className="flex justify-end gap-3 pt-5">
           <button onClick={() => setModal(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
           <button onClick={handleSave} disabled={saving}

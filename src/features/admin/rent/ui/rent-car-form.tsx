@@ -4,14 +4,6 @@ import UploadZone from "@/shared/ui/admin/upload-zone";
 import FieldError from "@/shared/ui/field-error";
 import { useEffect, useState } from "react";
 
-const FEATURES_LIST = [
-  "Кондиционер", "Климат-контроль", "Подогрев сидений",
-  "Вентиляция сидений", "Люк", "Панорамная крыша",
-  "Навигация", "Apple CarPlay", "Android Auto",
-  "Bluetooth", "Круиз-контроль", "Парктроники",
-  "Камера заднего вида", "Кожаный салон",
-];
-
 interface FormData {
   name: string; slug: string; brand: string; model: string;
   year: string; color: string; transmission: string; fuel: string;
@@ -26,6 +18,7 @@ interface RentType { id: string; name: string; slug: string; }
 interface Brand { id: string; name: string; slug: string; models: { id: string; name: string; slug: string }[]; }
 interface FuelItem { id: string; name: string; slug: string; }
 interface TransItem { id: string; name: string; slug: string; }
+interface ComfortItem { id: string; name: string; slug: string; }
 
 export default function RentCarForm({
   form, onChange, rentTypes, errors,
@@ -39,11 +32,15 @@ export default function RentCarForm({
   const [models, setModels] = useState<Brand["models"]>([]);
   const [fuels, setFuels] = useState<FuelItem[]>([]);
   const [transmissions, setTransmissions] = useState<TransItem[]>([]);
+  const [comfortFeatures, setComfortFeatures] = useState<ComfortItem[]>([]);
 
   useEffect(() => {
     fetch("/api/cars").then(r => r.json()).then(j => { if (j.ok) setBrands(j.data); });
     fetch("/api/refs").then(r => r.json()).then(j => {
       if (j.ok) { setFuels(j.data.fuels); setTransmissions(j.data.transmissions); }
+    });
+    fetch("/api/comfort-features").then(r => r.json()).then(j => {
+      if (j.ok) setComfortFeatures(j.data);
     });
   }, []);
 
@@ -217,12 +214,12 @@ export default function RentCarForm({
       <fieldset className="rounded-xl border border-slate-800 p-4">
         <legend className="px-1 text-xs font-medium text-slate-400">Комфорт и опции</legend>
         <div className="mt-3 flex flex-wrap gap-2">
-          {FEATURES_LIST.map(f => (
-            <label key={f} className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-2 text-sm transition hover:border-slate-500"
-              style={selectedFeatures.includes(f) ? { borderColor: "#ef4444", backgroundColor: "#ef444410" } : {}}>
-              <input type="checkbox" checked={selectedFeatures.includes(f)} onChange={() => toggleFeature(f)}
+          {comfortFeatures.map(f => (
+            <label key={f.id} className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-2 text-sm transition hover:border-slate-500"
+              style={selectedFeatures.includes(f.name) ? { borderColor: "#ef4444", backgroundColor: "#ef444410" } : {}}>
+              <input type="checkbox" checked={selectedFeatures.includes(f.name)} onChange={() => toggleFeature(f.name)}
                 className="hidden" />
-              {f}
+              {f.name}
             </label>
           ))}
         </div>

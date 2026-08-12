@@ -20,6 +20,10 @@ const FUEL_LABEL: Record<string, string> = {
   electric: "Электро",
 };
 
+async function getContact() {
+  const db = getPrismaClient();
+  return db.contact.findFirst();
+}
 async function getCar(slug: string) {
   const db = getPrismaClient();
   return db.rentCar.findUnique({
@@ -37,7 +41,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RentCarDetailPage({ params }: Props) {
   const { slug } = await params;
-  const car = await getCar(slug);
+  const [car, contact] = await Promise.all([
+    getCar(slug),
+    getContact(),
+  ]);
   if (!car) notFound();
 
   const photos = (car.photos ?? "").split(",").filter(Boolean);
@@ -146,6 +153,13 @@ export default async function RentCarDetailPage({ params }: Props) {
           )}
         </div>
       </section>
+
+      {/* Contact */}
+      {contact && (
+        <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-16">
+          <ContactBlock contact={contact} />
+        </section>
+      )}
     </div>
   );
 }
@@ -170,11 +184,39 @@ function PriceHero({ priceRow, usdRate }: { priceRow: { label: string; value: st
   );
 }
 
-function PriceRow({ label, value }: { label: string; value: string }) {
+function ContactBlock({ contact }: { contact: Record<string, unknown> }) {
+  const items: { key: string; label: string; icon: string; href: (v: string) => string }[] = [
+    { key: "phone", label: "Позвонить", icon: "📞", href: v => `tel:${v}` },
+    { key: "telegram", label: "Telegram", icon: "✈", href: v => `https://t.me/${v.replace("https://t.me/", "").replace("@", "")}` },
+    { key: "viber", label: "Viber", icon: "💬", href: v => `viber://chat?number=${encodeURIComponent(v.replace(/\D/g, ""))}` },
+    { key: "whatsapp", label: "WhatsApp", icon: "💬", href: v => `https://wa.me/${v.replace(/\D/g, "")}` },
+    { key: "instagram", label: "Instagram", icon: "📷", href: v => v },
+  ];
+
+  const visible = items.filter(i => contact[i.key]).map(i => ({ ...i, value: contact[i.key] as string }));
+
+  if (visible.length === 0) return null;
+
   return (
-    <div className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0">
-      <span className="text-sm text-zinc-400">{label}</span>
-      <span className="text-base font-bold text-green-400">{value}</span>
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+      <h2 className="mb-4 text-lg font-semibold text-white">Связь с нами</h2>
+      <div className="flex flex-wrap gap-3">
+        {visible.map(i => (
+          <a
+            key={i.key}
+            href={i.href(i.value)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm transition hover:border-red-500 hover:bg-zinc-800"
+          >
+            <span className="text-lg">{i.icon}</span>
+            <div>
+              <p className="text-xs text-zinc-500">{i.label}</p>
+              <p className="text-sm font-medium text-white">{i.value}</p>
+            </div>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

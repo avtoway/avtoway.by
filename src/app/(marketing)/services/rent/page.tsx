@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getPriceLabel } from "@/shared/lib/price";
+import { getPriceRows } from "@/shared/lib/price";
 
 interface RentType { id: string; name: string; slug: string; }
 interface RentCar {
@@ -32,13 +32,7 @@ const FUEL_LABEL: Record<string, string> = {
   methane: "Метан",
 };
 
-const ALL_FEATURES = [
-  "Кондиционер", "Климат-контроль", "Подогрев сидений",
-  "Вентиляция сидений", "Люк", "Панорамная крыша",
-  "Навигация", "Apple CarPlay", "Android Auto",
-  "Bluetooth", "Круиз-контроль", "Парктроники",
-  "Камера заднего вида", "Кожаный салон",
-];
+interface ComfortFeature { id: string; name: string; slug: string; }
 
 interface Brand { id: string; name: string; slug: string; models: { id: string; name: string; slug: string }[]; }
 
@@ -58,6 +52,7 @@ export default function RentPage() {
   const [seatsFilter, setSeatsFilter] = useState("");
   const [featureFilters, setFeatureFilters] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const [comfortFeatures, setComfortFeatures] = useState<ComfortFeature[]>([]);
 
   useEffect(() => {
     Promise.all([
@@ -65,11 +60,13 @@ export default function RentPage() {
       fetch("/api/rent?types=true").then(r => r.json()),
       fetch("/api/cars").then(r => r.json()),
       fetch("/api/exchange-rate").then(r => r.json()),
-    ]).then(([cRes, tRes, bRes, eRes]) => {
+      fetch("/api/comfort-features").then(r => r.json()),
+    ]).then(([cRes, tRes, bRes, eRes, fRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (tRes.ok) setTypes(tRes.data);
       if (bRes.ok) setBrands(bRes.data);
       if (eRes.ok) setUsdRate(eRes.rate);
+      if (fRes.ok) setComfortFeatures(fRes.data);
       setLoading(false);
     });
   }, []);
@@ -150,11 +147,11 @@ export default function RentPage() {
 
       <FilterSection label="Комфорт">
         <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
-          {ALL_FEATURES.map(f => (
-            <label key={f} className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400 hover:text-white">
-              <input type="checkbox" checked={featureFilters.has(f)} onChange={() => toggleFeature(f)}
+          {comfortFeatures.map(f => (
+            <label key={f.id} className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400 hover:text-white">
+              <input type="checkbox" checked={featureFilters.has(f.name)} onChange={() => toggleFeature(f.name)}
                 className="h-4 w-4 accent-red-600 rounded" />
-              {f}
+              {f.name}
             </label>
           ))}
         </div>
@@ -216,9 +213,7 @@ export default function RentPage() {
 function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
   const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
-  const priceLabel = getPriceLabel(car);
-  const priceValue = car.priceDay ?? car.price7Days ?? car.price3Days ?? null;
-  const usdValue = usdRate && priceValue ? Math.round(priceValue / usdRate) : null;
+  const priceRows = getPriceRows(car);
   const isBooked = car.bookedUntil && new Date(car.bookedUntil) > new Date();
 
   return (
@@ -269,18 +264,30 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
       </div>
 
       {/* Price + button */}
-      <div className="flex shrink-0 flex-col items-end justify-center gap-1 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-48">
-        {priceLabel ? (
-          <>
-            <p className="text-xl font-bold text-green-400 whitespace-nowrap">{priceLabel}</p>
-            {usdValue && (
-              <p className="text-xs text-zinc-500">≈ ${usdValue.toLocaleString()}</p>
-            )}
-          </>
+      <div className="flex shrink-0 flex-col justify-center gap-1 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-56">
+        {priceRows.length > 0 ? (
+          <div className="space-y-0.5">
+            {priceRows.map((r, i) => {
+              const amountMatch = r.value.match(/\d+/);
+              const amount = amountMatch ? parseInt(amountMatch[0]) : null;
+              const usdVal = usdRate && amount ? Math.round(amount / usdRate) : null;
+              return (
+                <div key={i} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-zinc-500">{r.label}</span>
+                  <div className="text-right">
+                    <span className="font-medium text-green-400">{r.value}</span>
+                    {usdVal && (
+                      <span className="ml-1.5 text-[10px] text-zinc-600">≈ ${usdVal}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
-          <p className="text-sm text-zinc-600">Цена не указана</p>
+          <p className="text-xs text-zinc-600">Цена не указана</p>
         )}
-        <span className="rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full mt-1">
+        <span className="mt-2 rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full">
           Подробнее →
         </span>
       </div>
