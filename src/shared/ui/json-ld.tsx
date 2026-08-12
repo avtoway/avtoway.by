@@ -1,4 +1,14 @@
-export function OrganizationSchema() {
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+
+export async function OrganizationSchema() {
+  const db = getPrismaClient();
+  const contact = await db.contact.findFirst();
+  const sameAs: string[] = [];
+  if (contact?.youtube) sameAs.push(contact.youtube);
+  if (contact?.instagram) sameAs.push(contact.instagram);
+  if (contact?.rutube) sameAs.push(contact.rutube);
+  if (contact?.vk) sameAs.push(contact.vk);
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -6,12 +16,7 @@ export function OrganizationSchema() {
     url: "https://avtoway.by",
     logo: "https://avtoway.by/images/avatar.webp",
     description: "Личный бренд и проекты про автомобили. Честные обзоры, ремонты, лайфхаки и полезные услуги.",
-    sameAs: [
-      "https://youtube.com/@avtoway",
-      "https://www.instagram.com/avtoway_by/",
-      "https://rutube.ru/channel/32699183/",
-      "https://vk.com/video/@avtoway_channel",
-    ],
+    sameAs,
   };
 
   return (

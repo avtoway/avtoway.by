@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import AboutHero from "@/features/about/ui/about-hero";
 import AboutStory from "@/features/about/ui/about-story";
 import AboutTimeline from "@/features/about/ui/about-timeline";
@@ -16,7 +17,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const db = getPrismaClient();
+  const contact = await db.contact.findFirst();
+
+  const socialLinks: { label: string; href: string; color: string; border: string; text: string; shadow: string; icon: string }[] = [];
+  if (contact?.youtube) socialLinks.push({ label: "YouTube", href: contact.youtube, color: "#ef4444", border: "hover:border-red-500/40", text: "hover:text-red-400", shadow: "hover:shadow-red-500/20", icon: "youtube" });
+  if (contact?.instagram) socialLinks.push({ label: "Instagram", href: contact.instagram, color: "#ec4899", border: "hover:border-pink-500/40", text: "hover:text-pink-400", shadow: "hover:shadow-pink-500/20", icon: "instagram" });
+  if (contact?.rutube) socialLinks.push({ label: "Rutube", href: contact.rutube, color: "#8b5cf6", border: "hover:border-violet-500/40", text: "hover:text-violet-400", shadow: "hover:shadow-violet-500/20", icon: "rutube" });
+  if (contact?.vk) socialLinks.push({ label: "VK Видео", href: contact.vk, color: "#3b82f6", border: "hover:border-blue-500/40", text: "hover:text-blue-400", shadow: "hover:shadow-blue-500/20", icon: "vk" });
+
   return (
     <>
       <ServiceSchema
@@ -27,7 +37,7 @@ export default function AboutPage() {
       <AboutHero />
       <AboutStory />
       <AboutTimeline />
-      <AboutSocial />
+      <AboutSocial links={socialLinks} />
       <AboutCta />
     </>
   );

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Reveal from "@/shared/ui/reveal";
 import AnimatedSection from "@/shared/ui/animated-section";
-import { SOCIAL_LINKS } from "@/shared/config/social";
 import { IconInstagram, IconRutube, IconVK, IconYouTube } from "@/shared/ui/icons";
 
 const sectionColor = "rgba(16,185,129,0.10)";
@@ -23,7 +22,17 @@ function SocialIcon({ icon, className }: { icon: string; className?: string }) {
   }
 }
 
-export default function AboutSocial() {
+interface SocialLink {
+  label: string;
+  href: string;
+  color: string;
+  border: string;
+  text: string;
+  shadow: string;
+  icon: string;
+}
+
+export default function AboutSocial({ links }: { links: SocialLink[] }) {
   const [hoveredSocial, setHoveredSocial] = useState<string | null>(null);
 
   return (
@@ -66,7 +75,7 @@ export default function AboutSocial() {
           </p>
         </Reveal>
         <div className="flex flex-wrap justify-center gap-4">
-          {SOCIAL_LINKS.map((s, i) => (
+          {links.map((s, i) => (
             <Reveal key={s.label} delay={200 + i * 80}>
               <a
                 href={s.href}

@@ -1,6 +1,15 @@
-import { SOCIAL_LINKS } from "@/shared/config/social";
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
+  const db = getPrismaClient();
+  const contact = await db.contact.findFirst();
+
+  const socialLinks: { label: string; href: string }[] = [];
+  if (contact?.youtube) socialLinks.push({ label: "YouTube", href: contact.youtube });
+  if (contact?.instagram) socialLinks.push({ label: "Instagram", href: contact.instagram });
+  if (contact?.rutube) socialLinks.push({ label: "Rutube", href: contact.rutube });
+  if (contact?.vk) socialLinks.push({ label: "VK Видео", href: contact.vk });
+
   return (
     <footer className="border-t border-zinc-800/50 bg-zinc-950/80">
       <div className="mx-auto max-w-6xl px-6 py-16">
@@ -15,30 +24,32 @@ export default function SiteFooter() {
             </p>
           </div>
 
-          <div className="shrink-0">
-            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Мы в сети
-            </h4>
-            <div className="flex flex-wrap gap-2.5">
-              {SOCIAL_LINKS.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-9 items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 text-xs font-medium text-zinc-500 shadow-inner shadow-black/10 transition-all hover:-translate-y-0.5 hover:border-zinc-600 hover:text-zinc-300"
-                >
-                  {s.label}
-                </a>
-              ))}
+          {socialLinks.length > 0 && (
+            <div className="shrink-0">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Мы в сети
+              </h4>
+              <div className="flex flex-wrap gap-2.5">
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 text-xs font-medium text-zinc-500 shadow-inner shadow-black/10 transition-all hover:-translate-y-0.5 hover:border-zinc-600 hover:text-zinc-300"
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       <div className="border-t border-zinc-800/30 py-6">
         <div className="mx-auto max-w-6xl px-6 text-center text-xs text-zinc-700">
-          © {new Date().getFullYear()} АВТОWAY. Все права защищены.
+          &copy; {new Date().getFullYear()} АВТОWAY. Все права защищены.
         </div>
       </div>
     </footer>
