@@ -381,6 +381,7 @@ function SettingsTab({ toast }: { toast: (msg: string, type?: "error") => void }
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [hasPasswords, setHasPasswords] = useState(false);
 
   useEffect(() => {
     fetch("/api/email/smtp")
@@ -391,14 +392,15 @@ function SettingsTab({ toast }: { toast: (msg: string, type?: "error") => void }
             smtp_host: j.data.smtp_host ?? "",
             smtp_port: j.data.smtp_port ?? "587",
             smtp_user: j.data.smtp_user ?? "",
-            smtp_pass: j.data.smtp_pass ?? "",
+            smtp_pass: j.data.smtp_pass === "••••••••" ? "" : (j.data.smtp_pass ?? ""),
             smtp_from_name: j.data.smtp_from_name ?? "АВТОWAY",
             smtp_from_email: j.data.smtp_from_email ?? "",
             imap_host: j.data.imap_host ?? "",
             imap_port: j.data.imap_port ?? "993",
             imap_user: j.data.imap_user ?? "",
-            imap_pass: j.data.imap_pass ?? "",
+            imap_pass: j.data.imap_pass === "••••••••" ? "" : (j.data.imap_pass ?? ""),
           });
+          setHasPasswords((j.data.smtp_pass === "••••••••") || (j.data.imap_pass === "••••••••"));
         }
         setLoading(false);
       });
@@ -434,15 +436,19 @@ function SettingsTab({ toast }: { toast: (msg: string, type?: "error") => void }
             </div>
             <Field label="Логин" value={form.smtp_user} onChange={v => setField("smtp_user", v)} placeholder="user@gmail.com" />
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-slate-400">Пароль (app-password)</span>
+              <span className="text-xs text-slate-400">Пароль (app-password){hasPasswords ? " — сохранён" : ""}</span>
               <div className="relative">
                 <input type={showPass ? "text" : "password"} value={form.smtp_pass} onChange={e => setField("smtp_pass", e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 pr-12 text-sm text-white outline-none focus:border-red-500" placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-white">
-                  {showPass ? "Скрыть" : "Показать"}
-                </button>
+                  placeholder={hasPasswords ? "Оставьте пустым, чтобы не менять" : "••••••••"}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 pr-12 text-sm text-white outline-none focus:border-red-500" />
+                {hasPasswords && (
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-white">
+                    {showPass ? "Скрыть" : "Показать"}
+                  </button>
+                )}
               </div>
+              {hasPasswords && <span className="text-[10px] text-slate-600">Пароль хранится в БД в зашифрованном виде.</span>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Имя отправителя" value={form.smtp_from_name} onChange={v => setField("smtp_from_name", v)} placeholder="АВТОWAY" />
@@ -461,10 +467,11 @@ function SettingsTab({ toast }: { toast: (msg: string, type?: "error") => void }
             </div>
             <Field label="Логин" value={form.imap_user} onChange={v => setField("imap_user", v)} placeholder="user@gmail.com" />
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-slate-400">Пароль (app-password)</span>
+              <span className="text-xs text-slate-400">Пароль (app-password){hasPasswords ? " — сохранён" : ""}</span>
               <div className="relative">
-                <input type={showPass ? "text" : "password"} value={form.imap_pass} onChange={e => setField("imap_pass", e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 pr-12 text-sm text-white outline-none focus:border-red-500" placeholder="••••••••" />
+                <input type="password" value={form.imap_pass} onChange={e => setField("imap_pass", e.target.value)}
+                  placeholder={hasPasswords ? "Оставьте пустым, чтобы не менять" : "••••••••"}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
               </div>
             </div>
           </div>

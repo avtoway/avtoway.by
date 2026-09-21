@@ -9,6 +9,7 @@ export default defineConfig({
       YOUTUBE_API_KEY: "test-key",
       YOUTUBE_CHANNEL_ID: "test-channel",
       AUTH_SECRET: "test-secret",
+      ENCRYPTION_KEY: "test-encryption-key",
     },
     reporters: [
       "default",

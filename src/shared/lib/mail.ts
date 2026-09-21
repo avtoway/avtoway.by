@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import { decryptSecret } from "@/shared/lib/encryption";
 
 interface SmtpConfig {
   host: string;
@@ -25,7 +26,7 @@ async function getSmtpConfig(): Promise<SmtpConfig | null> {
     host: map.smtp_host,
     port: parseInt(map.smtp_port ?? "587"),
     user: map.smtp_user,
-    pass: map.smtp_pass,
+    pass: decryptSecret(map.smtp_pass),
     fromName: map.smtp_from_name ?? "АВТОWAY",
     fromEmail: map.smtp_from_email,
   };
@@ -43,7 +44,7 @@ async function getImapConfig(): Promise<{ host: string; port: number; user: stri
     host: map.imap_host,
     port: parseInt(map.imap_port ?? "993"),
     user: map.imap_user,
-    pass: map.imap_pass,
+    pass: decryptSecret(map.imap_pass),
   };
 }
 
