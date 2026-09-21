@@ -17,7 +17,7 @@
     "release": "npm run build"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
