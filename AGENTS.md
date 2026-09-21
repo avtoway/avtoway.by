@@ -4,6 +4,8 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+> **ВАЖНО: Начни с чтения `HANDOFF.md`** — там полный контекст проекта: история, состояние, план, ключевые файлы, нюансы. Это продолжение предыдущей сессии.
+
 ## Дорожная карта
 
 - **CRM для заявок (future):** приём заявок из Telegram, Instagram, Viber, WhatsApp — заявки приходят на свой сервер, ответ через админку. Единая лента обращений, история переписки, назначение ответственного.
