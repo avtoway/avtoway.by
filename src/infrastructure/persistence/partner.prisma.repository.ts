@@ -2,12 +2,23 @@ import type { PartnerRepository } from "@/entities/partner/partner.repository";
 import type { Partner } from "@/entities/partner/partner";
 import { getPrismaClient } from "./prisma.client";
 
+function parsePhotos(value: string | string[] | null | undefined): string[] | undefined {
+  if (!value) return undefined;
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function toPartner(r: any): Partner {
   return {
     id: r.id,
     name: r.name,
     photo: r.photo ?? undefined,
-    photos: r.photos ? (typeof r.photos === "string" ? JSON.parse(r.photos) : r.photos) : undefined,
+    photos: parsePhotos(r.photos),
     description: r.description ?? undefined,
     phone: r.phone ?? undefined,
     email: r.email ?? undefined,
@@ -21,6 +32,21 @@ function toPartner(r: any): Partner {
     isActive: r.isActive,
     sortOrder: r.sortOrder,
   };
+}
+
+// `photos` is stored as a JSON string (the `photos` column).
+function toDbData(data: Partial<Partner>): Record<string, unknown> {
+  const db: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (k === "photos") {
+      const photos = v as string[] | undefined;
+      db.photos = photos && photos.length ? JSON.stringify(photos) : null;
+      continue;
+    }
+    if (k === "id") continue;
+    db[k] = v;
+  }
+  return db;
 }
 
 export class PrismaPartnerRepository implements PartnerRepository {
@@ -42,13 +68,13 @@ export class PrismaPartnerRepository implements PartnerRepository {
 
   async create(data: Omit<Partner, "id">): Promise<Partner> {
     const db = getPrismaClient();
-    const record = await db.partner.create({ data });
+    const record = await db.partner.create({ data: toDbData(data) as any });
     return toPartner(record);
   }
 
   async update(id: string, data: Partial<Omit<Partner, "id">>): Promise<Partner> {
     const db = getPrismaClient();
-    const record = await db.partner.update({ where: { id }, data });
+    const record = await db.partner.update({ where: { id }, data: toDbData(data) as any });
     return toPartner(record);
   }
 

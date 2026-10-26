@@ -1,10 +1,12 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { sendEmail } from "@/shared/lib/mail";
 
 export async function POST(request: Request) {
   try {
+    await requireAuth("email.manage");
     const body = await request.json().catch(() => ({}));
     const { to, subject, body: emailBody } = body;
     if (!to || !subject || !emailBody) {

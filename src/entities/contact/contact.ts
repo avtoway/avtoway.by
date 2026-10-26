@@ -4,5 +4,8 @@ export interface ContactRequest {
   phone?: string;
   email?: string;
   message: string;
-  createdAt: Date;
+  status: string;
+  createdAt: string;
 }
+
+export type ContactRequestStatus = "new" | "in_progress" | "done" | "archived";

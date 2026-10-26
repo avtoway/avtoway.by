@@ -1,6 +1,7 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 
@@ -9,6 +10,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth("rent.manage");
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarRepository>("RentCarRepository");
@@ -22,6 +24,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth("rent.manage");
     const { id } = await params;
     const repo = container.get<RentCarRepository>("RentCarRepository");
     await repo.delete(id);

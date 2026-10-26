@@ -2,23 +2,11 @@ import { notFound } from "next/navigation";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceRows } from "@/shared/lib/price";
+import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PhotoGallery from "@/shared/ui/photo-gallery";
 import type { Metadata } from "next";
 
 interface Props { params: Promise<{ slug: string }> }
-
-const TRANSMISSION_LABEL: Record<string, string> = {
-  auto: "Автомат", manual: "Механика", robot: "Робот", variator: "Вариатор",
-};
-const FUEL_LABEL: Record<string, string> = {
-  gasoline: "Бензин",
-  "gas-propane": "Бензин (пропан-бутан)",
-  "gas-methane": "Бензин (метан)",
-  "gas-hybrid": "Бензин (гибрид)",
-  diesel: "Дизель",
-  "diesel-hybrid": "Дизель (гибрид)",
-  electric: "Электро",
-};
 
 async function getContact() {
   const db = getPrismaClient();

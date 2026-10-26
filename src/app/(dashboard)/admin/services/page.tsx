@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import ServiceForm from "@/features/admin/services/ui/service-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
-import { useToast } from "@/shared/lib/toat-context";
+import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceFormData } from "@/features/admin/services/ui/service-form";

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import CreateUserForm from "@/features/admin/users-list/ui/create-user-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
-import { useToast } from "@/shared/lib/toat-context";
+import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { UserCreateSchema } from "@/entities/user/user.schema";
 import type { SelectOption } from "@/shared/ui/admin/multi-select";

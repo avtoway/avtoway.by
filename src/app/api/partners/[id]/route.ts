@@ -1,10 +1,10 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
-import { getAuthUser } from "@/lib/auth.server";
+import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
-import { AuthError, toApiError } from "@/shared/lib/errors";
+import { toApiError } from "@/shared/lib/errors";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 
@@ -13,8 +13,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getAuthUser();
-    if (!user) throw new AuthError();
+    const user = await requireAuth("partners.manage");
 
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
@@ -38,8 +37,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getAuthUser();
-    if (!user) throw new AuthError();
+    const user = await requireAuth("partners.manage");
 
     const { id } = await params;
     const partnerRepo = container.get<PartnerRepository>("PartnerRepository");

@@ -14,15 +14,20 @@ async function main() {
   ];
 
   const perms: Record<string, string[]> = {
-    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view"],
-    "Редактор": ["services.manage", "partners.manage"],
+    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view", "rent.manage", "contacts.manage", "email.manage"],
+    "Редактор": ["services.manage", "partners.manage", "rent.manage", "contacts.manage"],
     "Наблюдатель": ["services.view", "partners.view"],
   };
 
   for (const r of roleDefs) {
     const existing = await prisma.role.findUnique({ where: { name: r.name } });
     if (existing) {
-      if (!existing.level) await prisma.role.update({ where: { id: existing.id }, data: { level: r.level, description: r.description } });
+      await prisma.role.update({ where: { id: existing.id }, data: { level: r.level, description: r.description } });
+      // Upsert permissions (keep them in sync with the definitions above)
+      await prisma.rolePermission.deleteMany({ where: { roleId: existing.id } });
+      for (const p of perms[r.name] ?? []) {
+        await prisma.rolePermission.create({ data: { roleId: existing.id, permission: p } });
+      }
       continue;
     }
     await prisma.role.create({
@@ -184,6 +189,25 @@ async function main() {
   for (const [key, value] of Object.entries(contactSettings)) {
     const exists = await prisma.setting.findUnique({ where: { key } });
     if (!exists) await prisma.setting.create({ data: { key, value } });
+  }
+
+  // Seed services (single source of truth for the public catalog)
+  const services = [
+    { slug: "rent", title: "Аренда", description: "Аренда под ваши задачи. По дням, неделям и месяцам.", icon: "car", color: "#3b82f6", isActive: true, sortOrder: 1 },
+    { slug: "sell", title: "Продажа авто", description: "Продам ваше авто быстро, дорого, без головной боли.", icon: "dollar", color: "#f59e0b", isActive: true, sortOrder: 2 },
+    { slug: "inspection", title: "Автоподбор", description: "Проверю авто от и до. Диагностика, документы, торг — полное сопровождение.", icon: "check-circle", color: "#10b981", isActive: true, sortOrder: 3 },
+    { slug: "truck", title: "Эвакуатор", description: "Быстрая и надёжная эвакуация авто. Круглосуточно.", icon: "car", color: "#ef4444", isActive: false, sortOrder: 4 },
+    { slug: "import", title: "Автопригон", description: "Пригон авто из США, Китая, Европы и Кореи. Под ключ.", icon: "car", color: "#8b5cf6", isActive: false, sortOrder: 5 },
+    { slug: "service", title: "Автосервис", description: "Ремонт и обслуживание автомобилей любой сложности.", icon: "car", color: "#f97316", isActive: false, sortOrder: 6 },
+  ];
+  for (const s of services) {
+    const existing = await prisma.service.findUnique({ where: { slug: s.slug } });
+    if (existing) {
+      await prisma.service.update({ where: { slug: s.slug }, data: { title: s.title, description: s.description, icon: s.icon, color: s.color, isActive: s.isActive, sortOrder: s.sortOrder } });
+    } else {
+      await prisma.service.create({ data: s });
+      console.log(`  Услуга: ${s.title}`);
+    }
   }
 
   // Seed contact info (contacts table — singleton)

@@ -2,6 +2,7 @@ import "@/di/composition-root";
 import { cookies } from "next/headers";
 import { createHash } from "node:crypto";
 import { container } from "@/di/container";
+import { AuthError, ForbiddenError } from "@/shared/lib/errors";
 import type { UserRepository } from "@/entities/user/user.repository";
 
 const SECRET = process.env.AUTH_SECRET ?? "dev-secret";
@@ -28,16 +29,24 @@ async function loadUser(id: string, name: string, login?: string, _photo?: strin
   const user = await repo.getById(id);
   if (!user) return { id, login: login ?? "", name, role: "Viewer", permissions: [] };
 
+  // Fetch roles once (avoids N+1) and pick the highest-level role as "top".
+  const roleRepo = container.get<import("@/entities/role/role.repository").RoleRepository>("RoleRepository");
+  const allRoles = await roleRepo.getAll();
+  const roleById = new Map(allRoles.map(r => [r.id, r]));
+
   const perms = new Set<string>();
-  for (const role of user.roles) {
-    const roleRepo = container.get<import("@/entities/role/role.repository").RoleRepository>("RoleRepository");
-    const roles = await roleRepo.getAll();
-    const found = roles.find(r => r.id === role.id);
-    if (found) found.permissions.forEach(p => perms.add(p));
+  let topRole = "Viewer";
+  let topLevel = -1;
+  for (const ur of user.roles) {
+    const role = roleById.get(ur.id);
+    if (!role) continue;
+    for (const p of role.permissions) perms.add(p);
+    if (role.level > topLevel) {
+      topLevel = role.level;
+      topRole = role.name;
+    }
   }
 
-  const firstRole = user.roles[0];
-  const topRole = firstRole ? firstRole.name : "Viewer";
   return {
     id: user.id,
     login: user.login,
@@ -85,4 +94,16 @@ export async function getAuthUser(): Promise<AuthUser | null> {
 
 export function hasPermission(user: AuthUser | null, permission: string): boolean {
   return user?.permissions.includes(permission) ?? false;
+}
+
+/**
+ * Guard for API routes: requires an authenticated user,
+ * and optionally a specific permission.
+ * Throws AuthError (401) / ForbiddenError (403) — handled by toApiError().
+ */
+export async function requireAuth(permission?: string): Promise<AuthUser> {
+  const user = await getAuthUser();
+  if (!user) throw new AuthError();
+  if (permission && !hasPermission(user, permission)) throw new ForbiddenError();
+  return user;
 }

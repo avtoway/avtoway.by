@@ -2,6 +2,21 @@ import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { Service } from "@/entities/service/service.types";
 import { getPrismaClient } from "./prisma.client";
 
+// DB column names differ from the domain `Service` type:
+//   desc -> description, iconName -> icon. `href` is derived (not stored).
+function toDbData(data: Partial<Service>): Record<string, unknown> {
+  const db: Record<string, unknown> = {};
+  if (data.title !== undefined) db.title = data.title;
+  if (data.desc !== undefined) db.description = data.desc;
+  if (data.color !== undefined) db.color = data.color;
+  if (data.iconName !== undefined) db.icon = data.iconName;
+  if (data.isActive !== undefined) db.isActive = data.isActive;
+  if (data.sortOrder !== undefined) db.sortOrder = data.sortOrder;
+  if (data.photo !== undefined) db.photo = data.photo || null;
+  if (data.content !== undefined) db.content = data.content || null;
+  return db;
+}
+
 export class PrismaServiceRepository implements ServiceRepository {
   async getAll(): Promise<Service[]> {
     const db = getPrismaClient();
@@ -24,9 +39,17 @@ export class PrismaServiceRepository implements ServiceRepository {
     return records.map(toService);
   }
 
+  async create(data: Omit<Service, "id">): Promise<Service> {
+    const db = getPrismaClient();
+    const record = await db.service.create({
+      data: { slug: data.slug, ...toDbData(data) } as any,
+    });
+    return toService(record);
+  }
+
   async update(slug: string, data: Partial<Service>): Promise<Service> {
     const db = getPrismaClient();
-    const record = await db.service.update({ where: { slug }, data });
+    const record = await db.service.update({ where: { slug }, data: toDbData(data) as any });
     return toService(record);
   }
 
@@ -41,7 +64,7 @@ function toService(record: any): Service {
     slug: record.slug,
     title: record.title,
     desc: record.description ?? "",
-    href: `/${record.slug}`,
+    href: `/services/${record.slug}`,
     color: record.color ?? "#ef4444",
     iconName: record.icon ?? "default",
     isActive: record.isActive,

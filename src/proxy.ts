@@ -39,6 +39,22 @@ export function proxy(request: NextRequest) {
     if (pathname.startsWith("/admin/partners") && !perms.some(p => p.startsWith("partners."))) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
+
+    if (pathname.startsWith("/admin/rent") && !perms.includes("rent.manage")) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (pathname.startsWith("/admin/contacts") && !perms.includes("contacts.manage")) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (pathname.startsWith("/admin/requests") && !perms.includes("contacts.manage")) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (pathname.startsWith("/admin/email") && !perms.includes("email.manage")) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   return NextResponse.next();

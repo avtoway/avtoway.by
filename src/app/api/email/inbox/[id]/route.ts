@@ -1,5 +1,6 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 
@@ -8,6 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth("email.manage");
     const { id } = await params;
     const db = getPrismaClient();
     const email = await db.inboxEmail.findUnique({ where: { id } });
@@ -24,6 +26,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth("email.manage");
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const db = getPrismaClient();

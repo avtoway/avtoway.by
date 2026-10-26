@@ -5,7 +5,7 @@ import AdminModal from "@/shared/ui/admin-modal";
 import PartnerCard from "@/features/admin/partners/ui/partner-card";
 import PartnerForm from "@/features/admin/partners/ui/partner-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
-import { useToast } from "@/shared/lib/toat-context";
+import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { Partner } from "@/features/admin/partners/types";

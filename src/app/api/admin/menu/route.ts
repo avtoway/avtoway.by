@@ -1,6 +1,8 @@
+import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { container } from "@/di/container";
 import { getAuthUser } from "@/lib/auth.server";
-import { SERVICES } from "@/shared/config/services";
+import type { ServiceRepository } from "@/entities/service/service.repository";
 
 interface MenuItem {
   label: string;
@@ -16,15 +18,17 @@ export async function GET() {
   if (!user) return NextResponse.json({ ok: false, menu: [] });
 
   const perms = user.permissions;
-
   const hasPerm = (p: string) => perms.some(x => x.startsWith(p));
 
-  // Active services for submenu
-  const activeServices = SERVICES.filter(s => s.isActive);
-  const serviceChildren: MenuItem[] = activeServices.map(s => {
-    const href = `/admin/${s.slug}`;
-    return { label: s.title, icon: "grid", href };
-  });
+  // Services from DB (single source of truth). Only "rent" has a dedicated
+  // admin module; other services are managed via the "Все услуги" page.
+  const serviceRepo = container.get<ServiceRepository>("ServiceRepository");
+  const services = await serviceRepo.getActive();
+
+  const serviceChildren: MenuItem[] = [];
+  if (services.some(s => s.slug === "rent")) {
+    serviceChildren.push({ label: "Аренда", icon: "grid", href: "/admin/rent", perm: "rent.manage" });
+  }
 
   const allItems: MenuItem[] = [
     { label: "Главная", icon: "home", href: "/admin" },
@@ -32,14 +36,16 @@ export async function GET() {
     {
       label: "Услуги",
       icon: "grid",
+      perm: "services.",
       children: [
-        { label: "Все услуги", icon: "settings", href: "/admin/services" },
+        { label: "Все услуги", icon: "settings", href: "/admin/services", perm: "services.manage" },
         ...serviceChildren,
       ],
     },
     { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
-    { label: "Контакты", icon: "phone", href: "/admin/contacts" },
-    { label: "Почта", icon: "mail", href: "/admin/email" },
+    { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
+    { label: "Заявки", icon: "document-text", href: "/admin/requests", perm: "contacts.manage" },
+    { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
     { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles" },
     { label: "Аудит", icon: "document-text", href: "/admin/audit-logs", perm: "audit.view" },

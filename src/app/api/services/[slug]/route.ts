@@ -1,10 +1,10 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
-import { getAuthUser } from "@/lib/auth.server";
+import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
-import { AuthError, NotFoundError, toApiError } from "@/shared/lib/errors";
+import { NotFoundError, toApiError } from "@/shared/lib/errors";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 
@@ -13,8 +13,7 @@ export async function PUT(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const user = await getAuthUser();
-    if (!user) throw new AuthError();
+    const user = await requireAuth("services.manage");
 
     const { slug } = await params;
     const body = await request.json().catch(() => ({}));
@@ -38,8 +37,7 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const user = await getAuthUser();
-    if (!user) throw new AuthError();
+    const user = await requireAuth("services.manage");
 
     const { slug } = await params;
     const serviceRepo = container.get<ServiceRepository>("ServiceRepository");

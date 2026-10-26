@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import RoleForm, { PERMISSION_OPTIONS } from "@/features/admin/roles/ui/role-form";
 import { useFormValidation } from "@/shared/lib/use-form-validation";
-import { useToast } from "@/shared/lib/toat-context";
+import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { RoleSchema } from "@/entities/role/role.schema";
 import type { Role } from "@/features/admin/roles/types";

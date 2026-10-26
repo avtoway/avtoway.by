@@ -6,7 +6,7 @@ import Sidebar from "@/shared/ui/admin/sidebar";
 import Breadcrumbs from "@/shared/ui/admin/breadcrumbs";
 import { ErrorBoundary } from "@/shared/ui/error-boundary";
 import { DirtyFormProvider, useDirtyForm } from "@/shared/lib/dirty-form-context";
-import { ToastProvider } from "@/shared/lib/toat-context";
+import { ToastProvider } from "@/shared/lib/toast-context";
 
 interface AuthUser {
   id: string;

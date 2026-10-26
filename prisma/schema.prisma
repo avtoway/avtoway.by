@@ -107,6 +107,7 @@ model Partner {
   id            String   @id @default(uuid())
   name          String
   photo         String?
+  photos        String?
   description   String?
   phone         String?
   email         String?
@@ -149,6 +150,20 @@ model Contact {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("contacts")
+}
+
+model ContactRequest {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String?
+  email     String?
+  message   String
+  status    String   @default("new")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_requests")
 }
 
 model SentEmail {

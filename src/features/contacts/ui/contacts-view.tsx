@@ -1,6 +1,7 @@
 "use client";
 
 import Reveal from "@/shared/ui/reveal";
+import ContactForm from "./contact-form";
 
 interface ContactData {
   phone: string | null;
@@ -231,20 +232,14 @@ export default function ContactsView({ contact }: { contact: ContactData | null 
           </>
         )}
 
-        {/* CTA */}
+        {/* CTA / form */}
         <Reveal delay={700}>
-          <div className="mx-auto max-w-xl rounded-3xl border border-red-500/10 bg-gradient-to-br from-red-600/5 via-zinc-900/80 to-zinc-900/30 p-8 text-center backdrop-blur-sm">
-            <p className="text-sm font-medium text-white">
-              Нет времени звонить? Оставьте заявку на сайте —
-              мы перезвоним в удобное для вас время.
-            </p>
-            <a
-              href="/services"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 text-sm font-medium text-white transition-all hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20"
-            >
-              Смотреть услуги
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-            </a>
+          <div className="mx-auto max-w-xl rounded-3xl border border-red-500/10 bg-gradient-to-br from-red-600/5 via-zinc-900/80 to-zinc-900/30 p-8 backdrop-blur-sm">
+            <div className="mb-6 text-center">
+              <h2 className="text-xl font-bold text-white">Оставьте заявку</h2>
+              <p className="mt-1 text-sm text-zinc-500">Мы перезвоним в удобное для вас время</p>
+            </div>
+            <ContactForm />
           </div>
         </Reveal>
       </div>

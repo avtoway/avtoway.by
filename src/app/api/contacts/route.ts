@@ -1,6 +1,7 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import type { ContactInfoRepository } from "@/entities/contact/contact-info.repository";
 
@@ -14,6 +15,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    await requireAuth("contacts.manage");
     const body = await request.json().catch(() => ({}));
     const repo = container.get<ContactInfoRepository>("ContactInfoRepository");
     const contact = await repo.update(body);

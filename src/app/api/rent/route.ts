@@ -1,6 +1,7 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 
@@ -13,6 +14,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, data: types });
   }
 
+  // showAll (inactive cars) is admin-only
+  if (searchParams.get("showAll") === "true") {
+    try {
+      await requireAuth("rent.manage");
+    } catch (e) { return toApiError(e); }
+  }
+
   const cars = await repo.getAll({
     rentTypeSlug: searchParams.get("rentType") ?? undefined,
     showAll: searchParams.get("showAll") === "true",
@@ -22,6 +30,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    await requireAuth("rent.manage");
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarRepository>("RentCarRepository");
     const car = await repo.create(body);

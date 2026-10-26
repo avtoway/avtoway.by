@@ -1,6 +1,7 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import type { RentCarHistoryRepository } from "@/entities/rent/rent-car-history.repository";
 
@@ -21,6 +22,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth("rent.manage");
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarHistoryRepository>("RentCarHistoryRepository");
@@ -34,6 +36,7 @@ export async function DELETE(
   _params: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth("rent.manage");
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarHistoryRepository>("RentCarHistoryRepository");
     await repo.delete(body.id);

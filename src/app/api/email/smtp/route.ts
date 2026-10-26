@@ -1,5 +1,6 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { encryptSecret } from "@/shared/lib/encryption";
@@ -13,6 +14,7 @@ const SECRET_KEYS = new Set(["smtp_pass", "imap_pass"]);
 
 export async function GET() {
   try {
+    await requireAuth("email.manage");
     const db = getPrismaClient();
     const rows = await db.setting.findMany({ where: { key: { in: SETTINGS_KEYS } } });
     const map: Record<string, string> = {};
@@ -27,6 +29,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    await requireAuth("email.manage");
     const body = await request.json().catch(() => ({}));
     const db = getPrismaClient();
 

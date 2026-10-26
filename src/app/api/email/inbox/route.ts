@@ -1,10 +1,12 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 
 export async function GET(request: Request) {
   try {
+    await requireAuth("email.manage");
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") ?? "1");
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "30"), 100);
@@ -34,6 +36,7 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    await requireAuth("email.manage");
     const body = await request.json().catch(() => ({}));
     const ids: string[] = body.ids ?? (body.id ? [body.id] : []);
     const db = getPrismaClient();

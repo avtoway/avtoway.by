@@ -1,5 +1,8 @@
-import type { ContactRequest } from "./contact";
+import type { ContactRequest, ContactRequestStatus } from "./contact";
 
 export interface ContactRepository {
-  create(data: Omit<ContactRequest, "id" | "createdAt">): Promise<ContactRequest>;
+  create(data: { name: string; phone?: string; email?: string; message: string }): Promise<ContactRequest>;
+  getAll(): Promise<ContactRequest[]>;
+  updateStatus(id: string, status: ContactRequestStatus): Promise<ContactRequest>;
+  delete(id: string): Promise<void>;
 }

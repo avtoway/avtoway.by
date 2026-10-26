@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
+import { requireAuth } from "@/lib/auth.server";
+import { toApiError } from "@/shared/lib/errors";
 
-const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+// svg excluded: it can carry scripts (XSS)
+const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: Request) {
   try {
+    await requireAuth();
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -16,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     if (!ALLOWED.includes(file.type)) {
-      return NextResponse.json({ ok: false, error: "Недопустимый тип файла. Разрешены: jpg, png, webp, gif, svg" }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Недопустимый тип файла. Разрешены: jpg, png, webp, gif" }, { status: 400 });
     }
 
     if (file.size > MAX_SIZE) {
@@ -32,7 +37,5 @@ export async function POST(request: Request) {
     await writeFile(join(dir, filename), buffer);
 
     return NextResponse.json({ ok: true, url: `/uploads/partners/${filename}` });
-  } catch {
-    return NextResponse.json({ ok: false, error: "Ошибка загрузки" }, { status: 500 });
-  }
+  } catch (e) { return toApiError(e); }
 }

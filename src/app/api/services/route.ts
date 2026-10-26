@@ -1,10 +1,10 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
-import { getAuthUser } from "@/lib/auth.server";
+import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
-import { AuthError, ConflictError, toApiError } from "@/shared/lib/errors";
+import { ConflictError, toApiError } from "@/shared/lib/errors";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 
@@ -16,8 +16,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await getAuthUser();
-    if (!user) throw new AuthError();
+    const user = await requireAuth("services.manage");
 
     const body = await request.json().catch(() => ({}));
     const parsed = validateOrResponse(ServiceSchema, body);
@@ -27,11 +26,24 @@ export async function POST(request: Request) {
     const existing = await serviceRepo.getBySlug(parsed.data.slug);
     if (existing) throw new ConflictError("Услуга с таким slug уже существует");
 
-    await createAuditLog({
-      userId: user.id, action: "CREATE", entity: "Service", entityId: parsed.data.slug,
-      details: { title: parsed.data.title },
+    const created = await serviceRepo.create({
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      desc: parsed.data.desc ?? "",
+      href: parsed.data.href,
+      color: parsed.data.color,
+      iconName: parsed.data.iconName ?? "car",
+      isActive: parsed.data.isActive ?? true,
+      sortOrder: parsed.data.sortOrder ?? 0,
+      photo: parsed.data.photo,
+      content: parsed.data.content,
     });
 
-    return NextResponse.json({ ok: true, data: parsed.data }, { status: 201 });
+    await createAuditLog({
+      userId: user.id, action: "CREATE", entity: "Service", entityId: created.slug,
+      details: { title: created.title },
+    });
+
+    return NextResponse.json({ ok: true, data: created }, { status: 201 });
   } catch (e) { return toApiError(e); }
 }

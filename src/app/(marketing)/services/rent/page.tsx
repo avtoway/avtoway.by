@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getPriceRows } from "@/shared/lib/price";
+import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface RentType { id: string; name: string; slug: string; }
 interface RentCar {
@@ -15,22 +16,6 @@ interface RentCar {
   rentType?: { id: string; name: string; slug: string };
   isActive: boolean; bookedUntil?: string;
 }
-
-const TRANSMISSION_LABEL: Record<string, string> = {
-  auto: "Автомат", manual: "Механика", robot: "Робот", variator: "Вариатор",
-};
-const FUEL_LABEL: Record<string, string> = {
-  gasoline: "Бензин",
-  "gas-propane": "Бензин (пропан-бутан)",
-  "gas-methane": "Бензин (метан)",
-  "gas-hybrid": "Бензин (гибрид)",
-  diesel: "Дизель",
-  "diesel-hybrid": "Дизель (гибрид)",
-  electric: "Электро",
-  hybrid: "Гибрид",
-  propane: "Газ",
-  methane: "Метан",
-};
 
 interface ComfortFeature { id: string; name: string; slug: string; }
 

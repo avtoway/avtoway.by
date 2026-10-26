@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useToast } from "@/shared/lib/toat-context";
+import { useToast } from "@/shared/lib/toast-context";
 
 interface ContactForm {
   phone: string;

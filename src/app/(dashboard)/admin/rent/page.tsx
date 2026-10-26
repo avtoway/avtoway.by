@@ -4,9 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import RentCarForm from "@/features/admin/rent/ui/rent-car-form";
 import RentCarHistoryPanel from "@/features/admin/rent/ui/rent-car-history-panel";
-import { useToast } from "@/shared/lib/toat-context";
+import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { getPriceLabel } from "@/shared/lib/price";
+import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface RentType { id: string; name: string; slug: string; sortOrder: number; }
 
@@ -19,20 +20,6 @@ interface RentCar {
   rentTypeId?: string; rentType?: { id: string; name: string };
   isActive: boolean; bookedUntil?: string; photos?: string; mainPhoto?: string;
 }
-
-const TRANSMISSION_LABEL: Record<string, string> = {
-  auto: "Автомат", manual: "Механика", robot: "Робот", variator: "Вариатор",
-};
-
-const FUEL_LABEL: Record<string, string> = {
-  gasoline: "Бензин",
-  "gas-propane": "Бензин (пропан-бутан)",
-  "gas-methane": "Бензин (метан)",
-  "gas-hybrid": "Бензин (гибрид)",
-  diesel: "Дизель",
-  "diesel-hybrid": "Дизель (гибрид)",
-  electric: "Электро",
-};
 
 const EMPTY_FORM = {
   name: "", slug: "", brand: "", model: "", year: "", color: "",
