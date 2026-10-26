@@ -27,7 +27,7 @@
 | ORM | Prisma 7.8 + libSQL adapter (`@prisma/adapter-libsql`) |
 | БД (dev) | SQLite `data/avtoway.db` |
 | БД (prod) | PostgreSQL (Docker Compose) |
-| Тесты | Vitest 4 (26 тестов) |
+| Тесты | Vitest 4 (22 теста) |
 | Почта | nodemailer (SMTP) + imapflow (IMAP) |
 | Авторизация | логин/пароль, bcryptjs, HMAC-токен в cookie `admin_token` (24ч) |
 | CI | GitHub Actions (lint → typecheck → test → build) |
@@ -80,6 +80,7 @@ prisma/schema.prisma      # Схема БД
 | Transmission | transmissions | Коробки передач (4) |
 | ComfortFeature | comfort_features | Опции комфорта (14) |
 | Contact | contacts | Контактная информация сайта (singleton) |
+| ContactRequest | contact_requests | Заявки с сайта (форма обратной связи) |
 | SentEmail | sent_emails | Отправленные письма |
 | InboxEmail | inbox_emails | Входящие письма (кеш из IMAP) |
 
@@ -134,15 +135,26 @@ prisma/schema.prisma      # Схема БД
 - Главная (hero, видео-карусель, услуги)
 - `/services` + `/services/[slug]` (динамические)
 - `/about` (с соцсетями из БД)
-- `/contacts` (см. выше)
+- `/contacts` (см. выше) + форма заявки
 - Редиректы: `/rent`, `/sell`, `/inspection` → `/services`
+
+### 5.7 Рефакторинг, безопасность и заявки (26.10.2026)
+- **Безопасность API**: добавлен guard `requireAuth(permission?)` в `auth.server.ts`. Все мутирующие API-роуты (`/api/rent`, `/api/contacts`, `/api/upload`, `/api/email/*`, `/api/services`, `/api/partners`) теперь требуют авторизацию + права. Из загрузки убран `svg` (XSS), `showAll=true` у аренды — только для админа.
+- **Новые права**: `rent.manage`, `contacts.manage`, `email.manage` (добавлены в seed, upsert ролей починен).
+- **Услуги в БД**: `Service`/`Partner` переведены на Prisma в dev и prod (memory-репозитории удалены). Услуги засеваются в таблицу `services`. Починены скрытые баги: `POST /api/services` не создавал запись; маппинг полей `desc/iconName/href` ↔ `description/icon`; у Partner не было колонки `photos` (альбом терялся).
+- **Заявки**: таблица `contact_requests` + репозиторий + рабочий `/api/contact` (раньше сообщения терялись). Новая админка **`/admin/requests`** (статусы, удаление). Публичная форма на `/contacts`.
+- **Справочники**: `FUEL/TRANSMISSION` вынесены в `src/shared/lib/car-dictionaries.ts` (было в 3 файлах).
+- **Чистка**: удалены мёртвые `env.ts`, `config/index`, `services.ts`, `service.entity`, `ServiceColor`, `youtube.ts` типы; исправлена опечатка `toat-context` → `toast-context`; починен `loadUser` (N+1 + «главная роль» по уровню).
 
 ---
 
 ## 6. Технические решения и паттерны
 
 ### DI-контейнер
-`src/di/container.ts` + `src/di/composition-root.ts`. Репозитории регистрируются и достаются через `container.get<T>("Token")`. В dev используются memory-репозитории для некоторых сущностей, в prod — Prisma. **ВАЖНО:** API-роуты импортируют `@/di/composition-root` в начале.
+`src/di/container.ts` + `src/di/composition-root.ts`. Репозитории регистрируются и достаются через `container.get<T>("Token")`. Все репозитории — Prisma (dev и prod, единообразно). **ВАЖНО:** API-роуты импортируют `@/di/composition-root` в начале.
+
+### Авторизация API (guard)
+`requireAuth(permission?)` в `src/lib/auth.server.ts` — хелпер для API-роутов: требует залогиненного пользователя и опционально конкретное право. Кидает `AuthError` (401) / `ForbiddenError` (403), обрабатывается `toApiError()`. Пример: `await requireAuth("rent.manage")`.
 
 ### Ошибки
 Иерархия: `AppError`, `AuthError`, `ForbiddenError`, `NotFoundError`, `ValidationError`, `ConflictError`. Хелпер `toApiError()` в `src/shared/lib/errors.ts`.
@@ -182,35 +194,37 @@ npm run build && npm run start
 Админка: `/admin/login`, вход **admin / admin123** (сменить после входа!).
 
 ### Seed создаёт
-Админа, роли, типы аренды (Аренда, Под такси), 7 видов топлива, 4 коробки, ~25 марок авто + модели, 14 опций комфорта, контактную строку, SMTP-настройки-заглушки.
+Админа, роли, типы аренды (Аренда, Под такси), 6 услуг (rent/sell/inspection — активны; truck/import/service — скрыты), 7 видов топлива, 4 коробки, ~25 марок авто + модели, 14 опций комфорта, контактную строку, SMTP-настройки-заглушки.
 
 ---
 
 ## 8. Текущее состояние (важно!)
 
-1. **Рабочее дерево чистое** — всё закоммичено в `dev` и запушено
-2. **Почта НЕ подключена к реальному ящику** — SMTP/IMAP настроены как тест. Пользователь планировал привязать временно свой Gmail (нужен пароль приложения), потом `info@avtoway.by` (создать в cPanel на hoster.by)
-3. **Хостинг**: общий cPanel на hoster.by НЕ подходит для этого проекта (нужен Node.js + PostgreSQL + фоновые процессы). Решение — VPS hoster.by (~70-105 BYN/мес) или Hetzner (~€4-8/мес). Покупать ПОСЛЕ завершения сайта
-4. **Домен** `avtoway.by` оплачен до 13.02.2027 — продлевать обязательно, это главный актив
-5. **В remote URL git был зашит GitHub-токен** (`ghp_...`). Я убрал его из URL после пуша. Рекомендация пользователю: отозвать старый токен на GitHub, создать новый. При пуше авторизоваться через токен/gh
+1. **Рабочее дерево чистое** — рефакторинг (безопасность, услуги в БД, заявки) закоммичен в `dev` и запушен (коммит `6b9cbb4`)
+2. **Git-авторизация**: GitHub CLI (`gh`) установлен, вход под `avtoway`, git берёт токен через `gh auth git-credential`. Старый засвеченный classic-токен (`ghp_...`) отозван пользователем
+3. **Почта НЕ подключена к реальному ящику** — SMTP/IMAP настроены как тест. Пользователь планировал привязать временно свой Gmail (нужен пароль приложения), потом `info@avtoway.by` (создать в cPanel на hoster.by)
+4. **Хостинг**: общий cPanel на hoster.by НЕ подходит для этого проекта (нужен Node.js + PostgreSQL + фоновые процессы). Решение — VPS hoster.by (~70-105 BYN/мес) или Hetzner (~€4-8/мес). Покупать ПОСЛЕ завершения сайта
+5. **Домен** `avtoway.by` оплачен до 13.02.2027 — продлевать обязательно, это главный актив
 
 ---
 
 ## 9. План — что делать дальше (по приоритету)
 
 ### Сейчас / ближайшее
-1. **Подключить почту**: привязать Gmail временно (пароль приложения) → проверить отправку/получение/ответы/поиск. Потом создать `info@avtoway.by` в cPanel и переключить (хост `mail.avtoway.by`)
-2. **Протестировать модуль аренды** (список в §10 ниже)
-3. **Сменить пароль админа** в боевом окружении
+1. **Почистить lint** (20 pre-existing ошибок: `<a>` вместо `<Link>`, `setState` в effect, неиспользуемые переменные фильтра бренда)
+2. **Подключить почту**: привязать Gmail временно (пароль приложения) → проверить отправку/получение/ответы/поиск. Потом создать `info@avtoway.by` в cPanel и переключить (хост `mail.avtoway.by`)
+3. **Протестировать модуль аренды** (список в §10 ниже)
+4. **Сменить пароль админа** в боевом окружении
 
 ### Среднесрочно (дор. карта в AGENTS.md)
-4. **CRM для заявок** из Telegram/Instagram/Viber/WhatsApp: заявки на свой сервер, ответ через админку, единая лента, история переписки, назначение ответственного
-5. **Финансовый учёт**: приход/расход по каждой услуге, налоги, прибыль, интеграция с RentCarHistory
-6. **Почта**: цепочки писем, шаблоны
-7. **Остальные услуги**: продажа, автоподбор, эвакуатор, пригон, таксопарк, СТО, детейлинг (по roadmap.md)
+5. **Связать `RentCar.brand/model` с `car_brands/car_models` через FK** (сейчас свободный текст + костыль в фильтре)
+6. **CRM для заявок**: источник заявки (услуга/страница), уведомление на email/Telegram при новой заявке, история переписки, назначение ответственного
+7. **Финансовый учёт**: приход/расход по каждой услуге, налоги, прибыль, интеграция с RentCarHistory
+8. **Почта**: цепочки писем, шаблоны
+9. **Остальные услуги**: продажа, автоподбор, эвакуатор, пригон, таксопарк, СТО, детейлинг (по roadmap.md)
 
 ### Долгосрочно
-8. VPS + деплой, интеграция av.by API, мобильное приложение (API должен работать и для мобилок)
+10. VPS + деплой, интеграция av.by API, мобильное приложение (API должен работать и для мобилок)
 
 ---
 
@@ -234,17 +248,25 @@ npm run build && npm run start
 - [ ] Кнопка «Редактировать» → изменить → сохранить
 - [ ] Изменения видны: футер, `/about`, карточка авто, `/contacts`
 
+### Заявки `/admin/requests` + `/contacts`
+- [ ] Оставить заявку в форме на `/contacts` → появилась в админке
+- [ ] Сменить статус (новая → в работе → готово) → сохраняется
+- [ ] Удалить заявку
+
 ### Общее
-- [ ] `npm run lint`
-- [ ] `npx vitest run` (26 тестов)
+- [ ] `npm run lint` (20 pre-existing ошибок — см. §11)
+- [ ] `npx vitest run` (22 теста)
+- [ ] `npm run typecheck`
+- [ ] `npm run build`
 
 ---
 
 ## 11. Известные проблемы / нюансы
 
-- **Ошибки lint**: есть pre-existing ошибки (unused vars, `<a>` вместо `<Link>`, setState in effect) — не критичны, но почистить желательно
+- **Ошибки lint**: 20 pre-existing ошибок (unused vars: `setBrandFilter`/`setModelFilter`/`selectedModels` в листинге аренды; `<a>` вместо `<Link>` в хлебных крошках; `setState` в effect; «Cannot create components during render»). Не критичны, почистить желательно (первый пункт плана §9)
 - **IMAP-парсер** в `mail.ts` — наивное извлечение HTML из сырого письма (регэксп). Для сложных multipart может дать неполный HTML. Можно улучшить через mailparser
 - **Поиск по входящим** — простой `contains` по from/subject/textBody, без полнотекстового индекса
+- **`RentCar.brand/model`** — свободный текст, а не FK на `car_brands`/`car_models` (в плане §9 п.5)
 - **Ошибка «404 на /admin/login»** возникала из-за устаревшего кэша `.next` после рестарта. Решение: `Remove-Item .next -Recurse` + перезапуск dev
 - **server-only** в `encryption.ts` — импортировать можно только из серверного кода
 - **SQLite vs PostgreSQL**: для prod есть docker-compose.yml + Dockerfile, но деплой ещё не делался
@@ -274,6 +296,12 @@ npm run build && npm run start
 | Контакты: репо | `src/infrastructure/persistence/contact.prisma.repository.ts` |
 | Контакты: UI админ | `src/app/(dashboard)/admin/contacts/page.tsx` |
 | Контакты: публичная | `src/features/contacts/ui/contacts-view.tsx` |
+| Заявки: репо | `src/infrastructure/persistence/contact-request.prisma.repository.ts` |
+| Заявки: API | `src/app/api/contact-requests/route.ts` |
+| Заявки: админка | `src/app/(dashboard)/admin/requests/page.tsx` |
+| Заявки: форма | `src/features/contacts/ui/contact-form.tsx` |
+| Справочники (топливо/коробка) | `src/shared/lib/car-dictionaries.ts` |
+| Услуги: репо (Prisma) | `src/infrastructure/persistence/service.prisma.repository.ts` |
 | DI | `src/di/composition-root.ts` |
 | Ошибки | `src/shared/lib/errors.ts` |
 

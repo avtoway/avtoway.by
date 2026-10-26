@@ -1,5 +1,21 @@
 # Dev Log
 
+## 2026-10-26 — Рефакторинг: безопасность, услуги в БД, заявки
+
+- [x] **Безопасность API** — guard `requireAuth(permission?)`; закрыты авторизацией `/api/rent`, `/api/contacts`, `/api/upload`, `/api/email/*`, `/api/services`, `/api/partners`
+- [x] Новые права `rent.manage`, `contacts.manage`, `email.manage` + починен upsert ролей в seed
+- [x] `proxy.ts`: проверки прав для rent/contacts/email/requests; `showAll` аренды — только админ
+- [x] Убран `svg` из загрузки (XSS-риск)
+- [x] **Услуги переведены в БД** — `Service`/`Partner` на Prisma (memory-репозитории удалены), seed заполняет 6 услуг
+- [x] Починены баги: `POST /api/services` не создавал запись; маппинг `desc/iconName/href` ↔ `description/icon`; у Partner не было колонки `photos`
+- [x] **Заявки** — таблица `contact_requests`, рабочий `/api/contact`, админка `/admin/requests`, форма на `/contacts`
+- [x] Справочники `FUEL/TRANSMISSION` → `shared/lib/car-dictionaries.ts`
+- [x] Починен `loadUser` (N+1 + «главная роль» по уровню)
+- [x] Чистка мёртвого кода (env.ts, config/index, services.ts, service.entity, ServiceColor, youtube types), опечатка `toat-context` → `toast-context`
+
+### Verification
+- typecheck: 0 ошибок · vitest: 22 теста · build: успешно · закоммичено и запушено в `dev` (`6b9cbb4`)
+
 ## 2026-07-07 — Project init
 
 - [x] Created Next.js 16 + TypeScript + Tailwind project
