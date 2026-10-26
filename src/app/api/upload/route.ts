@@ -6,8 +6,16 @@ import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 
 // svg excluded: it can carry scripts (XSS)
-const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+
+// Категории — это просто подпапки в public/uploads, чтобы фото авто не смешивались с фото партнёров.
+const CATEGORIES = new Set(["partners", "rent", "avatars", "services", "general"]);
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +28,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Файл не выбран" }, { status: 400 });
     }
 
-    if (!ALLOWED.includes(file.type)) {
+    const ext = ALLOWED[file.type];
+    if (!ext) {
       return NextResponse.json({ ok: false, error: "Недопустимый тип файла. Разрешены: jpg, png, webp, gif" }, { status: 400 });
     }
 
@@ -28,14 +37,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Файл слишком большой. Максимум 10 МБ" }, { status: 400 });
     }
 
-    const ext = file.name.split(".").pop() ?? "jpg";
+    const requested = new URL(request.url).searchParams.get("category") ?? "general";
+    const category = CATEGORIES.has(requested) ? requested : "general";
+
     const filename = `${randomUUID()}.${ext}`;
-    const dir = join(process.cwd(), "public", "uploads", "partners");
+    const dir = join(process.cwd(), "public", "uploads", category);
     const buffer = Buffer.from(await file.arrayBuffer());
 
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, filename), buffer);
 
-    return NextResponse.json({ ok: true, url: `/uploads/partners/${filename}` });
+    return NextResponse.json({ ok: true, url: `/uploads/${category}/${filename}` });
   } catch (e) { return toApiError(e); }
 }

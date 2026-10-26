@@ -33,13 +33,13 @@ export default function RentCarHistoryPanel({ carId }: { carId: string }) {
   const { confirm, dialog } = useConfirm();
 
   async function load() {
-    setLoading(true);
     const res = await fetch(`/api/rent/${encodeURIComponent(carId)}/history`);
     const json = await res.json();
     if (json.ok) setEntries(json.data);
     setLoading(false);
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount (setState only after await)
   useEffect(() => { load(); }, [carId]);
 
   async function addEntry() {

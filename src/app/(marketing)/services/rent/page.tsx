@@ -19,17 +19,12 @@ interface RentCar {
 
 interface ComfortFeature { id: string; name: string; slug: string; }
 
-interface Brand { id: string; name: string; slug: string; models: { id: string; name: string; slug: string }[]; }
-
 export default function RentPage() {
   const [cars, setCars] = useState<RentCar[]>([]);
   const [types, setTypes] = useState<RentType[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
   const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("");
-  const [brandFilter, setBrandFilter] = useState("");
-  const [modelFilter, setModelFilter] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
   const [priceTo, setPriceTo] = useState("");
   const [transmissionFilter, setTransmissionFilter] = useState("");
@@ -43,26 +38,19 @@ export default function RentPage() {
     Promise.all([
       fetch("/api/rent").then(r => r.json()),
       fetch("/api/rent?types=true").then(r => r.json()),
-      fetch("/api/cars").then(r => r.json()),
       fetch("/api/exchange-rate").then(r => r.json()),
       fetch("/api/comfort-features").then(r => r.json()),
-    ]).then(([cRes, tRes, bRes, eRes, fRes]) => {
+    ]).then(([cRes, tRes, eRes, fRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (tRes.ok) setTypes(tRes.data);
-      if (bRes.ok) setBrands(bRes.data);
       if (eRes.ok) setUsdRate(eRes.rate);
       if (fRes.ok) setComfortFeatures(fRes.data);
       setLoading(false);
     });
   }, []);
 
-  const selectedBrand = brands.find(b => b.slug === brandFilter);
-  const selectedModels = selectedBrand?.models ?? [];
-
   const filtered = cars.filter(c => {
     if (typeFilter && c.rentType?.slug !== typeFilter) return false;
-    if (brandFilter && c.brand !== brandFilter && c.brand !== selectedBrand?.name) return false;
-    if (modelFilter && c.model !== modelFilter) return false;
     if (transmissionFilter && c.transmission !== transmissionFilter) return false;
     if (fuelFilter && c.fuel !== fuelFilter) return false;
     if (seatsFilter && (c.seats ?? 0) < parseInt(seatsFilter)) return false;
@@ -83,7 +71,7 @@ export default function RentPage() {
     });
   }
 
-  const FiltersPanel = () => (
+  const filtersPanel = (
     <div className="space-y-5">
       <FilterSection label="Тип аренды">
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
@@ -153,9 +141,9 @@ export default function RentPage() {
     <div className="min-h-screen bg-zinc-950 pt-24 pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-4 text-xs text-zinc-500">
-          <a href="/" className="hover:text-white transition">Главная</a>
+          <Link href="/" className="hover:text-white transition">Главная</Link>
           <span className="mx-1">/</span>
-          <a href="/services" className="hover:text-white transition">Услуги</a>
+          <Link href="/services" className="hover:text-white transition">Услуги</Link>
           <span className="mx-1">/</span>
           <span className="text-zinc-400">Аренда</span>
         </div>
@@ -174,7 +162,7 @@ export default function RentPage() {
           <aside className={`w-full shrink-0 lg:w-64 lg:block ${showFilters ? "block" : "hidden"}`}>
             <div className="sticky top-28 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
               <h2 className="mb-4 text-sm font-semibold text-white">Фильтры</h2>
-              <FiltersPanel />
+              {filtersPanel}
             </div>
           </aside>
 
@@ -210,7 +198,8 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
           <img src={firstPhoto} alt={car.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
-          <div className="flex h-full items-center justify-center text-4xl text-zinc-700">🚗</div>
+          <img src="/images/placeholder-car.webp" alt={`${car.name} — фото скоро появится`}
+            className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105" />
         )}
         {car.rentType && (
           <span className="absolute left-2 top-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">

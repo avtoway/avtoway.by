@@ -8,8 +8,10 @@ function toRentCar(row: any): RentCar {
     id: row.id,
     name: row.name,
     slug: row.slug,
-    brand: row.brand ?? undefined,
-    model: row.model ?? undefined,
+    brandId: row.brandId ?? undefined,
+    modelId: row.modelId ?? undefined,
+    brand: row.brandRel?.name ?? undefined,
+    model: row.modelRel?.name ?? undefined,
     year: row.year ?? undefined,
     color: row.color ?? undefined,
     transmission: row.transmission ?? undefined,
@@ -52,7 +54,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
     }
     const rows = await this.db.rentCar.findMany({
       where: where as any,
-      include: { rentType: true },
+      include: { rentType: true, brandRel: true, modelRel: true },
       orderBy: { sortOrder: "asc" },
     });
     return rows.map(toRentCar);
@@ -61,7 +63,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
   async getBySlug(slug: string): Promise<RentCar | null> {
     const row = await this.db.rentCar.findUnique({
       where: { slug },
-      include: { rentType: true },
+      include: { rentType: true, brandRel: true, modelRel: true },
     });
     return row ? toRentCar(row) : null;
   }
@@ -76,7 +78,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
       data: {
         id: randomUUID(),
         name: data.name, slug: data.slug,
-        brand: data.brand ?? null, model: data.model ?? null,
+        brandId: data.brandId ?? null, modelId: data.modelId ?? null,
         year: data.year ?? null, color: data.color ?? null,
         transmission: data.transmission ?? null, fuel: data.fuel ?? null,
         engineVolume: data.engineVolume ?? null, seats: data.seats ?? null,
@@ -91,7 +93,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
         bookedUntil: data.bookedUntil ?? null,
         sortOrder: data.sortOrder ?? 0,
       },
-      include: { rentType: true },
+      include: { rentType: true, brandRel: true, modelRel: true },
     });
     return toRentCar(row);
   }
@@ -99,8 +101,24 @@ export class PrismaRentCarRepository implements RentCarRepository {
   async update(id: string, data: Partial<RentCar>): Promise<RentCar> {
     const row = await this.db.rentCar.update({
       where: { id },
-      data: data as any,
-      include: { rentType: true },
+      data: {
+        name: data.name, slug: data.slug,
+        brandId: data.brandId, modelId: data.modelId,
+        year: data.year, color: data.color,
+        transmission: data.transmission, fuel: data.fuel,
+        engineVolume: data.engineVolume, seats: data.seats,
+        features: data.features,
+        photos: data.photos, mainPhoto: data.mainPhoto,
+        description: data.description,
+        priceDay: data.priceDay, price3Days: data.price3Days,
+        price7Days: data.price7Days, priceMonth: data.priceMonth,
+        priceDayTaxi: data.priceDayTaxi,
+        rentTypeId: data.rentTypeId,
+        isActive: data.isActive,
+        bookedUntil: data.bookedUntil,
+        sortOrder: data.sortOrder,
+      },
+      include: { rentType: true, brandRel: true, modelRel: true },
     });
     return toRentCar(row);
   }

@@ -39,8 +39,16 @@ snapshots/
 # uploaded files
 /public/uploads/
 
+# исходники картинок (в репозиторий идут только собранные webp/jpg)
+/assets-src/*
+!/assets-src/README.md
+
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# mcp-сервер генерации картинок
+/mcp/imagegen/node_modules/
 
 # vercel
 .vercel

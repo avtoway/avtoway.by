@@ -82,7 +82,7 @@ function AlbumSection({ photos, onAdd, onRemove }: { photos: string[]; onAdd: (u
   async function uploadFile(file: File): Promise<string | null> {
     const fd = new FormData();
     fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const res = await fetch("/api/upload?category=partners", { method: "POST", body: fd });
     const json = await res.json();
     return json.ok ? json.url : null;
   }

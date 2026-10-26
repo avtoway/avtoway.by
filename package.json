@@ -14,6 +14,8 @@
     "db:up": "docker compose up -d",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx scripts/seed.ts",
+    "images:build": "node scripts/images-build.mjs",
+    "images:apply": "node scripts/images-build.mjs --apply",
     "release": "npm run build"
   },
   "prisma": {

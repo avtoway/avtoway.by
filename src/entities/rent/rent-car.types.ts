@@ -2,6 +2,8 @@ export interface RentCar {
   id: string;
   name: string;
   slug: string;
+  brandId?: string;
+  modelId?: string;
   brand?: string;
   model?: string;
   year?: number;

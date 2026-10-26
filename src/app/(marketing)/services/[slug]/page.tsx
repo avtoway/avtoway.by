@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { container } from "@/di/container";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { Metadata } from "next";
@@ -32,9 +33,9 @@ export default async function ServicePage({ params }: Props) {
     <div className="min-h-screen bg-zinc-950">
       <div className="mx-auto max-w-4xl px-6 pt-24 pb-2">
         <div className="text-xs text-zinc-500">
-          <a href="/" className="hover:text-white transition">Главная</a>
+          <Link href="/" className="hover:text-white transition">Главная</Link>
           <span className="mx-1">/</span>
-          <a href="/services" className="hover:text-white transition">Услуги</a>
+          <Link href="/services" className="hover:text-white transition">Услуги</Link>
           <span className="mx-1">/</span>
           <span className="text-zinc-400">{service.title}</span>
         </div>

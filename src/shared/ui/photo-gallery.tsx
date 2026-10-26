@@ -10,8 +10,12 @@ export default function PhotoGallery({ photos, mainPhoto }: { photos: string[]; 
 
   if (all.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-xl bg-zinc-800 text-5xl text-zinc-700 sm:h-96">
-        🚗
+      <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl bg-zinc-900">
+        <img
+          src="/images/placeholder-car.webp"
+          alt="Фото автомобиля скоро появится"
+          className="h-full w-full object-cover"
+        />
       </div>
     );
   }

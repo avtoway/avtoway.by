@@ -8,9 +8,11 @@ interface UploadZoneProps {
   currentPreview?: string;
   label?: string;
   multiple?: boolean;
+  /** Подпапка в public/uploads: partners | rent | avatars | services | general */
+  category?: string;
 }
 
-export default function UploadZone({ onUpload, onUploadMultiple, currentPreview, label = "Загрузить фото", multiple }: UploadZoneProps) {
+export default function UploadZone({ onUpload, onUploadMultiple, currentPreview, label = "Загрузить фото", multiple, category = "general" }: UploadZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentPreview || "");
@@ -18,7 +20,7 @@ export default function UploadZone({ onUpload, onUploadMultiple, currentPreview,
   async function uploadFile(file: File): Promise<string | null> {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const res = await fetch(`/api/upload?category=${category}`, { method: "POST", body: formData });
     const json = await res.json();
     return json.ok ? json.url : null;
   }

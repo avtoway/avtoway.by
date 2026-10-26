@@ -1,0 +1,20 @@
+{
+  "name": "avtoway-imagegen-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server for image generation (FLUX, Imagen, GPT-image, Ideogram, Seedream, Recraft, SDXL/ComfyUI) with automatic saving into public/images/generated",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "models": "node scripts/list-models.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "test-storage": "node scripts/test-storage.mjs",
+    "test-pipeline": "node scripts/test-pipeline.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  }
+}

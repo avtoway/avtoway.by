@@ -5,7 +5,7 @@ import FieldError from "@/shared/ui/field-error";
 import { useEffect, useState } from "react";
 
 interface FormData {
-  name: string; slug: string; brand: string; model: string;
+  name: string; slug: string; brandId: string; modelId: string;
   year: string; color: string; transmission: string; fuel: string;
   engineVolume: string; seats: string; features: string;
   photos: string; mainPhoto: string; description: string;
@@ -29,7 +29,6 @@ export default function RentCarForm({
   errors?: Record<string, string>;
 }) {
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [models, setModels] = useState<Brand["models"]>([]);
   const [fuels, setFuels] = useState<FuelItem[]>([]);
   const [transmissions, setTransmissions] = useState<TransItem[]>([]);
   const [comfortFeatures, setComfortFeatures] = useState<ComfortItem[]>([]);
@@ -44,14 +43,9 @@ export default function RentCarForm({
     });
   }, []);
 
-  useEffect(() => {
-    if (form.brand) {
-      const brand = brands.find(b => b.slug === form.brand || b.name === form.brand);
-      setModels(brand?.models ?? []);
-    } else {
-      setModels([]);
-    }
-  }, [form.brand, brands]);
+  // Derived from form.brandId (no need for a separate effect/state)
+  const selectedBrand = brands.find(b => b.id === form.brandId);
+  const models = selectedBrand?.models ?? [];
 
   const eb = (key: string) => errors?.[key] ? "border-red-500" : "border-slate-700";
   const selectedType = rentTypes.find(t => t.id === form.rentTypeId);
@@ -73,7 +67,7 @@ export default function RentCarForm({
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-medium text-slate-500">Фотографии ({photosCount(form.photos)} / 20)</p>
         </div>
-        <UploadZone label="Загрузить фото" multiple onUploadMultiple={urls => {
+        <UploadZone category="rent" label="Загрузить фото" multiple onUploadMultiple={urls => {
           const arr = photosArr(form.photos);
           const remaining = 20 - arr.length;
           const toAdd = urls.slice(0, remaining);
@@ -125,16 +119,16 @@ export default function RentCarForm({
               className={`rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("slug")}`} />
             <FieldError error={errors?.slug} /></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Марка</span>
-            <select value={form.brand} onChange={e => { onChange("brand", e.target.value); onChange("model", ""); }}
+            <select value={form.brandId} onChange={e => { onChange("brandId", e.target.value); onChange("modelId", ""); }}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
               <option value="">Выберите</option>
-              {brands.map(b => <option key={b.id} value={b.slug}>{b.name}</option>)}
+              {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Модель</span>
-            <select value={form.model} onChange={e => onChange("model", e.target.value)}
+            <select value={form.modelId} onChange={e => onChange("modelId", e.target.value)}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
               <option value="">Выберите</option>
-              {models.map(m => <option key={m.id} value={m.slug}>{m.name}</option>)}
+              {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Год</span>
             <input type="number" value={form.year} onChange={e => onChange("year", e.target.value)}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "imagegen": {
+      "type": "local",
+      "command": ["node", "mcp/imagegen/server.mjs"],
+      "cwd": ".",
+      "enabled": true,
+      "timeout": 600000
+    }
+  }
+}

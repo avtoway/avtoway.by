@@ -12,7 +12,8 @@ import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 interface RentType { id: string; name: string; slug: string; sortOrder: number; }
 
 interface RentCar {
-  id: string; name: string; slug: string; brand?: string; model?: string;
+  id: string; name: string; slug: string; brandId?: string; modelId?: string;
+  brand?: string; model?: string;
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string; description?: string;
   priceDay?: number; price3Days?: number; price7Days?: number;
@@ -22,7 +23,7 @@ interface RentCar {
 }
 
 const EMPTY_FORM = {
-  name: "", slug: "", brand: "", model: "", year: "", color: "",
+  name: "", slug: "", brandId: "", modelId: "", year: "", color: "",
   transmission: "", fuel: "", engineVolume: "", seats: "", features: "",
   photos: "", mainPhoto: "", description: "",
   priceDay: "", price3Days: "", price7Days: "", priceMonth: "",
@@ -45,7 +46,6 @@ export default function AdminRentPage() {
   const { confirm, dialog } = useConfirm();
 
   async function load() {
-    setLoading(true);
     const [cRes, tRes] = await Promise.all([
       fetch("/api/rent?showAll=true").then(r => r.json()),
       fetch("/api/rent?types=true").then(r => r.json()),
@@ -55,6 +55,7 @@ export default function AdminRentPage() {
     setLoading(false);
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount (setState only after await)
   useEffect(() => { load(); }, []);
 
   function setFormField(field: string, value: any) {
@@ -66,7 +67,7 @@ export default function AdminRentPage() {
   function openEdit(c: RentCar) {
     setForm({
       name: c.name, slug: c.slug,
-      brand: c.brand ?? "", model: c.model ?? "",
+      brandId: c.brandId ?? "", modelId: c.modelId ?? "",
       year: c.year?.toString() ?? "", color: c.color ?? "",
       transmission: c.transmission ?? "", fuel: c.fuel ?? "",
       engineVolume: c.engineVolume ?? "", seats: c.seats?.toString() ?? "",

@@ -146,6 +146,14 @@ prisma/schema.prisma      # Схема БД
 - **Справочники**: `FUEL/TRANSMISSION` вынесены в `src/shared/lib/car-dictionaries.ts` (было в 3 файлах).
 - **Чистка**: удалены мёртвые `env.ts`, `config/index`, `services.ts`, `service.entity`, `ServiceColor`, `youtube.ts` типы; исправлена опечатка `toat-context` → `toast-context`; починен `loadUser` (N+1 + «главная роль» по уровню).
 
+### 5.8 Изображения, иконки и загрузка файлов (26.10.2026)
+- **Брендовые ассеты** генерируются скриптом `scripts/images-build.mjs`: `src/app/icon.png` (512), `apple-icon.png` (180), `favicon.ico` (32), `opengraph-image.jpg` + `twitter-image.jpg` (1200×630). В `layout.tsx` добавлены `metadataBase` (env `NEXT_PUBLIC_SITE_URL`) и `twitter.card`
+- **OG-картинка** по умолчанию собирается из `public/videos/hero-poster.jpg` с тёмным градиентом и брендингом; своя — через `assets-src/og.jpg`
+- **Заглушка** `public/images/placeholder-car.webp` (1600×900) вместо эмодзи 🚗 — в `photo-gallery.tsx` и карточках листинга аренды
+- **Обложки услуг**: у всех 6 услуг `services.photo = null`. Исходники кладутся в `assets-src/services/{rent,sell,inspection,truck,import,service}.{jpg,png,webp}` → `npm run images:build` (WebP 1600×900, ≤300 КБ) → `npm run images:apply` (прописывает `services.photo`). Флаг `--crop-bottom=9` срезает watermark (Pollinations)
+- **Загрузка файлов**: `/api/upload?category=partners|rent|avatars|services|general` — раскладывает по подпапкам `public/uploads/*`; расширение берётся из MIME, а не из имени файла (раньше всё падало в `uploads/partners`)
+- **Бриф на генерацию** (промпты, единый стиль, модели и цены): `docs/IMAGE-BRIEF.md`
+
 ---
 
 ## 6. Технические решения и паттерны
@@ -185,6 +193,8 @@ npm install
 npx prisma db push
 npx prisma generate
 npm run db:seed        # tsx scripts/seed.ts
+npm run images:build   # WebP услуг + иконки + OG + заглушка
+npm run images:apply   # то же + запись services.photo в БД
 npm run dev            # http://localhost:3000
 npm run lint
 npx vitest run
@@ -296,6 +306,10 @@ npm run build && npm run start
 | Контакты: репо | `src/infrastructure/persistence/contact.prisma.repository.ts` |
 | Контакты: UI админ | `src/app/(dashboard)/admin/contacts/page.tsx` |
 | Контакты: публичная | `src/features/contacts/ui/contacts-view.tsx` |
+| Картинки: сборка | `scripts/images-build.mjs` |
+| Картинки: бриф и промпты | `docs/IMAGE-BRIEF.md` |
+| Картинки: заглушка | `public/images/placeholder-car.webp` |
+| Загрузка файлов | `src/app/api/upload/route.ts` |
 | Заявки: репо | `src/infrastructure/persistence/contact-request.prisma.repository.ts` |
 | Заявки: API | `src/app/api/contact-requests/route.ts` |
 | Заявки: админка | `src/app/(dashboard)/admin/requests/page.tsx` |

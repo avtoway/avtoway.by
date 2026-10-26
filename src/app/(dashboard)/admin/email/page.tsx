@@ -99,9 +99,10 @@ function InboxTab({ toast }: { toast: (msg: string, type?: "error") => void }) {
     const j = await res.json();
     if (j.ok) { setItems(j.data.items); setUnread(j.data.unread); }
     setLoading(false);
-  }, []);
+  }, [search]);
 
-  useEffect(() => { load(); }, [load, search]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount (setState only after await)
+  useEffect(() => { load(); }, [load]);
 
   async function refresh() {
     setRefreshing(true);
@@ -324,7 +325,7 @@ function SentTab() {
   const [items, setItems] = useState<SentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const { confirm, dialog } = useConfirm();
+  const { dialog } = useConfirm();
 
   useEffect(() => {
     fetch("/api/email/sent?limit=100")

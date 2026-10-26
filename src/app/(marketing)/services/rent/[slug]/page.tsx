@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceRows } from "@/shared/lib/price";
@@ -46,18 +47,18 @@ export default async function RentCarDetailPage({ params }: Props) {
       {/* Breadcrumbs + back */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-2">
         <div className="flex items-center gap-2 text-xs text-zinc-500">
-          <a href="/" className="hover:text-white transition">Главная</a>
+          <Link href="/" className="hover:text-white transition">Главная</Link>
           <span>/</span>
-          <a href="/services" className="hover:text-white transition">Услуги</a>
+          <Link href="/services" className="hover:text-white transition">Услуги</Link>
           <span>/</span>
-          <a href="/services/rent" className="hover:text-white transition">Аренда</a>
+          <Link href="/services/rent" className="hover:text-white transition">Аренда</Link>
           <span>/</span>
           <span className="text-zinc-400">{car.name}</span>
         </div>
-        <a href="/services/rent"
+        <Link href="/services/rent"
           className="mt-3 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition">
           ← Назад к списку
-        </a>
+        </Link>
       </div>
 
       {/* Title + price row (before photos) */}

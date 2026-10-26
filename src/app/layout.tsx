@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://avtoway.by"),
   title: {
     default: "АВТОWAY — Автомобильные движения",
     template: "%s | АВТОWAY",
@@ -31,6 +32,11 @@ export const metadata: Metadata = {
     siteName: "АВТОWAY",
     locale: "ru_RU",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "АВТОWAY",
+    description: "Автомобильные видео, услуги и аренда авто.",
   },
 };
 
