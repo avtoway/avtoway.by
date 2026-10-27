@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceLabel, getPeriodPrices, formatPrice, type RentPricingTier } from "@/shared/lib/price";
-import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
+import { TRANSMISSION_LABEL, FUEL_LABEL, rentTypeLabel } from "@/shared/lib/car-dictionaries";
 import PhotoGallery from "@/shared/ui/photo-gallery";
 import type { Metadata } from "next";
 
@@ -80,7 +80,7 @@ export default async function RentCarDetailPage({ params }: Props) {
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {car.rentType && (
                 <span className="inline-block rounded bg-red-600/20 px-2.5 py-0.5 text-sm font-medium text-red-400">
-                  {car.rentType.name}
+                  {rentTypeLabel(car.rentType.slug, car.rentType.name)}
                 </span>
               )}
               {car.classRel?.name && (
