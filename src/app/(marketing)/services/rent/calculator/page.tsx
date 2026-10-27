@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { calculateRentPrice, getPeriodPrices, type RentPricingTier } from "@/shared/lib/price";
-import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
+import { TRANSMISSION_LABEL, FUEL_LABEL, rentTypeLabel } from "@/shared/lib/car-dictionaries";
 
 interface Car {
   id: string; name: string; slug: string; brand?: string; model?: string;
@@ -14,6 +14,7 @@ interface Car {
   rentType?: { id: string; name: string; slug: string };
 }
 interface ClassItem { id: string; name: string; slug: string; }
+interface RentType { id: string; name: string; slug: string; }
 interface Extra { id: string; name: string; slug: string; description?: string; priceType: string; price: number; }
 
 const inputCls = "w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2.5 text-sm text-white outline-none focus:border-red-500";
@@ -21,6 +22,7 @@ const inputCls = "w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2
 export default function RentCalculatorPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [rentTypes, setRentTypes] = useState<RentType[]>([]);
   const [extras, setExtras] = useState<Extra[]>([]);
   const [minDays, setMinDays] = useState(1);
   const [maxDays, setMaxDays] = useState(90);
@@ -28,6 +30,7 @@ export default function RentCalculatorPage() {
   const [loading, setLoading] = useState(true);
 
   const [classFilter, setClassFilter] = useState("");
+  const [rentTypeFilter, setRentTypeFilter] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [search, setSearch] = useState("");
 
@@ -45,18 +48,20 @@ export default function RentCalculatorPage() {
   useEffect(() => {
     Promise.all([
       fetch("/api/rent").then(r => r.json()),
+      fetch("/api/rent?types=true").then(r => r.json()),
       fetch("/api/rent/classes").then(r => r.json()),
       fetch("/api/rent/extras").then(r => r.json()),
       fetch("/api/rent/settings").then(r => r.json()),
       fetch("/api/rent/pricing-tiers").then(r => r.json()),
-    ]).then(([cRes, clRes, eRes, sRes, tRes]) => {
+    ]).then(([cRes, tRes, clRes, eRes, sRes, tierRes]) => {
       if (cRes.ok) setCars(cRes.data);
+      if (tRes.ok) setRentTypes(tRes.data);
       if (clRes.ok) setClasses(clRes.data);
       if (eRes.ok) setExtras(eRes.data);
       if (sRes.ok) {
         setMinDays(sRes.data.minDays); setMaxDays(sRes.data.maxDays);
       }
-      if (tRes.ok) setTiers(tRes.data);
+      if (tierRes.ok) setTiers(tierRes.data);
       setLoading(false);
     });
   }, []);
@@ -67,8 +72,11 @@ export default function RentCalculatorPage() {
     return [...set].sort();
   }, [cars]);
 
+  const countByType = (slug: string) => cars.filter(c => c.rentType?.slug === slug).length;
+
   const filtered = useMemo(() => {
     return cars.filter(c => {
+      if (rentTypeFilter && c.rentType?.slug !== rentTypeFilter) return false;
       if (classFilter && c.class !== classFilter) return false;
       if (brandFilter && c.brand !== brandFilter) return false;
       if (search) {
@@ -78,7 +86,7 @@ export default function RentCalculatorPage() {
       }
       return true;
     });
-  }, [cars, classFilter, brandFilter, search]);
+  }, [cars, rentTypeFilter, classFilter, brandFilter, search]);
 
   const selectedCar = cars.find(c => c.id === selectedId) ?? null;
   const isTaxi = selectedCar?.rentType?.slug === "taxi";
@@ -165,6 +173,18 @@ export default function RentCalculatorPage() {
             <div>
               {/* Filters */}
               <div className="mb-5 space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setRentTypeFilter("")}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${rentTypeFilter === "" ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
+                    Все авто <span className={rentTypeFilter === "" ? "text-white/70" : "text-zinc-500"}>({cars.length})</span>
+                  </button>
+                  {rentTypes.map(t => (
+                    <button key={t.slug} onClick={() => setRentTypeFilter(rentTypeFilter === t.slug ? "" : t.slug)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${rentTypeFilter === t.slug ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
+                      {rentTypeLabel(t.slug, t.name)} <span className={rentTypeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
+                    </button>
+                  ))}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   <button onClick={() => setClassFilter("")}
                     className={`rounded-full px-3 py-1.5 text-xs transition ${classFilter === "" ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>

@@ -5,6 +5,16 @@ export const TRANSMISSION_LABEL: Record<string, string> = {
   variator: "Вариатор",
 };
 
+/** Пользовательские названия типов аренды (slug → подпись) */
+export const RENT_TYPE_LABEL: Record<string, string> = {
+  rent: "Для личных целей",
+  taxi: "Под такси",
+};
+
+export function rentTypeLabel(slug?: string | null, fallback?: string | null): string {
+  return (slug && RENT_TYPE_LABEL[slug]) || fallback || "";
+}
+
 export const FUEL_LABEL: Record<string, string> = {
   gasoline: "Бензин",
   "gas-propane": "Бензин (пропан-бутан)",

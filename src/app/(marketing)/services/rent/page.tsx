@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getPriceLabel } from "@/shared/lib/price";
-import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
+import { TRANSMISSION_LABEL, FUEL_LABEL, rentTypeLabel } from "@/shared/lib/car-dictionaries";
 
 interface RentType { id: string; name: string; slug: string; }
 interface RentCar {
@@ -69,6 +69,8 @@ export default function RentPage() {
     return true;
   });
 
+  const countByType = (slug: string) => cars.filter(c => c.rentType?.slug === slug).length;
+
   function toggleFeature(f: string) {
     setFeatureFilters(prev => {
       const next = new Set(prev);
@@ -83,7 +85,7 @@ export default function RentPage() {
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
           className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
           <option value="">Все</option>
-          {types.map(t => <option key={t.id} value={t.slug}>{t.name}</option>)}
+          {types.map(t => <option key={t.id} value={t.slug}>{rentTypeLabel(t.slug, t.name)}</option>)}
         </select>
       </FilterSection>
 
@@ -187,6 +189,18 @@ export default function RentPage() {
           </aside>
 
           <div className="flex-1">
+            <div className="mb-4 flex flex-wrap gap-2">
+              <button onClick={() => setTypeFilter("")}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${typeFilter === "" ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
+                Все авто <span className={typeFilter === "" ? "text-white/70" : "text-zinc-500"}>({cars.length})</span>
+              </button>
+              {types.map(t => (
+                <button key={t.id} onClick={() => setTypeFilter(typeFilter === t.slug ? "" : t.slug)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${typeFilter === t.slug ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
+                  {rentTypeLabel(t.slug, t.name)} <span className={typeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
+                </button>
+              ))}
+            </div>
             {loading ? (
               <p className="pt-10 text-center text-zinc-500">Загрузка...</p>
             ) : filtered.length === 0 ? (
@@ -226,7 +240,7 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
         )}
         {car.rentType && (
           <span className="absolute left-2 top-2 rounded bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
-            {car.rentType.name}
+            {rentTypeLabel(car.rentType.slug, car.rentType.name)}
           </span>
         )}
         {isBooked && (
