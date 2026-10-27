@@ -1,5 +1,16 @@
 # Dev Log
 
+## 2026-10-27 — Telegram в контактах
+
+- [x] Контакт `telegram` обновлён на `https://t.me/avtoway_by` (БД + seed)
+- [x] Footer «Мы в сети» и блок «Мои ресурсы» на `/about` — добавлен Telegram (новая иконка `IconTelegram`)
+- [x] Нормализация ссылки: `telegramUrl()` / `telegramHandle()` в `src/shared/lib/social.ts` (URL или `@handle`); карточка авто показывает `@avtoway_by`
+- [x] JSON-LD `Organization.sameAs` включает Telegram; сериализация JSON-LD экранирует `<`
+
+### Verification
+- typecheck · eslint 0 ошибок · 55 тестов
+- `/`, `/about`, `/contacts` содержат `t.me/avtoway_by`; JSON-LD — `sameAs` с Telegram
+
 ## 2026-10-27 — Безопасность: XSS почты, валидация заявок, rate limit, единые названия типов
 
 - [x] **XSS в `/admin/email`**: тело письма санитайзится DOMPurify (`src/shared/lib/sanitize-html.ts`), рендер через `EmailBody` с `ssr: false`. Вырезаются script/form/style/iframe/обработчики, ссылки — `rel="noopener noreferrer"`. 4 теста

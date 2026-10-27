@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Reveal from "@/shared/ui/reveal";
 import AnimatedSection from "@/shared/ui/animated-section";
-import { IconInstagram, IconRutube, IconVK, IconYouTube } from "@/shared/ui/icons";
+import { IconInstagram, IconRutube, IconVK, IconYouTube, IconTelegram } from "@/shared/ui/icons";
 
 const sectionColor = "rgba(16,185,129,0.10)";
 
@@ -13,6 +13,8 @@ function SocialIcon({ icon, className }: { icon: string; className?: string }) {
       return <IconYouTube className={className} />;
     case "instagram":
       return <IconInstagram className={className} />;
+    case "telegram":
+      return <IconTelegram className={className} />;
     case "rutube":
       return <IconRutube className={className} />;
     case "vk":

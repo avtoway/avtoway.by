@@ -149,7 +149,7 @@ export default function AdminContactsPage() {
             <legend className="px-2 text-xs font-medium text-slate-400">Телефоны и мессенджеры</legend>
             <div className="mt-3 flex flex-col gap-4">
               <Field label="Телефон" value={form.phone} onChange={v => setField("phone", v)} placeholder="+375 (29) 111-22-33" />
-              <Field label="Telegram" value={form.telegram} onChange={v => setField("telegram", v)} placeholder="https://t.me/avtoway" />
+              <Field label="Telegram" value={form.telegram} onChange={v => setField("telegram", v)} placeholder="https://t.me/avtoway_by" />
               <Field label="Viber (номер)" value={form.viber} onChange={v => setField("viber", v)} placeholder="+375291112233" />
               <Field label="WhatsApp (номер)" value={form.whatsapp} onChange={v => setField("whatsapp", v)} placeholder="+375291112233" />
               <Field label="Email" value={form.email} onChange={v => setField("email", v)} placeholder="info@avtoway.by" />

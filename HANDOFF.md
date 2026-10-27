@@ -129,6 +129,7 @@ prisma/schema.prisma      # Схема БД
 - **Админка `/admin/contacts`**: режим просмотра + кнопка «Редактировать» (toggle)
 - **Публичная `/contacts`**: красивая страница с карточками, мессенджерами, соцсетями
 - Footer, страница «О проекте», JSON-LD — всё тянет контакты из БД
+- **Telegram**: `https://t.me/avtoway_by` (редактируется в `/admin/contacts`). `telegramUrl()` / `telegramHandle()` в `src/shared/lib/social.ts` принимают и URL, и `@handle`
 
 ### 5.5 Почта (недавно)
 - **Админка `/admin/email`**: 3 вкладки — Входящие / Отправленные / Настройки

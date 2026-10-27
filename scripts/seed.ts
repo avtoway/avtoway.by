@@ -253,7 +253,7 @@ async function main() {
   // Seed contact settings (settings table)
   const contactSettings: Record<string, string> = {
     contact_phone: "+375 (29) 111-22-33",
-    contact_telegram: "@avtoway",
+    contact_telegram: "https://t.me/avtoway_by",
     contact_viber: "+375291112233",
     contact_whatsapp: "+375291112233",
     contact_instagram: "@avtoway.by",
@@ -289,7 +289,7 @@ async function main() {
       data: {
         phone: "+375 (29) 111-22-33",
         email: "info@avtoway.by",
-        telegram: "https://t.me/avtoway",
+        telegram: "https://t.me/avtoway_by",
         viber: "+375291112233",
         whatsapp: "+375291112233",
         instagram: "https://www.instagram.com/avtoway_by/",

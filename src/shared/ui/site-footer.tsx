@@ -1,10 +1,12 @@
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import { telegramUrl } from "@/shared/lib/social";
 
 export default async function SiteFooter() {
   const db = getPrismaClient();
   const contact = await db.contact.findFirst();
 
   const socialLinks: { label: string; href: string }[] = [];
+  if (contact?.telegram) socialLinks.push({ label: "Telegram", href: telegramUrl(contact.telegram)! });
   if (contact?.youtube) socialLinks.push({ label: "YouTube", href: contact.youtube });
   if (contact?.instagram) socialLinks.push({ label: "Instagram", href: contact.instagram });
   if (contact?.rutube) socialLinks.push({ label: "Rutube", href: contact.rutube });

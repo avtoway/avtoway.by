@@ -1,9 +1,17 @@
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import { telegramUrl } from "@/shared/lib/social";
+
+/** JSON-LD безопасно встраивается в <script>: экранируем `<`, чтобы нельзя было закрыть тег. */
+function serialize(schema: unknown): string {
+  return JSON.stringify(schema).replace(/</g, "\\u003c");
+}
 
 export async function OrganizationSchema() {
   const db = getPrismaClient();
   const contact = await db.contact.findFirst();
   const sameAs: string[] = [];
+  const telegram = contact?.telegram ? telegramUrl(contact.telegram) : null;
+  if (telegram) sameAs.push(telegram);
   if (contact?.youtube) sameAs.push(contact.youtube);
   if (contact?.instagram) sameAs.push(contact.instagram);
   if (contact?.rutube) sameAs.push(contact.rutube);
@@ -22,7 +30,7 @@ export async function OrganizationSchema() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serialize(schema) }}
     />
   );
 }
@@ -46,7 +54,7 @@ export function ServiceSchema({ name, description, url }: ServiceSchemaProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serialize(schema) }}
     />
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Reveal from "@/shared/ui/reveal";
+import { telegramUrl } from "@/shared/lib/social";
 import ContactForm from "./contact-form";
 
 interface ContactData {
@@ -130,7 +131,7 @@ export default function ContactsView({ contact }: { contact: ContactData | null 
                   {contact.telegram && (
                     <Reveal delay={350}>
                       <a
-                        href={contact.telegram.startsWith("http") ? contact.telegram : `https://t.me/${contact.telegram.replace("@", "")}`}
+                        href={telegramUrl(contact.telegram) ?? "#"}
                         target="_blank" rel="noopener noreferrer"
                         className="group flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 px-6 py-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/40 hover:bg-sky-950/20 hover:shadow-lg hover:shadow-sky-500/5"
                       >

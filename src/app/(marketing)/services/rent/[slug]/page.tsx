@@ -4,6 +4,7 @@ import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceLabel, getPeriodPrices, formatPrice, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
+import { telegramHandle, telegramUrl } from "@/shared/lib/social";
 import PhotoGallery from "@/shared/ui/photo-gallery";
 import type { Metadata } from "next";
 
@@ -227,9 +228,9 @@ function PriceHero({ priceLabel, usdVal }: { priceLabel: string; usdVal: number 
 }
 
 function ContactBlock({ contact }: { contact: Record<string, unknown> }) {
-  const items: { key: string; label: string; icon: string; href: (v: string) => string }[] = [
+  const items: { key: string; label: string; icon: string; href: (v: string) => string; display?: (v: string) => string }[] = [
     { key: "phone", label: "Позвонить", icon: "📞", href: v => `tel:${v}` },
-    { key: "telegram", label: "Telegram", icon: "✈", href: v => `https://t.me/${v.replace("https://t.me/", "").replace("@", "")}` },
+    { key: "telegram", label: "Telegram", icon: "✈", href: v => telegramUrl(v) ?? v, display: v => telegramHandle(v) },
     { key: "viber", label: "Viber", icon: "💬", href: v => `viber://chat?number=${encodeURIComponent(v.replace(/\D/g, ""))}` },
     { key: "whatsapp", label: "WhatsApp", icon: "💬", href: v => `https://wa.me/${v.replace(/\D/g, "")}` },
     { key: "instagram", label: "Instagram", icon: "📷", href: v => v },
@@ -254,7 +255,7 @@ function ContactBlock({ contact }: { contact: Record<string, unknown> }) {
             <span className="text-lg">{i.icon}</span>
             <div>
               <p className="text-xs text-zinc-500">{i.label}</p>
-              <p className="text-sm font-medium text-white">{i.value}</p>
+              <p className="text-sm font-medium text-white">{i.display ? i.display(i.value) : i.value}</p>
             </div>
           </a>
         ))}
