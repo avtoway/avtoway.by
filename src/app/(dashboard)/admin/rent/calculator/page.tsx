@@ -13,7 +13,7 @@ interface RentRequestItem {
   status: string; message?: string; createdAt: string;
 }
 
-type Tab = "classes" | "extras" | "settings" | "requests";
+type Tab = "classes" | "extras" | "conditions" | "settings" | "requests";
 
 const STATUS_LABELS: Record<string, string> = {
   new: "Новая",
@@ -29,6 +29,7 @@ export default function AdminRentCalculatorPage() {
   const tabs: { id: Tab; label: string }[] = [
     { id: "classes", label: "Классы" },
     { id: "extras", label: "Доп. опции" },
+    { id: "conditions", label: "Условия" },
     { id: "settings", label: "Настройки" },
     { id: "requests", label: "Заявки" },
   ];
@@ -51,6 +52,7 @@ export default function AdminRentCalculatorPage() {
 
       {tab === "classes" && <ClassesTab />}
       {tab === "extras" && <ExtrasTab />}
+      {tab === "conditions" && <ConditionsTab />}
       {tab === "settings" && <SettingsTab />}
       {tab === "requests" && <RequestsTab />}
 
@@ -297,23 +299,141 @@ function ExtrasTab() {
   );
 }
 
+/* ───────────── Conditions ───────────── */
+
+const EMPTY_CONDITION = { name: "", slug: "", placeholder: "", sortOrder: "0" };
+
+function ConditionsTab() {
+  const [items, setItems] = useState<{ id: string; name: string; slug: string; placeholder?: string; sortOrder: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(false);
+  const [editing, setEditing] = useState<{ id: string; name: string; slug: string; placeholder?: string; sortOrder: number } | null>(null);
+  const [form, setForm] = useState(EMPTY_CONDITION);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+  const { confirm } = useConfirm();
+
+  const load = useCallback(async () => {
+    const res = await fetch("/api/rent/conditions");
+    const j = await res.json();
+    if (j.ok) setItems(j.data);
+    setLoading(false);
+  }, []);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount (setState only after await)
+  useEffect(() => { load(); }, [load]);
+
+  function openCreate() { setForm({ ...EMPTY_CONDITION }); setEditing(null); setModal(true); }
+  function openEdit(c: { id: string; name: string; slug: string; placeholder?: string; sortOrder: number }) {
+    setForm({ name: c.name, slug: c.slug, placeholder: c.placeholder ?? "", sortOrder: String(c.sortOrder ?? 0) });
+    setEditing(c); setModal(true);
+  }
+
+  async function save() {
+    setSaving(true);
+    const body = { name: form.name, slug: form.slug, placeholder: form.placeholder || null, sortOrder: parseInt(form.sortOrder, 10) || 0 };
+    const url = editing ? `/api/rent/conditions/${editing.id}` : "/api/rent/conditions";
+    const res = await fetch(url, { method: editing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await res.json();
+    if (j.ok) { setModal(false); await load(); toast(editing ? "Сохранено" : "Условие добавлено"); }
+    else toast(j.error ?? "Ошибка", "error");
+    setSaving(false);
+  }
+
+  async function remove(c: { id: string; name: string }) {
+    const ok = await confirm({ title: "Удалить условие", message: `Удалить «${c.name}»?`, confirmLabel: "Удалить", variant: "danger" });
+    if (!ok) return;
+    await fetch(`/api/rent/conditions/${c.id}`, { method: "DELETE" });
+    await load();
+    toast("Условие удалено");
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex justify-end">
+        <button onClick={openCreate} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">+ Условие</button>
+      </div>
+      {loading ? <p className="text-slate-500">Загрузка...</p> : items.length === 0 ? (
+        <p className="pt-10 text-center text-sm text-slate-600">Нет условий.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-slate-800">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-slate-800 bg-slate-900">
+              <tr>
+                <th className="px-4 py-3 font-medium text-slate-400">Название</th>
+                <th className="px-4 py-3 font-medium text-slate-400">Slug</th>
+                <th className="px-4 py-3 font-medium text-slate-400">Подсказка</th>
+                <th className="px-4 py-3 font-medium text-slate-400">Порядок</th>
+                <th className="w-20 px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {items.map(c => (
+                <tr key={c.id} className="border-b border-slate-800/50 hover:bg-slate-900/50">
+                  <td className="px-4 py-3 font-medium text-white">{c.name}</td>
+                  <td className="px-4 py-3 text-xs text-slate-500">{c.slug}</td>
+                  <td className="px-4 py-3 text-xs text-slate-400">{c.placeholder ?? "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{c.sortOrder}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(c)} className="rounded px-2.5 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-white">Ред</button>
+                      <button onClick={() => remove(c)} className="rounded px-2.5 py-1 text-xs text-red-400 hover:bg-red-950 hover:text-red-300">Удл</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <AdminModal open={modal} onClose={() => setModal(false)} title={editing ? "Редактировать условие" : "Новое условие"}>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Название"><input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} /></Field>
+          <Field label="Slug"><input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} className={inputCls} /></Field>
+          <Field label="Подсказка (placeholder)" span>
+            <input value={form.placeholder} onChange={e => setForm(f => ({ ...f, placeholder: e.target.value }))} className={inputCls} />
+          </Field>
+          <Field label="Порядок"><input type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: e.target.value }))} className={inputCls} /></Field>
+        </div>
+        <div className="flex justify-end gap-3 pt-5">
+          <button onClick={() => setModal(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800">Отмена</button>
+          <button onClick={save} disabled={saving} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">{saving ? "Сохранение..." : "Сохранить"}</button>
+        </div>
+      </AdminModal>
+    </div>
+  );
+}
+
 /* ───────────── Settings ───────────── */
 
 function SettingsTab() {
   const [minDays, setMinDays] = useState("1");
   const [maxDays, setMaxDays] = useState("90");
+  const [d37, setD37] = useState("20");
+  const [d814, setD814] = useState("25");
+  const [d1531, setD1531] = useState("30");
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetch("/api/rent/settings").then(r => r.json()).then(j => {
-      if (j.ok) { setMinDays(String(j.data.minDays)); setMaxDays(String(j.data.maxDays)); }
+      if (j.ok) {
+        setMinDays(String(j.data.minDays)); setMaxDays(String(j.data.maxDays));
+        setD37(String(j.data.discounts.d3_7)); setD814(String(j.data.discounts.d8_14)); setD1531(String(j.data.discounts.d15_31));
+      }
     });
   }, []);
 
   async function save() {
     setSaving(true);
-    const res = await fetch("/api/rent/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ minDays: parseInt(minDays, 10), maxDays: parseInt(maxDays, 10) }) });
+    const res = await fetch("/api/rent/settings", {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        minDays: parseInt(minDays, 10), maxDays: parseInt(maxDays, 10),
+        discounts: { d3_7: parseInt(d37, 10), d8_14: parseInt(d814, 10), d15_31: parseInt(d1531, 10) },
+      }),
+    });
     const j = await res.json();
     if (j.ok) toast("Настройки сохранены");
     else toast(j.error ?? "Ошибка", "error");
@@ -321,14 +441,22 @@ function SettingsTab() {
   }
 
   return (
-    <div className="max-w-md rounded-xl border border-slate-800 p-6">
+    <div className="max-w-lg rounded-xl border border-slate-800 p-6">
       <h3 className="mb-4 text-sm font-semibold text-white">Параметры расчёта</h3>
       <div className="grid grid-cols-2 gap-4">
         <Field label="Мин. срок (дней)"><input type="number" value={minDays} onChange={e => setMinDays(e.target.value)} className={inputCls} /></Field>
         <Field label="Макс. срок (дней)"><input type="number" value={maxDays} onChange={e => setMaxDays(e.target.value)} className={inputCls} /></Field>
       </div>
+
+      <h4 className="mt-6 mb-3 text-sm font-semibold text-white">Скидки за срок (личные цели), %</h4>
+      <div className="grid grid-cols-3 gap-4">
+        <Field label="3–7 суток"><input type="number" value={d37} onChange={e => setD37(e.target.value)} className={inputCls} /></Field>
+        <Field label="8–14 суток"><input type="number" value={d814} onChange={e => setD814(e.target.value)} className={inputCls} /></Field>
+        <Field label="15–31 суток"><input type="number" value={d1531} onChange={e => setD1531(e.target.value)} className={inputCls} /></Field>
+      </div>
+
       <p className="mt-4 text-xs text-slate-500">
-        Логика цены: 1 день = цена за сутки · 2–3 дня = цена за 3 дня ÷ 3 × дни · 4–7 = цена за неделю ÷ 7 × дни · 8+ = цена за месяц ÷ 30 × дни.
+        Цена за сутки задаётся у автомобиля (личные цели). Скидка применяется к цене за сутки по выбранному периоду. Такси — отдельно, от недели (цена за неделю).
       </p>
       <button onClick={save} disabled={saving} className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">{saving ? "Сохранение..." : "Сохранить"}</button>
     </div>

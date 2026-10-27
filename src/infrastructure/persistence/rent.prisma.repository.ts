@@ -1,6 +1,6 @@
 import { getPrismaClient } from "./prisma.client";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
-import type { RentCar, RentType, CarClass, RentExtra, RentRequest } from "@/entities/rent/rent-car.types";
+import type { RentCar, RentType, CarClass, RentExtra, RentCondition, CarConditionInput, RentRequest } from "@/entities/rent/rent-car.types";
 import { randomUUID } from "node:crypto";
 
 function toRentCar(row: any): RentCar {
@@ -26,16 +26,19 @@ function toRentCar(row: any): RentCar {
     mainPhoto: row.mainPhoto ?? undefined,
     description: row.description ?? undefined,
     priceDay: row.priceDay ?? undefined,
-    price3Days: row.price3Days ?? undefined,
     price7Days: row.price7Days ?? undefined,
-    priceMonth: row.priceMonth ?? undefined,
     priceDayTaxi: row.priceDayTaxi ?? undefined,
     rentTypeId: row.rentTypeId ?? undefined,
     rentType: row.rentType ? { id: row.rentType.id, name: row.rentType.name, slug: row.rentType.slug } : undefined,
     isActive: row.isActive,
     bookedUntil: row.bookedUntil ?? undefined,
     sortOrder: row.sortOrder,
+    conditions: (row.conditions ?? []).map((c: any) => ({ conditionId: c.conditionId, name: c.condition?.name ?? "", value: c.value ?? "" })),
   };
+}
+
+function toCarCondition(row: any) {
+  return { id: row.id, name: row.name, slug: row.slug, placeholder: row.placeholder ?? undefined, sortOrder: row.sortOrder };
 }
 
 function toRentType(row: any): RentType {
@@ -104,7 +107,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
     }
     const rows = await this.db.rentCar.findMany({
       where: where as any,
-      include: { rentType: true, brandRel: true, modelRel: true, classRel: true },
+      include: { rentType: true, brandRel: true, modelRel: true, classRel: true, conditions: { include: { condition: true } } },
       orderBy: { sortOrder: "asc" },
     });
     return rows.map(toRentCar);
@@ -113,7 +116,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
   async getBySlug(slug: string): Promise<RentCar | null> {
     const row = await this.db.rentCar.findUnique({
       where: { slug },
-      include: { rentType: true, brandRel: true, modelRel: true, classRel: true },
+      include: { rentType: true, brandRel: true, modelRel: true, classRel: true, conditions: { include: { condition: true } } },
     });
     return row ? toRentCar(row) : null;
   }
@@ -136,15 +139,15 @@ export class PrismaRentCarRepository implements RentCarRepository {
         features: data.features ?? null,
         photos: data.photos ?? null, mainPhoto: data.mainPhoto ?? null,
         description: data.description ?? null,
-        priceDay: data.priceDay ?? null, price3Days: data.price3Days ?? null,
-        price7Days: data.price7Days ?? null, priceMonth: data.priceMonth ?? null,
+        priceDay: data.priceDay ?? null,
+        price7Days: data.price7Days ?? null,
         priceDayTaxi: data.priceDayTaxi ?? null,
         rentTypeId: data.rentTypeId ?? null,
         isActive: data.isActive ?? true,
         bookedUntil: data.bookedUntil ?? null,
         sortOrder: data.sortOrder ?? 0,
       },
-      include: { rentType: true, brandRel: true, modelRel: true, classRel: true },
+      include: { rentType: true, brandRel: true, modelRel: true, classRel: true, conditions: { include: { condition: true } } },
     });
     return toRentCar(row);
   }
@@ -162,15 +165,14 @@ export class PrismaRentCarRepository implements RentCarRepository {
         features: data.features,
         photos: data.photos, mainPhoto: data.mainPhoto,
         description: data.description,
-        priceDay: data.priceDay, price3Days: data.price3Days,
-        price7Days: data.price7Days, priceMonth: data.priceMonth,
+        priceDay: data.priceDay, price7Days: data.price7Days,
         priceDayTaxi: data.priceDayTaxi,
         rentTypeId: data.rentTypeId,
         isActive: data.isActive,
         bookedUntil: data.bookedUntil,
         sortOrder: data.sortOrder,
       },
-      include: { rentType: true, brandRel: true, modelRel: true, classRel: true },
+      include: { rentType: true, brandRel: true, modelRel: true, classRel: true, conditions: { include: { condition: true } } },
     });
     return toRentCar(row);
   }
@@ -256,6 +258,42 @@ export class PrismaRentCarRepository implements RentCarRepository {
 
   async deleteExtra(id: string): Promise<void> {
     await this.db.rentExtra.delete({ where: { id } });
+  }
+
+  /* ─── Conditions ─── */
+
+  async getConditions() {
+    const rows = await this.db.rentCondition.findMany({ orderBy: { sortOrder: "asc" } });
+    return rows.map(toCarCondition);
+  }
+
+  async createCondition(data: Omit<RentCondition, "id">) {
+    const row = await this.db.rentCondition.create({
+      data: { name: data.name, slug: data.slug, placeholder: data.placeholder ?? null, sortOrder: data.sortOrder ?? 0 },
+    });
+    return toCarCondition(row);
+  }
+
+  async updateCondition(id: string, data: Partial<RentCondition>) {
+    const row = await this.db.rentCondition.update({
+      where: { id },
+      data: { name: data.name, slug: data.slug, placeholder: data.placeholder, sortOrder: data.sortOrder },
+    });
+    return toCarCondition(row);
+  }
+
+  async deleteCondition(id: string): Promise<void> {
+    await this.db.rentCondition.delete({ where: { id } });
+  }
+
+  async setCarConditions(carId: string, conditions: CarConditionInput[]): Promise<void> {
+    await this.db.rentCarCondition.deleteMany({ where: { carId } });
+    const list = (conditions ?? []).filter(c => c.conditionId);
+    if (list.length > 0) {
+      await this.db.rentCarCondition.createMany({
+        data: list.map(c => ({ carId, conditionId: c.conditionId, value: c.value ?? "" })),
+      });
+    }
   }
 
   /* ─── Rental requests ─── */

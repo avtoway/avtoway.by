@@ -16,18 +16,17 @@ interface RentCar {
   brand?: string; model?: string; classId?: string; class?: string;
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string; description?: string;
-  priceDay?: number; price3Days?: number; price7Days?: number;
-  priceMonth?: number; priceDayTaxi?: number;
-  rentTypeId?: string; rentType?: { id: string; name: string };
+  priceDay?: number; price7Days?: number; priceDayTaxi?: number;
+  rentTypeId?: string; rentType?: { id: string; name: string; slug: string };
   isActive: boolean; bookedUntil?: string; photos?: string; mainPhoto?: string;
+  conditions?: { conditionId: string; name: string; value: string }[];
 }
 
 const EMPTY_FORM = {
   name: "", slug: "", brandId: "", modelId: "", classId: "", year: "", color: "",
   transmission: "", fuel: "", engineVolume: "", seats: "", features: "",
   photos: "", mainPhoto: "", description: "",
-  priceDay: "", price3Days: "", price7Days: "", priceMonth: "",
-  priceDayTaxi: "",
+  priceDay: "", price7Days: "", priceDayTaxi: "",
   rentTypeId: "", isActive: true, bookedUntil: "",
 };
 
@@ -42,6 +41,7 @@ export default function AdminRentPage() {
   const [typeModal, setTypeModal] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeSlug, setNewTypeSlug] = useState("");
+  const [carConditions, setCarConditions] = useState<{ conditionId: string; value: string }[]>([]);
   const { toast } = useToast();
   const { confirm, dialog } = useConfirm();
 
@@ -62,7 +62,7 @@ export default function AdminRentPage() {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
-  function openCreate() { setForm({ ...EMPTY_FORM }); setEditing(null); setModal(true); }
+  function openCreate() { setForm({ ...EMPTY_FORM }); setEditing(null); setCarConditions([]); setModal(true); }
 
   function openEdit(c: RentCar) {
     setForm({
@@ -72,16 +72,16 @@ export default function AdminRentPage() {
       transmission: c.transmission ?? "", fuel: c.fuel ?? "",
       engineVolume: c.engineVolume ?? "", seats: c.seats?.toString() ?? "",
       features: c.features ?? "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "", description: c.description ?? "",
-      priceDay: c.priceDay?.toString() ?? "", price3Days: c.price3Days?.toString() ?? "",
-      price7Days: c.price7Days?.toString() ?? "", priceMonth: c.priceMonth?.toString() ?? "",
-      priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
+      priceDay: c.priceDay?.toString() ?? "",
+      price7Days: c.price7Days?.toString() ?? "", priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
       rentTypeId: c.rentTypeId ?? "", isActive: c.isActive, bookedUntil: c.bookedUntil ?? "",
     });
+    setCarConditions((c.conditions ?? []).map(x => ({ conditionId: x.conditionId, value: x.value })));
     setEditing(c);
     setModal(true);
   }
 
-  const NUM_FIELDS = new Set(["year", "seats", "priceDay", "price3Days", "price7Days", "priceMonth", "priceDayTaxi", "sortOrder"]);
+  const NUM_FIELDS = new Set(["year", "seats", "priceDay", "price7Days", "priceDayTaxi", "sortOrder"]);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
@@ -91,6 +91,7 @@ export default function AdminRentPage() {
         if (v === "" || v === null || v === undefined) { body[k] = null; continue; }
         body[k] = NUM_FIELDS.has(k) ? Number(v) : v;
       }
+      body.conditions = carConditions;
       const url = editing ? `/api/rent/${editing.id}` : "/api/rent";
       const method = editing ? "PUT" : "POST";
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -99,7 +100,7 @@ export default function AdminRentPage() {
       else toast(json.error ?? "Ошибка", "error");
     } catch { toast("Ошибка при сохранении", "error"); }
     setSaving(false);
-  }, [form, editing, toast]);
+  }, [form, editing, carConditions, toast]);
 
   async function handleDelete(id: string, name: string) {
     const ok = await confirm({ title: "Удаление авто", message: `Удалить «${name}»?`, confirmLabel: "Удалить", variant: "danger" });
@@ -216,7 +217,8 @@ export default function AdminRentPage() {
 
       {/* Car modal */}
       <AdminModal open={modal} onClose={() => setModal(false)} size="lg" title={editing ? "Редактировать авто" : "Новый автомобиль"}>
-        <RentCarForm form={form} onChange={setFormField} rentTypes={types} />
+        <RentCarForm key={editing?.id ?? "new"} form={form} onChange={setFormField} rentTypes={types}
+          initialConditions={carConditions} onConditionsChange={setCarConditions} />
         {editing && <RentCarHistoryPanel carId={editing.id} />}
         <div className="flex justify-end gap-3 pt-5">
           <button onClick={() => setModal(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>

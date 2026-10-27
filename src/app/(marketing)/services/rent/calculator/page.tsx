@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { calculateRentPrice } from "@/shared/lib/price";
+import { calculateRentPrice, getPeriodPrices, DEFAULT_DISCOUNTS, type RentDiscounts } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface Car {
@@ -10,7 +10,7 @@ interface Car {
   class?: string; classDeposit?: number;
   year?: number; transmission?: string; fuel?: string; seats?: number;
   photos?: string; mainPhoto?: string;
-  priceDay?: number; price3Days?: number; price7Days?: number; priceMonth?: number;
+  priceDay?: number; price7Days?: number; priceDayTaxi?: number;
   rentType?: { id: string; name: string; slug: string };
 }
 interface ClassItem { id: string; name: string; slug: string; }
@@ -24,6 +24,7 @@ export default function RentCalculatorPage() {
   const [extras, setExtras] = useState<Extra[]>([]);
   const [minDays, setMinDays] = useState(1);
   const [maxDays, setMaxDays] = useState(90);
+  const [discounts, setDiscounts] = useState<RentDiscounts>(DEFAULT_DISCOUNTS);
   const [loading, setLoading] = useState(true);
 
   const [classFilter, setClassFilter] = useState("");
@@ -51,7 +52,10 @@ export default function RentCalculatorPage() {
       if (cRes.ok) setCars(cRes.data);
       if (clRes.ok) setClasses(clRes.data);
       if (eRes.ok) setExtras(eRes.data);
-      if (sRes.ok) { setMinDays(sRes.data.minDays); setMaxDays(sRes.data.maxDays); }
+      if (sRes.ok) {
+        setMinDays(sRes.data.minDays); setMaxDays(sRes.data.maxDays);
+        if (sRes.data.discounts) setDiscounts(sRes.data.discounts);
+      }
       setLoading(false);
     });
   }, []);
@@ -76,6 +80,8 @@ export default function RentCalculatorPage() {
   }, [cars, classFilter, brandFilter, search]);
 
   const selectedCar = cars.find(c => c.id === selectedId) ?? null;
+  const isTaxi = selectedCar?.rentType?.slug === "taxi";
+  const effectiveMinDays = isTaxi ? 7 : minDays;
 
   const days = useMemo(() => {
     if (!startDate || !endDate) return 0;
@@ -85,7 +91,8 @@ export default function RentCalculatorPage() {
     return Math.round((b - a) / 86400000);
   }, [startDate, endDate]);
 
-  const rentalBase = selectedCar && days > 0 ? calculateRentPrice(selectedCar, days) : 0;
+  const rentalBase = selectedCar && days > 0 ? calculateRentPrice(selectedCar, days, discounts, isTaxi) : 0;
+  const periodPrices = selectedCar && !isTaxi && selectedCar.priceDay != null ? getPeriodPrices(selectedCar.priceDay, discounts) : null;
   const extrasTotal = useMemo(() => {
     let sum = 0;
     for (const e of extras) {
@@ -108,7 +115,7 @@ export default function RentCalculatorPage() {
     });
   }
 
-  const canSubmit = selectedCar && days > 0 && name.trim().length > 0;
+  const canSubmit = !!selectedCar && days >= effectiveMinDays && name.trim().length > 0;
 
   async function submit() {
     if (!canSubmit) return;
@@ -200,7 +207,11 @@ export default function RentCalculatorPage() {
                             {c.class && <span className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400">{c.class}</span>}
                           </div>
                           <p className="text-xs text-zinc-500">{c.year} · {TRANSMISSION_LABEL[c.transmission ?? ""] ?? c.transmission} · {FUEL_LABEL[c.fuel ?? ""] ?? c.fuel}</p>
-                          <p className="mt-2 text-sm text-red-400">{c.priceDay != null ? `от ${c.priceDay} BYN/день` : c.priceMonth != null ? `от ${c.priceMonth} BYN/мес` : "по запросу"}</p>
+                          <p className="mt-2 text-sm text-red-400">
+                            {c.rentType?.slug === "taxi"
+                              ? (c.price7Days != null ? `от ${c.price7Days} BYN/неделя` : "по запросу")
+                              : (c.priceDay != null ? `от ${c.priceDay} BYN/сутки` : "по запросу")}
+                          </p>
                         </div>
                       </button>
                     );
@@ -243,7 +254,7 @@ export default function RentCalculatorPage() {
                       </label>
                     </div>
 
-                    {days > 0 && days < minDays && <p className="mb-3 text-xs text-amber-400">Минимальный срок — {minDays} дн.</p>}
+                    {days > 0 && days < effectiveMinDays && <p className="mb-3 text-xs text-amber-400">{isTaxi ? "Такси — аренда только от 7 дней" : `Минимальный срок — ${minDays} дн.`}</p>}
                     {days > maxDays && <p className="mb-3 text-xs text-amber-400">Максимальный срок — {maxDays} дн.</p>}
 
                     {/* Extras */}
@@ -263,15 +274,30 @@ export default function RentCalculatorPage() {
                       </div>
                     )}
 
+                    {/* Period prices (personal) */}
+                    {periodPrices && days > 0 && (
+                      <div className="mb-4 rounded-lg bg-zinc-800/40 p-3 text-xs">
+                        <p className="mb-2 font-medium text-zinc-400">Цена за сутки</p>
+                        <div className="space-y-1">
+                          {periodPrices.map((p, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <span className="text-zinc-500">{p.label}</span>
+                              <span className="text-zinc-300">{p.perDay} BYN</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Summary */}
                     {selectedCar && days > 0 && (
                       <div className="mb-4 space-y-1.5 border-t border-zinc-800 pt-4 text-sm">
-                        <Row label={`Аренда · ${days} дн.`} value={`${rentalBase} BYN`} />
+                        <Row label={isTaxi ? `Такси · ${Math.ceil(days / 7)} нед.` : `Аренда · ${days} дн.`} value={`${rentalBase} BYN`} />
                         {extrasTotal > 0 && <Row label="Доп. опции" value={`${extrasTotal} BYN`} />}
                         <div className="flex items-center justify-between pt-1 text-base font-semibold text-white">
                           <span>Итого</span><span>{total} BYN</span>
                         </div>
-                        <p className="text-xs text-zinc-500">Залог: {deposit || "по согласованию"} BYN (возвращается после аренды)</p>
+                        {!isTaxi && <p className="text-xs text-zinc-500">Залог: {deposit || "по согласованию"} BYN (возвращается после аренды)</p>}
                       </div>
                     )}
 

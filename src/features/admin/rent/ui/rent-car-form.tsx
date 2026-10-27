@@ -9,8 +9,7 @@ interface FormData {
   year: string; color: string; transmission: string; fuel: string;
   engineVolume: string; seats: string; features: string;
   photos: string; mainPhoto: string; description: string;
-  priceDay: string; price3Days: string; price7Days: string; priceMonth: string;
-  priceDayTaxi: string;
+  priceDay: string; price7Days: string; priceDayTaxi: string;
   rentTypeId: string; isActive: boolean; bookedUntil: string;
 }
 
@@ -20,20 +19,26 @@ interface FuelItem { id: string; name: string; slug: string; }
 interface TransItem { id: string; name: string; slug: string; }
 interface ComfortItem { id: string; name: string; slug: string; }
 interface CarClassItem { id: string; name: string; slug: string; deposit?: number; minAge?: number; }
+interface ConditionItem { id: string; name: string; slug: string; placeholder?: string; }
+interface SelectedCondition { conditionId: string; value: string; }
 
 export default function RentCarForm({
-  form, onChange, rentTypes, errors,
+  form, onChange, rentTypes, errors, initialConditions, onConditionsChange,
 }: {
   form: FormData;
   onChange: (field: string, value: any) => void;
   rentTypes: RentType[];
   errors?: Record<string, string>;
+  initialConditions?: SelectedCondition[];
+  onConditionsChange?: (c: SelectedCondition[]) => void;
 }) {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [fuels, setFuels] = useState<FuelItem[]>([]);
   const [transmissions, setTransmissions] = useState<TransItem[]>([]);
   const [comfortFeatures, setComfortFeatures] = useState<ComfortItem[]>([]);
   const [classes, setClasses] = useState<CarClassItem[]>([]);
+  const [conditions, setConditions] = useState<ConditionItem[]>([]);
+  const [selectedConditions, setSelectedConditions] = useState<SelectedCondition[]>(initialConditions ?? []);
 
   useEffect(() => {
     fetch("/api/cars").then(r => r.json()).then(j => { if (j.ok) setBrands(j.data); });
@@ -46,7 +51,27 @@ export default function RentCarForm({
     fetch("/api/rent/classes").then(r => r.json()).then(j => {
       if (j.ok) setClasses(j.data);
     });
+    fetch("/api/rent/conditions").then(r => r.json()).then(j => {
+      if (j.ok) setConditions(j.data);
+    });
   }, []);
+
+  function toggleCondition(id: string) {
+    setSelectedConditions(prev => {
+      const exists = prev.some(c => c.conditionId === id);
+      const next = exists ? prev.filter(c => c.conditionId !== id) : [...prev, { conditionId: id, value: "" }];
+      onConditionsChange?.(next);
+      return next;
+    });
+  }
+
+  function setConditionValue(id: string, value: string) {
+    setSelectedConditions(prev => {
+      const next = prev.map(c => c.conditionId === id ? { ...c, value } : c);
+      onConditionsChange?.(next);
+      return next;
+    });
+  }
 
   // Derived from form.brandId (no need for a separate effect/state)
   const selectedBrand = brands.find(b => b.id === form.brandId);
@@ -196,22 +221,25 @@ export default function RentCarForm({
       {selectedType && (
       <fieldset className="rounded-xl border border-slate-800 p-4">
         <legend className="px-1 text-xs font-medium text-slate-400">Цены (BYN)</legend>
-        <div className="mt-3 grid grid-cols-3 gap-4">
-          {isRent && (
-            <>
-              <PriceInput label="За сутки" value={form.priceDay} onChange={v => onChange("priceDay", v)} />
-              <PriceInput label="На 3 дня" value={form.price3Days} onChange={v => onChange("price3Days", v)} />
-              <PriceInput label="На 7 дней / неделя" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
-              <PriceInput label="На месяц" value={form.priceMonth} onChange={v => onChange("priceMonth", v)} />
-            </>
-          )}
-          {isTaxi && (
-            <>
+        {isRent && (
+          <>
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <PriceInput label="За сутки (базовая)" value={form.priceDay} onChange={v => onChange("priceDay", v)} />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Скидки за длительный срок (3–7, 8–14, 15–31 суток) задаются в настройках калькулятора.
+            </p>
+          </>
+        )}
+        {isTaxi && (
+          <>
+            <div className="mt-3 grid grid-cols-2 gap-4">
               <PriceInput label="За неделю" value={form.price7Days} onChange={v => onChange("price7Days", v)} />
               <PriceInput label="В день (среднее)" value={form.priceDayTaxi} onChange={v => onChange("priceDayTaxi", v)} />
-            </>
-          )}
-        </div>
+            </div>
+            <p className="mt-2 text-xs text-slate-500">Такси — аренда только от недели, цена за неделю.</p>
+          </>
+        )}
       </fieldset>
       )}
 
@@ -229,6 +257,32 @@ export default function RentCarForm({
           ))}
         </div>
       </fieldset>
+
+      {/* Условия аренды */}
+      {conditions.length > 0 && (
+        <fieldset className="rounded-xl border border-slate-800 p-4">
+          <legend className="px-1 text-xs font-medium text-slate-400">Условия аренды</legend>
+          <p className="mt-1 text-xs text-slate-500">Отметьте галочкой условие — оно отобразится на странице авто.</p>
+          <div className="mt-3 flex flex-col gap-3">
+            {conditions.map(c => {
+              const sel = selectedConditions.find(s => s.conditionId === c.id);
+              return (
+                <div key={c.id} className={`rounded-lg border p-3 transition ${sel ? "border-red-500/50 bg-red-500/5" : "border-slate-800"}`}>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <input type="checkbox" checked={!!sel} onChange={() => toggleCondition(c.id)} className="h-4 w-4 accent-red-600" />
+                    <span className="text-sm text-white">{c.name}</span>
+                  </label>
+                  {sel && (
+                    <input value={sel.value} onChange={e => setConditionValue(c.id, e.target.value)}
+                      placeholder={c.placeholder ?? "Значение"}
+                      className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
     </div>
   );
 }

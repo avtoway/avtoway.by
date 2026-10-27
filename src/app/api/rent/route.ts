@@ -34,7 +34,9 @@ export async function POST(request: Request) {
     await requireAuth("rent.manage");
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarRepository>("RentCarRepository");
-    const car = await repo.create(body);
+    const { conditions, ...carData } = body;
+    const car = await repo.create(carData);
+    if (Array.isArray(conditions)) await repo.setCarConditions(car.id, conditions);
     return NextResponse.json({ ok: true, data: car }, { status: 201 });
   } catch (e) { return toApiError(e); }
 }

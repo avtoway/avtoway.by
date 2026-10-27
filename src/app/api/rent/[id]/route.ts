@@ -14,7 +14,9 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarRepository>("RentCarRepository");
-    const car = await repo.update(id, body);
+    const { conditions, ...carData } = body;
+    const car = await repo.update(id, carData);
+    if (Array.isArray(conditions)) await repo.setCarConditions(id, conditions);
     return NextResponse.json({ ok: true, data: car });
   } catch (e) { return toApiError(e); }
 }

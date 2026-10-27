@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
-import { getPriceRows } from "@/shared/lib/price";
+import { getPriceLabel, getPeriodPrices, DEFAULT_DISCOUNTS, formatPrice } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PhotoGallery from "@/shared/ui/photo-gallery";
 import type { Metadata } from "next";
@@ -17,8 +17,19 @@ async function getCar(slug: string) {
   const db = getPrismaClient();
   return db.rentCar.findUnique({
     where: { slug, isActive: true },
-    include: { rentType: true, classRel: true },
+    include: { rentType: true, classRel: true, conditions: { include: { condition: true } } },
   });
+}
+async function getDiscounts() {
+  const db = getPrismaClient();
+  const rows = await db.setting.findMany({ where: { key: { in: ["rent_disc_3_7", "rent_disc_8_14", "rent_disc_15_31"] } } });
+  const map: Record<string, string> = {};
+  for (const r of rows) map[r.key] = r.value;
+  return {
+    d3_7: parseInt(map.rent_disc_3_7 ?? "", 10) || DEFAULT_DISCOUNTS.d3_7,
+    d8_14: parseInt(map.rent_disc_8_14 ?? "", 10) || DEFAULT_DISCOUNTS.d8_14,
+    d15_31: parseInt(map.rent_disc_15_31 ?? "", 10) || DEFAULT_DISCOUNTS.d15_31,
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -39,8 +50,14 @@ export default async function RentCarDetailPage({ params }: Props) {
   const photos = (car.photos ?? "").split(",").filter(Boolean);
   const features = (car.features ?? "").split(",").filter(Boolean);
   const mainPhoto = car.mainPhoto ?? photos[0];
-  const priceRows = getPriceRows(car);
   const usdRate = await getUsdRate();
+  const discounts = await getDiscounts();
+  const isTaxi = car.rentType?.slug === "taxi";
+  const priceLabel = getPriceLabel(car);
+  const priceAmount = priceLabel ? parseInt(priceLabel.replace(/\D/g, "")) : null;
+  const heroUsd = usdRate && priceAmount ? Math.round(priceAmount / usdRate) : null;
+  const periodPrices = !isTaxi && car.priceDay != null ? getPeriodPrices(car.priceDay, discounts) : null;
+  const conditions = (car.conditions ?? []).filter((c: any) => c.condition?.name);
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -80,7 +97,7 @@ export default async function RentCarDetailPage({ params }: Props) {
             </div>
           </div>
           <div className="flex flex-col items-start gap-3 sm:items-end">
-            {priceRows.length > 0 && <PriceHero priceRow={priceRows[0]!} usdRate={usdRate} />}
+            {priceLabel && <PriceHero priceLabel={priceLabel} usdVal={heroUsd} />}
             <Link href="/services/rent/calculator"
               className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
               Рассчитать аренду
@@ -132,30 +149,59 @@ export default async function RentCarDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* All prices */}
-          {priceRows.length > 0 && (
+          {/* Prices */}
+          {(periodPrices || (isTaxi && car.price7Days != null)) && (
             <div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-                <h2 className="text-lg font-semibold text-white">Все цены</h2>
+                <h2 className="text-lg font-semibold text-white">Стоимость</h2>
                 <div className="mt-4 space-y-3">
-                  {priceRows.map((r, i) => {
-                    const usdVal = usdRate ? Math.round(parseInt(r.value.replace(/\D/g, "")) / usdRate) : null;
-                    return (
-                      <div key={i} className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0">
-                        <div>
-                          <span className="text-sm text-zinc-400">{r.label}</span>
-                          {usdVal && <p className="text-[10px] text-zinc-600">≈ ${usdVal.toLocaleString()}</p>}
+                  {periodPrices ? (
+                    periodPrices.map((p, i) => {
+                      const usdVal = usdRate ? Math.round(p.perDay / usdRate) : null;
+                      return (
+                        <div key={i} className="flex items-center justify-between border-b border-zinc-800 pb-2 last:border-0">
+                          <div>
+                            <span className="text-sm text-zinc-400">{p.label}</span>
+                            {usdVal && <p className="text-[10px] text-zinc-600">≈ ${usdVal.toLocaleString()}/сутки</p>}
+                          </div>
+                          <span className="text-base font-bold text-green-400">{p.perDay} BYN/сутки</span>
                         </div>
-                        <span className="text-base font-bold text-green-400">{r.value}</span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-zinc-400">Неделя (мин. 7 дней)</span>
+                      <span className="text-base font-bold text-green-400">{formatPrice(car.price7Days)}</span>
+                    </div>
+                  )}
                 </div>
+                {!isTaxi && <p className="mt-3 text-[11px] text-zinc-600">Скидки за длительный срок уже учтены в цене за сутки.</p>}
+                {isTaxi && <p className="mt-3 text-[11px] text-zinc-600">Аренда под такси — только от недели, цена за неделю.</p>}
               </div>
             </div>
           )}
         </div>
       </section>
+
+      {/* Conditions */}
+      {conditions.length > 0 && (
+        <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+            <h2 className="mb-4 text-lg font-semibold text-white">Условия аренды</h2>
+            <ul className="space-y-2.5">
+              {conditions.map((c: any, i: number) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-zinc-300">
+                  <span className="mt-0.5 text-red-400">•</span>
+                  <span>
+                    <span className="font-medium text-white">{c.name}:</span>{" "}
+                    <span className="text-zinc-400">{c.value || "уточняйте у менеджера"}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* Contact */}
       {contact && (
@@ -176,12 +222,11 @@ function Spec({ label, value }: { label: string; value?: string }) {
   );
 }
 
-function PriceHero({ priceRow, usdRate }: { priceRow: { label: string; value: string }; usdRate: number | null }) {
-  const usdVal = usdRate ? Math.round(parseInt(priceRow.value.replace(/\D/g, "")) / usdRate) : null;
+function PriceHero({ priceLabel, usdVal }: { priceLabel: string; usdVal: number | null }) {
   return (
     <div className="flex shrink-0 items-baseline gap-3 rounded-xl border border-green-800/50 bg-green-950/20 px-5 py-3 sm:flex-col sm:items-end">
       <p className="text-sm text-zinc-500">от</p>
-      <p className="text-2xl font-bold text-green-400 sm:text-3xl">{priceRow.value}</p>
+      <p className="text-2xl font-bold text-green-400 sm:text-3xl">{priceLabel}</p>
       {usdVal && <p className="text-xs text-zinc-500">≈ ${usdVal.toLocaleString()}</p>}
     </div>
   );

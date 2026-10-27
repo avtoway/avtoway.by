@@ -20,15 +20,14 @@ export interface RentCar {
   mainPhoto?: string;
   description?: string;
   priceDay?: number;
-  price3Days?: number;
   price7Days?: number;
-  priceMonth?: number;
   priceDayTaxi?: number;
   rentTypeId?: string;
   rentType?: { id: string; name: string; slug: string };
   isActive: boolean;
   bookedUntil?: string;
   sortOrder: number;
+  conditions?: { conditionId: string; name: string; value: string }[];
 }
 
 export interface RentType {
@@ -56,6 +55,19 @@ export interface RentExtra {
   price: number;
   isActive: boolean;
   sortOrder: number;
+}
+
+export interface RentCondition {
+  id: string;
+  name: string;
+  slug: string;
+  placeholder?: string;
+  sortOrder: number;
+}
+
+export interface CarConditionInput {
+  conditionId: string;
+  value: string;
 }
 
 export interface RentRequest {

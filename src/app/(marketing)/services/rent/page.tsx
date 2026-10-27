@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getPriceRows } from "@/shared/lib/price";
+import { getPriceLabel } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface RentType { id: string; name: string; slug: string; }
@@ -206,8 +206,11 @@ export default function RentPage() {
 function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
   const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
-  const priceRows = getPriceRows(car);
+  const priceLabel = getPriceLabel(car);
+  const isTaxi = car.rentType?.slug === "taxi";
   const isBooked = car.bookedUntil && new Date(car.bookedUntil) > new Date();
+  const amount = priceLabel ? parseInt(priceLabel.replace(/\D/g, "")) : null;
+  const usdVal = usdRate && amount ? Math.round(amount / usdRate) : null;
 
   return (
     <Link href={`/services/rent/${car.slug}`}
@@ -258,30 +261,18 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
       </div>
 
       {/* Price + button */}
-      <div className="flex shrink-0 flex-col justify-center gap-1 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-56">
-        {priceRows.length > 0 ? (
-          <div className="space-y-0.5">
-            {priceRows.map((r, i) => {
-              const amountMatch = r.value.match(/\d+/);
-              const amount = amountMatch ? parseInt(amountMatch[0]) : null;
-              const usdVal = usdRate && amount ? Math.round(amount / usdRate) : null;
-              return (
-                <div key={i} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="text-zinc-500">{r.label}</span>
-                  <div className="text-right">
-                    <span className="font-medium text-green-400">{r.value}</span>
-                    {usdVal && (
-                      <span className="ml-1.5 text-[10px] text-zinc-600">≈ ${usdVal}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+      <div className="flex shrink-0 flex-col justify-center gap-2 border-t border-zinc-800 px-5 py-4 sm:border-l sm:border-t-0 sm:px-6 sm:w-56">
+        {priceLabel ? (
+          <div>
+            <p className="text-xs text-zinc-500">от</p>
+            <p className="text-xl font-bold text-green-400">{priceLabel}</p>
+            {usdVal && <p className="text-xs text-zinc-500">≈ ${usdVal.toLocaleString()}</p>}
+            {!isTaxi && <p className="mt-1 text-[10px] text-zinc-600">скидки от 3 суток</p>}
           </div>
         ) : (
           <p className="text-xs text-zinc-600">Цена не указана</p>
         )}
-        <span className="mt-2 rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full">
+        <span className="rounded-lg bg-red-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 text-center w-full">
           Подробнее →
         </span>
       </div>

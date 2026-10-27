@@ -214,10 +214,27 @@ async function main() {
   const calcSettings: Record<string, string> = {
     rent_min_days: "1",
     rent_max_days: "90",
+    rent_disc_3_7: "20",
+    rent_disc_8_14: "25",
+    rent_disc_15_31: "30",
   };
   for (const [key, value] of Object.entries(calcSettings)) {
     const exists = await prisma.setting.findUnique({ where: { key } });
     if (!exists) await prisma.setting.create({ data: { key, value } });
+  }
+
+  // Seed rent conditions (условия аренды)
+  const rentConditions = [
+    { slug: "age-limit", name: "Ограничение по возрасту", placeholder: "например, от 21 года", sortOrder: 1 },
+    { slug: "experience", name: "Стаж вождения", placeholder: "например, от 2 лет", sortOrder: 2 },
+    { slug: "deposit", name: "Страховой депозит / залог", placeholder: "например, 300 BYN", sortOrder: 3 },
+    { slug: "mileage", name: "Лимит пробега", placeholder: "например, 250 км/сутки", sortOrder: 4 },
+    { slug: "documents", name: "Необходимые документы", placeholder: "например, паспорт, водительское удостоверение", sortOrder: 5 },
+    { slug: "abroad", name: "Выезд за границу", placeholder: "например, по согласованию", sortOrder: 6 },
+  ];
+  for (const c of rentConditions) {
+    const exists = await prisma.rentCondition.findUnique({ where: { slug: c.slug } });
+    if (!exists) await prisma.rentCondition.create({ data: c });
   }
 
   // Seed contact settings (settings table)

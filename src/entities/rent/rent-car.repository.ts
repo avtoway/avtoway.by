@@ -1,4 +1,4 @@
-import type { RentCar, RentType, CarClass, RentExtra, RentRequest } from "./rent-car.types";
+import type { RentCar, RentType, CarClass, RentExtra, RentCondition, CarConditionInput, RentRequest } from "./rent-car.types";
 
 export interface RentCarFilters {
   rentTypeSlug?: string;
@@ -10,8 +10,8 @@ export interface RentCarRepository {
   getAll(filters?: RentCarFilters): Promise<RentCar[]>;
   getBySlug(slug: string): Promise<RentCar | null>;
   getTypes(): Promise<RentType[]>;
-  create(data: Omit<RentCar, "id" | "rentType">): Promise<RentCar>;
-  update(id: string, data: Partial<RentCar>): Promise<RentCar>;
+  create(data: Omit<RentCar, "id" | "rentType" | "conditions">): Promise<RentCar>;
+  update(id: string, data: Partial<Omit<RentCar, "conditions">>): Promise<RentCar>;
   delete(id: string): Promise<void>;
 
   // Classes
@@ -25,6 +25,13 @@ export interface RentCarRepository {
   createExtra(data: Omit<RentExtra, "id">): Promise<RentExtra>;
   updateExtra(id: string, data: Partial<RentExtra>): Promise<RentExtra>;
   deleteExtra(id: string): Promise<void>;
+
+  // Conditions
+  getConditions(): Promise<RentCondition[]>;
+  createCondition(data: Omit<RentCondition, "id">): Promise<RentCondition>;
+  updateCondition(id: string, data: Partial<RentCondition>): Promise<RentCondition>;
+  deleteCondition(id: string): Promise<void>;
+  setCarConditions(carId: string, conditions: CarConditionInput[]): Promise<void>;
 
   // Rental requests (calculator leads)
   createRentRequest(data: Omit<RentRequest, "id" | "createdAt" | "status">): Promise<RentRequest>;

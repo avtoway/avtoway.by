@@ -77,6 +77,8 @@ prisma/schema.prisma      # Схема БД
 | CarClass | car_classes | Класс автомобиля (Эконом…Премиум, SUV, Минивэн, Электро) + залог и мин. возраст |
 | RentExtra | rent_extras | Доп. опции калькулятора (кресло, доставка, страховка…) |
 | RentRequest | rent_requests | Заявки из калькулятора аренды |
+| RentCondition | rent_conditions | Шаблоны условий аренды (возраст, стаж, залог…) |
+| RentCarCondition | rent_car_conditions | Применённые к авто условия (join) |
 | CarBrand | car_brands | Марки авто |
 | CarModel | car_models | Модели авто |
 | Fuel | fuels | Типы топлива (7, как на av.by) |
@@ -88,13 +90,13 @@ prisma/schema.prisma      # Схема БД
 | InboxEmail | inbox_emails | Входящие письма (кеш из IMAP) |
 
 ### Ключевые поля RentCar
-`name, slug, brandId, modelId, classId, year, color, transmission, fuel, engineVolume, seats, features (CSV строка), photos (CSV), mainPhoto, description, priceDay, price3Days, price7Days, priceMonth, priceDayTaxi, rentTypeId, isActive, bookedUntil, sortOrder`
+`name, slug, brandId, modelId, classId, year, color, transmission, fuel, engineVolume, seats, features (CSV строка), photos (CSV), mainPhoto, description, priceDay, price7Days, priceDayTaxi, rentTypeId, isActive, bookedUntil, sortOrder`
 
-Связи: `brandRel`/`modelRel`/`classRel` (резолв имён), `rentType`.
+Связи: `brandRel`/`modelRel`/`classRel` (резолв имён), `rentType`, `conditions` (условия аренды).
 
 Цены зависят от типа аренды:
-- **Аренда** (rent): цена за день / 3 дня / 7 дней / месяц
-- **Под такси** (taxi): за неделю (price7Days) + среднее за день (priceDayTaxi)
+- **Аренда / личные цели** (rent): базовая цена за сутки `priceDay` + скидки за срок (3–7 / 8–14 / 15–31 суток) из настроек
+- **Под такси** (taxi): только от недели, цена за неделю `price7Days` (+ `priceDayTaxi` — среднее за день для отображения)
 
 ---
 
@@ -159,13 +161,16 @@ prisma/schema.prisma      # Схема БД
 - **Загрузка файлов**: `/api/upload?category=partners|rent|avatars|services|general` — раскладывает по подпапкам `public/uploads/*`; расширение берётся из MIME, а не из имени файла (раньше всё падало в `uploads/partners`)
 - **Бриф на генерацию** (промпты, единый стиль, модели и цены): `docs/IMAGE-BRIEF.md`
 
-### 5.9 Калькулятор аренды и классы авто (27.10.2026)
+### 5.9 Калькулятор аренды, классы и условия (27.10.2026)
 - **Класс автомобиля** — таблица `car_classes` (Эконом → Комфорт → Комфорт+ → Бизнес → Премиум → SUV/Кроссовер → Минивэн → Электро), с полями `deposit` (залог) и `minAge` (мин. возраст водителя). `RentCar.classId` → FK.
 - **Доп. опции** — таблица `rent_extras` (детское кресло, доставка, страховка и т.д.), тип цены `perDay`/`perRental`.
 - **Публичный калькулятор** `/services/rent/calculator`: выбор авто (фильтр по классу/марке) → даты → опции → итог + заявка.
-- **Логика цены** (`calculateRentPrice` в `price.ts`): 1 д. = priceDay · 2–3 д. = price3Days/3×дни · 4–7 д. = price7Days/7×дни · 8+ д. = priceMonth/30×дни.
+- **Логика цены** (`calculateRentPrice` в `price.ts`, %-модель как у carlux):
+  - *личные цели*: базовая цена за сутки `priceDay` + скидка за срок: 1–2 сут = 0%, 3–7 = `rent_disc_3_7`, 8–14 = `rent_disc_8_14`, 15–31 = `rent_disc_15_31` (по умолчанию 20/25/30%, задаются в настройках).
+  - *такси*: только от недели, `Math.ceil(дни/7) × price7Days`.
 - **Заявки** — таблица `rent_requests` (авто, даты, дни, опции, итог, залог, статус), POST публичный, админка в `/admin/rent/calculator` → вкладка «Заявки».
-- **Админка** `/admin/rent/calculator` (4 вкладки): Классы · Доп. опции · Настройки (мин/макс срок) · Заявки. В форме авто добавлено поле «Класс», в таблице — колонка «Класс».
+- **Условия аренды** — таблица `rent_conditions` (шаблоны: возраст, стаж, залог, пробег, документы, выезд за границу) + `rent_car_conditions` (join). В форме авто — галочки + значение; на странице авто выводятся внизу как «Условия аренды».
+- **Админка** `/admin/rent/calculator` (5 вкладок): Классы · Доп. опции · Условия · Настройки (мин/макс срок + скидки) · Заявки. В форме авто — «Класс» и «Условия», в таблице — колонка «Класс».
 - **Фильтр по классу** добавлен в листинг аренды + бейдж класса на детальной странице и карточке авто.
 
 ---
