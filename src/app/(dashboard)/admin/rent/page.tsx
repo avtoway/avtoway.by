@@ -13,7 +13,7 @@ interface RentType { id: string; name: string; slug: string; sortOrder: number; 
 
 interface RentCar {
   id: string; name: string; slug: string; brandId?: string; modelId?: string;
-  brand?: string; model?: string;
+  brand?: string; model?: string; classId?: string; class?: string;
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string; description?: string;
   priceDay?: number; price3Days?: number; price7Days?: number;
@@ -23,7 +23,7 @@ interface RentCar {
 }
 
 const EMPTY_FORM = {
-  name: "", slug: "", brandId: "", modelId: "", year: "", color: "",
+  name: "", slug: "", brandId: "", modelId: "", classId: "", year: "", color: "",
   transmission: "", fuel: "", engineVolume: "", seats: "", features: "",
   photos: "", mainPhoto: "", description: "",
   priceDay: "", price3Days: "", price7Days: "", priceMonth: "",
@@ -67,7 +67,7 @@ export default function AdminRentPage() {
   function openEdit(c: RentCar) {
     setForm({
       name: c.name, slug: c.slug,
-      brandId: c.brandId ?? "", modelId: c.modelId ?? "",
+      brandId: c.brandId ?? "", modelId: c.modelId ?? "", classId: c.classId ?? "",
       year: c.year?.toString() ?? "", color: c.color ?? "",
       transmission: c.transmission ?? "", fuel: c.fuel ?? "",
       engineVolume: c.engineVolume ?? "", seats: c.seats?.toString() ?? "",
@@ -149,6 +149,7 @@ export default function AdminRentPage() {
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Название</th>
                 <th className="px-4 py-3 font-medium text-slate-400">Тип</th>
+                <th className="px-4 py-3 font-medium text-slate-400">Класс</th>
                 <th className="px-4 py-3 font-medium text-slate-400">Характеристики</th>
                 <th className="px-4 py-3 font-medium text-slate-400">Цена</th>
                 <th className="px-4 py-3 font-medium text-slate-400">Статус</th>
@@ -172,6 +173,13 @@ export default function AdminRentPage() {
                   </td>
                   <td className="px-4 py-3">
                     <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">{c.rentType?.name}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {c.class ? (
+                      <span className="rounded bg-blue-900/40 px-2 py-0.5 text-xs text-blue-300">{c.class}</span>
+                    ) : (
+                      <span className="text-slate-600">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-500">
                     {TRANSMISSION_LABEL[c.transmission ?? ""] ?? c.transmission}

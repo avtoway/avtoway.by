@@ -255,6 +255,8 @@ model RentCar {
   modelId       String?          @map("model_id")
   brandRel      CarBrand?        @relation("RentCarBrand", fields: [brandId], references: [id], onDelete: SetNull)
   modelRel      CarModel?        @relation("RentCarModel", fields: [modelId], references: [id], onDelete: SetNull)
+  classId       String?          @map("class_id")
+  classRel      CarClass?        @relation(fields: [classId], references: [id], onDelete: SetNull)
   year          Int?
   color         String?
   transmission  String?
@@ -278,6 +280,7 @@ model RentCar {
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
   history       RentCarHistory[]
+  requests      RentRequest[]
 
   @@map("rent_cars")
 }
@@ -289,6 +292,55 @@ model ComfortFeature {
   sortOrder Int      @default(0) @map("sort_order")
 
   @@map("comfort_features")
+}
+
+model CarClass {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  sortOrder Int       @default(0) @map("sort_order")
+  deposit   Int?      @map("deposit")
+  minAge    Int?      @map("min_age")
+  cars      RentCar[]
+
+  @@map("car_classes")
+}
+
+model RentExtra {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  priceType   String   @default("perDay") @map("price_type")
+  price       Int      @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("rent_extras")
+}
+
+model RentRequest {
+  id        String   @id @default(uuid())
+  carId     String?  @map("car_id")
+  car       RentCar? @relation(fields: [carId], references: [id], onDelete: SetNull)
+  name      String
+  phone     String?
+  email     String?
+  startDate String?  @map("start_date")
+  endDate   String?  @map("end_date")
+  days      Int?
+  extras    String?
+  total     Int?
+  deposit   Int?
+  status    String   @default("new")
+  message   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("rent_requests")
 }
 
 model RentCarHistory {

@@ -178,6 +178,48 @@ async function main() {
     if (!exists) await prisma.comfortFeature.create({ data: cf });
   }
 
+  // Seed car classes (класс автомобиля)
+  const carClasses = [
+    { slug: "economy", name: "Эконом", sortOrder: 1, deposit: 150, minAge: 19 },
+    { slug: "comfort", name: "Комфорт", sortOrder: 2, deposit: 200, minAge: 21 },
+    { slug: "comfort-plus", name: "Комфорт+", sortOrder: 3, deposit: 250, minAge: 21 },
+    { slug: "business", name: "Бизнес", sortOrder: 4, deposit: 400, minAge: 23 },
+    { slug: "premium", name: "Премиум", sortOrder: 5, deposit: 800, minAge: 25 },
+    { slug: "suv", name: "SUV/Кроссовер", sortOrder: 6, deposit: 300, minAge: 21 },
+    { slug: "minivan", name: "Минивэн", sortOrder: 7, deposit: 300, minAge: 21 },
+    { slug: "electric", name: "Электро", sortOrder: 8, deposit: 400, minAge: 21 },
+  ];
+  for (const c of carClasses) {
+    const exists = await prisma.carClass.findUnique({ where: { slug: c.slug } });
+    if (!exists) await prisma.carClass.create({ data: c });
+  }
+
+  // Seed rent extras (доп. опции для калькулятора)
+  const rentExtras = [
+    { slug: "child-seat", name: "Детское кресло", description: "Автокресло для ребёнка (0–7 лет)", priceType: "perDay", price: 15, sortOrder: 1 },
+    { slug: "booster", name: "Бустер", description: "Бустер для ребёнка старше 7 лет", priceType: "perDay", price: 10, sortOrder: 2 },
+    { slug: "additional-driver", name: "Дополнительный водитель", description: "Второй водитель в договоре", priceType: "perDay", price: 15, sortOrder: 3 },
+    { slug: "delivery", name: "Доставка / подача авто", description: "Привезём авто к вам", priceType: "perRental", price: 50, sortOrder: 4 },
+    { slug: "navigation", name: "Навигатор", description: "GPS-навигатор в салоне", priceType: "perDay", price: 5, sortOrder: 5 },
+    { slug: "insurance", name: "Расширенная страховка", description: "Сниженная франшиза и полное покрытие", priceType: "perDay", price: 20, sortOrder: 6 },
+    { slug: "car-wash", name: "Финальная мойка", description: "Вернуть авто без мойки", priceType: "perRental", price: 30, sortOrder: 7 },
+    { slug: "winter-tires", name: "Зимняя резина", description: "Комплект зимних шин", priceType: "perDay", price: 10, sortOrder: 8 },
+  ];
+  for (const e of rentExtras) {
+    const exists = await prisma.rentExtra.findUnique({ where: { slug: e.slug } });
+    if (!exists) await prisma.rentExtra.create({ data: e });
+  }
+
+  // Seed calculator settings
+  const calcSettings: Record<string, string> = {
+    rent_min_days: "1",
+    rent_max_days: "90",
+  };
+  for (const [key, value] of Object.entries(calcSettings)) {
+    const exists = await prisma.setting.findUnique({ where: { key } });
+    if (!exists) await prisma.setting.create({ data: { key, value } });
+  }
+
   // Seed contact settings (settings table)
   const contactSettings: Record<string, string> = {
     contact_phone: "+375 (29) 111-22-33",

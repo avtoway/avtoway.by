@@ -23,6 +23,7 @@ export async function GET(request: Request) {
 
   const cars = await repo.getAll({
     rentTypeSlug: searchParams.get("rentType") ?? undefined,
+    classSlug: searchParams.get("class") ?? undefined,
     showAll: searchParams.get("showAll") === "true",
   });
   return NextResponse.json({ ok: true, data: cars });

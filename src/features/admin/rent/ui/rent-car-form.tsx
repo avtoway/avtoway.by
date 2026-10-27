@@ -5,7 +5,7 @@ import FieldError from "@/shared/ui/field-error";
 import { useEffect, useState } from "react";
 
 interface FormData {
-  name: string; slug: string; brandId: string; modelId: string;
+  name: string; slug: string; brandId: string; modelId: string; classId: string;
   year: string; color: string; transmission: string; fuel: string;
   engineVolume: string; seats: string; features: string;
   photos: string; mainPhoto: string; description: string;
@@ -19,6 +19,7 @@ interface Brand { id: string; name: string; slug: string; models: { id: string; 
 interface FuelItem { id: string; name: string; slug: string; }
 interface TransItem { id: string; name: string; slug: string; }
 interface ComfortItem { id: string; name: string; slug: string; }
+interface CarClassItem { id: string; name: string; slug: string; deposit?: number; minAge?: number; }
 
 export default function RentCarForm({
   form, onChange, rentTypes, errors,
@@ -32,6 +33,7 @@ export default function RentCarForm({
   const [fuels, setFuels] = useState<FuelItem[]>([]);
   const [transmissions, setTransmissions] = useState<TransItem[]>([]);
   const [comfortFeatures, setComfortFeatures] = useState<ComfortItem[]>([]);
+  const [classes, setClasses] = useState<CarClassItem[]>([]);
 
   useEffect(() => {
     fetch("/api/cars").then(r => r.json()).then(j => { if (j.ok) setBrands(j.data); });
@@ -40,6 +42,9 @@ export default function RentCarForm({
     });
     fetch("/api/comfort-features").then(r => r.json()).then(j => {
       if (j.ok) setComfortFeatures(j.data);
+    });
+    fetch("/api/rent/classes").then(r => r.json()).then(j => {
+      if (j.ok) setClasses(j.data);
     });
   }, []);
 
@@ -129,6 +134,12 @@ export default function RentCarForm({
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
               <option value="">Выберите</option>
               {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select></label>
+          <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Класс</span>
+            <select value={form.classId} onChange={e => onChange("classId", e.target.value)}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+              <option value="">Без класса</option>
+              {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select></label>
           <label className="flex flex-col gap-1"><span className="text-xs text-slate-400">Год</span>
             <input type="number" value={form.year} onChange={e => onChange("year", e.target.value)}

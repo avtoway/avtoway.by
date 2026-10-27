@@ -7,7 +7,7 @@ import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface RentType { id: string; name: string; slug: string; }
 interface RentCar {
-  id: string; name: string; slug: string; brand?: string; model?: string;
+  id: string; name: string; slug: string; brand?: string; model?: string; class?: string;
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string;
   photos?: string; mainPhoto?: string; description?: string;
@@ -18,13 +18,16 @@ interface RentCar {
 }
 
 interface ComfortFeature { id: string; name: string; slug: string; }
+interface ClassItem { id: string; name: string; slug: string; }
 
 export default function RentPage() {
   const [cars, setCars] = useState<RentCar[]>([]);
   const [types, setTypes] = useState<RentType[]>([]);
+  const [classes, setClasses] = useState<ClassItem[]>([]);
   const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("");
+  const [classFilter, setClassFilter] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
   const [priceTo, setPriceTo] = useState("");
   const [transmissionFilter, setTransmissionFilter] = useState("");
@@ -38,11 +41,13 @@ export default function RentPage() {
     Promise.all([
       fetch("/api/rent").then(r => r.json()),
       fetch("/api/rent?types=true").then(r => r.json()),
+      fetch("/api/rent/classes").then(r => r.json()),
       fetch("/api/exchange-rate").then(r => r.json()),
       fetch("/api/comfort-features").then(r => r.json()),
-    ]).then(([cRes, tRes, eRes, fRes]) => {
+    ]).then(([cRes, tRes, clRes, eRes, fRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (tRes.ok) setTypes(tRes.data);
+      if (clRes.ok) setClasses(clRes.data);
       if (eRes.ok) setUsdRate(eRes.rate);
       if (fRes.ok) setComfortFeatures(fRes.data);
       setLoading(false);
@@ -51,6 +56,7 @@ export default function RentPage() {
 
   const filtered = cars.filter(c => {
     if (typeFilter && c.rentType?.slug !== typeFilter) return false;
+    if (classFilter && c.class !== classFilter) return false;
     if (transmissionFilter && c.transmission !== transmissionFilter) return false;
     if (fuelFilter && c.fuel !== fuelFilter) return false;
     if (seatsFilter && (c.seats ?? 0) < parseInt(seatsFilter)) return false;
@@ -78,6 +84,14 @@ export default function RentPage() {
           className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
           <option value="">Все</option>
           {types.map(t => <option key={t.id} value={t.slug}>{t.name}</option>)}
+        </select>
+      </FilterSection>
+
+      <FilterSection label="Класс">
+        <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
+          className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+          <option value="">Все классы</option>
+          {classes.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
         </select>
       </FilterSection>
 
@@ -130,7 +144,7 @@ export default function RentPage() {
         </div>
       </FilterSection>
 
-      <button onClick={() => { setTypeFilter(""); setPriceFrom(""); setPriceTo(""); setTransmissionFilter(""); setFuelFilter(""); setSeatsFilter(""); setFeatureFilters(new Set()); }}
+      <button onClick={() => { setTypeFilter(""); setClassFilter(""); setPriceFrom(""); setPriceTo(""); setTransmissionFilter(""); setFuelFilter(""); setSeatsFilter(""); setFeatureFilters(new Set()); }}
         className="w-full rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-400 transition hover:border-zinc-500 hover:text-white">
         Сбросить
       </button>
@@ -152,10 +166,16 @@ export default function RentPage() {
             <h1 className="text-3xl font-bold text-white sm:text-4xl">Аренда</h1>
             <p className="mt-1 text-sm text-zinc-500">Аренда под любые задачи</p>
           </div>
-          <button onClick={() => setShowFilters(!showFilters)}
-            className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-400 hover:text-white lg:hidden">
-            {showFilters ? "Скрыть" : "Фильтры"}
-          </button>
+          <div className="flex gap-2">
+            <Link href="/services/rent/calculator"
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
+              Рассчитать аренду
+            </Link>
+            <button onClick={() => setShowFilters(!showFilters)}
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-400 hover:text-white lg:hidden">
+              {showFilters ? "Скрыть" : "Фильтры"}
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-8 lg:flex-row">

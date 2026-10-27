@@ -74,6 +74,9 @@ prisma/schema.prisma      # Схема БД
 | RentType | rent_types | Тип аренды (Аренда, Под такси) |
 | RentCar | rent_cars | Автомобили для аренды |
 | RentCarHistory | rent_car_history | История авто (обслуживание, ремонт, налоги и т.д.) |
+| CarClass | car_classes | Класс автомобиля (Эконом…Премиум, SUV, Минивэн, Электро) + залог и мин. возраст |
+| RentExtra | rent_extras | Доп. опции калькулятора (кресло, доставка, страховка…) |
+| RentRequest | rent_requests | Заявки из калькулятора аренды |
 | CarBrand | car_brands | Марки авто |
 | CarModel | car_models | Модели авто |
 | Fuel | fuels | Типы топлива (7, как на av.by) |
@@ -85,7 +88,9 @@ prisma/schema.prisma      # Схема БД
 | InboxEmail | inbox_emails | Входящие письма (кеш из IMAP) |
 
 ### Ключевые поля RentCar
-`name, slug, brand, model, year, color, transmission, fuel, engineVolume, seats, features (CSV строка), photos (CSV), mainPhoto, description, priceDay, price3Days, price7Days, priceMonth, priceDayTaxi, rentTypeId, isActive, bookedUntil, sortOrder`
+`name, slug, brandId, modelId, classId, year, color, transmission, fuel, engineVolume, seats, features (CSV строка), photos (CSV), mainPhoto, description, priceDay, price3Days, price7Days, priceMonth, priceDayTaxi, rentTypeId, isActive, bookedUntil, sortOrder`
+
+Связи: `brandRel`/`modelRel`/`classRel` (резолв имён), `rentType`.
 
 Цены зависят от типа аренды:
 - **Аренда** (rent): цена за день / 3 дня / 7 дней / месяц
@@ -153,6 +158,15 @@ prisma/schema.prisma      # Схема БД
 - **Обложки услуг**: у всех 6 услуг `services.photo = null`. Исходники кладутся в `assets-src/services/{rent,sell,inspection,truck,import,service}.{jpg,png,webp}` → `npm run images:build` (WebP 1600×900, ≤300 КБ) → `npm run images:apply` (прописывает `services.photo`). Флаг `--crop-bottom=9` срезает watermark (Pollinations)
 - **Загрузка файлов**: `/api/upload?category=partners|rent|avatars|services|general` — раскладывает по подпапкам `public/uploads/*`; расширение берётся из MIME, а не из имени файла (раньше всё падало в `uploads/partners`)
 - **Бриф на генерацию** (промпты, единый стиль, модели и цены): `docs/IMAGE-BRIEF.md`
+
+### 5.9 Калькулятор аренды и классы авто (27.10.2026)
+- **Класс автомобиля** — таблица `car_classes` (Эконом → Комфорт → Комфорт+ → Бизнес → Премиум → SUV/Кроссовер → Минивэн → Электро), с полями `deposit` (залог) и `minAge` (мин. возраст водителя). `RentCar.classId` → FK.
+- **Доп. опции** — таблица `rent_extras` (детское кресло, доставка, страховка и т.д.), тип цены `perDay`/`perRental`.
+- **Публичный калькулятор** `/services/rent/calculator`: выбор авто (фильтр по классу/марке) → даты → опции → итог + заявка.
+- **Логика цены** (`calculateRentPrice` в `price.ts`): 1 д. = priceDay · 2–3 д. = price3Days/3×дни · 4–7 д. = price7Days/7×дни · 8+ д. = priceMonth/30×дни.
+- **Заявки** — таблица `rent_requests` (авто, даты, дни, опции, итог, залог, статус), POST публичный, админка в `/admin/rent/calculator` → вкладка «Заявки».
+- **Админка** `/admin/rent/calculator` (4 вкладки): Классы · Доп. опции · Настройки (мин/макс срок) · Заявки. В форме авто добавлено поле «Класс», в таблице — колонка «Класс».
+- **Фильтр по классу** добавлен в листинг аренды + бейдж класса на детальной странице и карточке авто.
 
 ---
 
@@ -236,7 +250,7 @@ npm run build && npm run start
 9. **Остальные услуги**: продажа, автоподбор, эвакуатор, пригон, таксопарк, СТО, детейлинг (по roadmap.md)
 
 ### Новые фичи (из анализа pro-service.cc — см. `docs/competitor-analysis.md`)
-10. 🥇 **Калькулятор аренды** — пошаговый расчёт на `RentCar.priceDay/price3Days/price7Days/priceMonth`: авто → даты → срок → доп. опции → итог → заявка. Главная фича по отдаче
+10. ✅ **Калькулятор аренды** — готов (`/services/rent/calculator` + админка `/admin/rent/calculator`, классы/опции/настройки/заявки). См. §5.9
 11. 🥈 **Задачи вместо каталога** на `/services` — «Арендовать на выходные», «Авто под такси», «Пригнать/купить», «Осмотр перед покупкой» → набор услуг
 12. 🥉 **Акции** — модуль «Спецпредложения» со скидками на аренду
 13. **Портфолио «Наши работы»** — для сервиса/импорта/продажи, фильтр по марке (FK уже готов), «до/после»
@@ -310,6 +324,9 @@ npm run build && npm run start
 | Рент: история | `src/features/admin/rent/ui/rent-car-history-panel.tsx` |
 | Рент: листинг | `src/app/(marketing)/services/rent/page.tsx` |
 | Рент: деталь | `src/app/(marketing)/services/rent/[slug]/page.tsx` |
+| Калькулятор: публичный | `src/app/(marketing)/services/rent/calculator/page.tsx` |
+| Калькулятор: админка | `src/app/(dashboard)/admin/rent/calculator/page.tsx` |
+| Калькулятор: расчёт цены | `src/shared/lib/price.ts` → `calculateRentPrice` |
 | Цены | `src/shared/lib/price.ts` |
 | Курс USD | `src/shared/lib/exchange-rate.ts` |
 | Почта: логика | `src/shared/lib/mail.ts` |

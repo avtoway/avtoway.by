@@ -17,7 +17,7 @@ async function getCar(slug: string) {
   const db = getPrismaClient();
   return db.rentCar.findUnique({
     where: { slug, isActive: true },
-    include: { rentType: true },
+    include: { rentType: true, classRel: true },
   });
 }
 
@@ -66,13 +66,26 @@ export default async function RentCarDetailPage({ params }: Props) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl">{car.name}</h1>
-            {car.rentType && (
-              <span className="mt-2 inline-block rounded bg-red-600/20 px-2.5 py-0.5 text-sm font-medium text-red-400">
-                {car.rentType.name}
-              </span>
-            )}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {car.rentType && (
+                <span className="inline-block rounded bg-red-600/20 px-2.5 py-0.5 text-sm font-medium text-red-400">
+                  {car.rentType.name}
+                </span>
+              )}
+              {car.classRel?.name && (
+                <span className="inline-block rounded bg-blue-600/20 px-2.5 py-0.5 text-sm font-medium text-blue-400">
+                  {car.classRel.name}
+                </span>
+              )}
+            </div>
           </div>
-          {priceRows.length > 0 && <PriceHero priceRow={priceRows[0]!} usdRate={usdRate} />}
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            {priceRows.length > 0 && <PriceHero priceRow={priceRows[0]!} usdRate={usdRate} />}
+            <Link href="/services/rent/calculator"
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
+              Рассчитать аренду
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -98,6 +111,7 @@ export default async function RentCarDetailPage({ params }: Props) {
           <div className="lg:col-span-2 space-y-6">
             <h2 className="text-lg font-semibold text-white">Характеристики</h2>
             <div className="grid grid-cols-2 gap-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 sm:grid-cols-3">
+              {car.classRel?.name && <Spec label="Класс" value={car.classRel.name} />}
               <Spec label="Год" value={car.year?.toString()} />
               <Spec label="Коробка" value={TRANSMISSION_LABEL[car.transmission ?? ""] ?? car.transmission ?? undefined} />
               <Spec label="Топливо" value={FUEL_LABEL[car.fuel ?? ""] ?? car.fuel ?? undefined} />

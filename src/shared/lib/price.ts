@@ -35,3 +35,35 @@ export function getPriceRows(car: {
   if (car.priceDayTaxi != null) rows.push({ label: "Такси — день (среднее)", value: `~${formatPrice(car.priceDayTaxi)}` });
   return rows;
 }
+
+export interface RentPriceInput {
+  priceDay?: number | null;
+  price3Days?: number | null;
+  price7Days?: number | null;
+  priceMonth?: number | null;
+}
+
+/**
+ * Периодная (ступенчатая) цена аренды.
+ * Правило: 1 день → priceDay; 2–3 дня → price3Days/3 × дни;
+ * 4–7 дней → price7Days/7 × дни; 8+ дней → priceMonth/30 × дни.
+ * Если нужный тариф не задан — берём ближайший доступный.
+ */
+export function getPerDayRate(car: RentPriceInput, days: number): number | null {
+  const d = Math.max(1, days);
+  const tiers: { max: number; rate: number | null }[] = [
+    { max: 1, rate: car.priceDay ?? null },
+    { max: 3, rate: car.price3Days != null ? car.price3Days / 3 : null },
+    { max: 7, rate: car.price7Days != null ? car.price7Days / 7 : null },
+    { max: Infinity, rate: car.priceMonth != null ? car.priceMonth / 30 : null },
+  ];
+  for (const t of tiers) if (d <= t.max && t.rate != null) return t.rate;
+  for (const t of tiers) if (t.rate != null) return t.rate;
+  return null;
+}
+
+export function calculateRentPrice(car: RentPriceInput, days: number): number {
+  const rate = getPerDayRate(car, days);
+  if (rate == null) return 0;
+  return Math.round(rate * Math.max(1, days));
+}

@@ -28,6 +28,7 @@ export async function GET() {
   const serviceChildren: MenuItem[] = [];
   if (services.some(s => s.slug === "rent")) {
     serviceChildren.push({ label: "Аренда", icon: "grid", href: "/admin/rent", perm: "rent.manage" });
+    serviceChildren.push({ label: "Калькулятор аренды", icon: "calculator", href: "/admin/rent/calculator", perm: "rent.manage" });
   }
 
   const allItems: MenuItem[] = [
