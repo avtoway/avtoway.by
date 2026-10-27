@@ -20,11 +20,16 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Публичные формы: защита от спама/флуда (10 отправок за 10 минут с одного IP)
+  // Публичные формы: защита от спама/флуда (лиды автоподбора — 5/10 мин, остальные — 10/10 мин)
+  const isAutoPodborLead = pathname === "/api/autopodbor/leads";
   const isPublicWrite =
     request.method === "POST" &&
-    (pathname === "/api/rent/requests" || pathname === "/api/contact");
-  if (isPublicWrite && !checkRateLimit(`public:${pathname}:${clientIp(request)}`, 10, 10 * 60 * 1000)) {
+    (pathname === "/api/rent/requests" || pathname === "/api/contact" || isAutoPodborLead);
+  if (isPublicWrite && !checkRateLimit(
+    `public:${pathname}:${clientIp(request)}`,
+    isAutoPodborLead ? 5 : 10,
+    10 * 60 * 1000,
+  )) {
     return NextResponse.json(
       { ok: false, error: "Слишком много заявок. Попробуйте позже или позвоните нам." },
       { status: 429 },
@@ -73,9 +78,17 @@ export function proxy(request: NextRequest) {
     if (pathname.startsWith("/admin/email") && !perms.includes("email.manage")) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
+
+    if (
+      pathname.startsWith("/admin/inspection") &&
+      !perms.includes("autopodbor.manage") &&
+      !perms.includes("autopodbor.view")
+    ) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact"] };
+export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/autopodbor/leads/:path*"] };

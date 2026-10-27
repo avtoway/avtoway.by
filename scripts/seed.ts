@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
+import { seedAutoPodbor } from "./seed-autopodbor";
 
 const url = process.env.DATABASE_URL ?? "file:./data/avtoway.db";
 const adapter = new PrismaLibSql({ url });
@@ -14,9 +15,9 @@ async function main() {
   ];
 
   const perms: Record<string, string[]> = {
-    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view", "rent.manage", "contacts.manage", "email.manage"],
-    "Редактор": ["services.manage", "partners.manage", "rent.manage", "contacts.manage"],
-    "Наблюдатель": ["services.view", "partners.view"],
+    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view", "rent.manage", "contacts.manage", "email.manage", "autopodbor.manage", "autopodbor.requests", "autopodbor.view"],
+    "Редактор": ["services.manage", "partners.manage", "rent.manage", "contacts.manage", "autopodbor.manage", "autopodbor.requests"],
+    "Наблюдатель": ["services.view", "partners.view", "autopodbor.view"],
   };
 
   for (const r of roleDefs) {
@@ -301,6 +302,8 @@ async function main() {
       },
     });
   }
+
+  await seedAutoPodbor(prisma);
 
   console.log("База данных готова");
   console.log("  Логин: admin / admin123");

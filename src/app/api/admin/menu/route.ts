@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { getAuthUser } from "@/lib/auth.server";
 import type { ServiceRepository } from "@/entities/service/service.repository";
+import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repository";
 
 interface MenuItem {
   label: string;
@@ -31,6 +32,14 @@ export async function GET() {
     serviceChildren.push({ label: "Калькулятор аренды", icon: "calculator", href: "/admin/rent/calculator", perm: "rent.manage" });
   }
 
+  let newAutoPodborLeads = 0;
+  if (perms.some(p => p.startsWith("autopodbor."))) {
+    try {
+      const autoRepo = container.get<AutoPodborRepository>("AutoPodborRepository");
+      newAutoPodborLeads = await autoRepo.countNewLeads();
+    } catch { /* таблица ещё не создана — не ломаем меню */ }
+  }
+
   const allItems: MenuItem[] = [
     { label: "Главная", icon: "home", href: "/admin" },
     { label: "Мой профиль", icon: "user", href: "/admin/profile" },
@@ -44,6 +53,7 @@ export async function GET() {
       ],
     },
     { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
+    { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined },
     { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
     { label: "Заявки", icon: "document-text", href: "/admin/requests", perm: "contacts.manage" },
     { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },

@@ -107,3 +107,11 @@ export async function requireAuth(permission?: string): Promise<AuthUser> {
   if (permission && !hasPermission(user, permission)) throw new ForbiddenError();
   return user;
 }
+
+/** Доступ, если есть хотя бы одно из прав (например, view или manage). */
+export async function requireAnyAuth(permissions: string[]): Promise<AuthUser> {
+  const user = await getAuthUser();
+  if (!user) throw new AuthError();
+  if (!permissions.some(p => user.permissions.includes(p))) throw new ForbiddenError();
+  return user;
+}

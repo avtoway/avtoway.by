@@ -182,6 +182,17 @@ prisma/schema.prisma      # Схема БД
 - **Публичные формы**: zod-валидация заявки на аренду (длины, email, реальные даты, контакт), серверный пересчёт стоимости, проверка активности авто и сроков.
 - **Rate limit** в `src/proxy.ts`: логин 5/15 мин, публичные POST (`/api/rent/requests`, `/api/contact`) — 10/10 мин на IP. In-memory, для нескольких инстансов нужен Redis.
 
+### 5.11 Автоподбор: лендинг и админка (27.10.2026)
+- **Публичный лендинг `/services/inspection`**: hero, trust-bar, квиз (4 шага), риски, тарифы (3 группы), 7 этапов, 48 проверок по 6 категориям, пример отчёта, кейсы, гарантии, эксперт, отзывы, география, FAQ, финальная форма, sticky CTA. Секции скрываются, если данных нет.
+- **Админка `/admin/inspection`** (7 вкладок): Обзор (счётчики + график 14 дней), Контент (hero/статистика/эксперт/контакты/SEO/дисклеймер + заголовки секций), Тарифы, Как работаем (этапы/проверки/риски/преимущества/гарантии/trust), Доказательства (кейсы/отзывы/галерея/FAQ), Заявки, Настройки.
+- **БД (13 таблиц)**: `autopodbor_settings`, `_sections`, `_tariffs`, `_steps`, `_features`, `_check_items`, `_cases`, `_reviews`, `_faq`, `_gallery`, `_cities`, `_promos`, `_leads` (+ связь с `User` для ответственного). CSV/JSON хранятся строками.
+- **Права**: `autopodbor.view` / `autopodbor.manage` / `autopodbor.requests`. Пункт меню «Автоподбор» с badge новых заявок; guard в `src/proxy.ts`; аудит всех мутаций.
+- **API**: публичные `GET /api/autopodbor`, `POST /api/autopodbor/leads` (zod, honeypot, rate limit 5/10 мин); админские CRUD `/api/autopodbor/{entity}` (generic по реестру), `/settings`, `/stats`, `/assignees`, `/leads`, `/leads/export` (CSV), `/revalidate`.
+- **Заявки**: сервер берёт название и цену услуги из БД, клиентские суммы не сохраняются; фильтры по статусу/услуге/городу/датам, поиск, статусы, ответственный, заметка, быстрые контакты, экспорт.
+- **Seed**: 9 тарифов, 7 этапов, 48 проверок, 21 карточка, 10 FAQ, 18 городов, 14 секций. Отзывы не выдумываются; 1 демо-кейс скрыт (`isActive: false`).
+- **Изображения**: MCP `imagegen` отключён и ключей нет — файлы не сгенерированы. Лендинг работает на градиентах; пути `autopodbor-hero/og` уже прописаны, после генерации подхватятся автоматически (проверка наличия файла). Промпты — `docs/autopodbor-images-prompts.md`.
+- **Юридика**: страница `/privacy` (базовый текст, нужно согласовать с юристом), дисклеймер и цены редактируются в админке.
+
 ---
 
 ## 6. Технические решения и паттерны
@@ -239,6 +250,7 @@ npm run build && npm run start
 ## 8. Текущее состояние (важно!)
 
 1. **Рабочее дерево чистое** — последние изменения (lint-чистка, FK бренда/модели, тест аренды) закоммичены в `dev` и запушены. Документация анализа конкурента: `docs/competitor-analysis.md`
+1.1. **Автоподбор** — лендинг `/services/inspection` + админка `/admin/inspection` готовы (см. §5.11). Изображения не сгенерированы, цены/гарантии/юридические тексты ждут утверждения владельцем.
 2. **Git-авторизация**: GitHub CLI (`gh`) установлен, вход под `avtoway`, git берёт токен через `gh auth git-credential`. Старый засвеченный classic-токен (`ghp_...`) отозван пользователем
 3. **Почта НЕ подключена к реальному ящику** — SMTP/IMAP настроены как тест. Пользователь планировал привязать временно свой Gmail (нужен пароль приложения), потом `info@avtoway.by` (создать в cPanel на hoster.by)
 4. **Хостинг**: общий cPanel на hoster.by НЕ подходит для этого проекта (нужен Node.js + PostgreSQL + фоновые процессы). Решение — VPS hoster.by (~70-105 BYN/мес) или Hetzner (~€4-8/мес). Покупать ПОСЛЕ завершения сайта
@@ -252,6 +264,7 @@ npm run build && npm run start
 1. ✅ **Почистить lint** — 0 ошибок (было 21): `<a>`→`<Link>`, удалён мёртвый фильтр бренда/модели, `setState`-в-effect, «компонент-в-рендере»
 3. ✅ **Протестировать модуль аренды** — полный цикл: guard (401), создание авто, листинг/деталь (200), удаление
 5. ✅ **Связать `RentCar.brand/model` через FK** — добавлены `brandId`/`modelId` (FK на `car_brands`/`car_models`, `onDelete: SetNull`), имена резолвятся через связь, форма и админка переведены на ID
+6. ✅ **Автоподбор** — лендинг `/services/inspection` + админка `/admin/inspection` по ТЗ (`docs/autopodbor-landing-prompt.md`). См. §5.11
 
 ### Отложено (временно, нужны данные от владельца)
 2. ⏸ **Подключить почту** — нужен пароль приложения Gmail (или ящик `info@avtoway.by`)
@@ -321,7 +334,11 @@ npm run build && npm run start
 - **IMAP-парсер** в `mail.ts` — наивное извлечение HTML из сырого письма (регэксп). Для сложных multipart может дать неполный HTML. Можно улучшить через mailparser
 - **XSS в просмотре письма** — ✅ закрыто: тело письма санитайзится DOMPurify (`src/shared/lib/sanitize-html.ts`), компонент `EmailBody` грузится только на клиенте (`ssr: false`). Вырезаются скрипты, формы, `<style>`, iframe, обработчики; ссылки получают `rel="noopener noreferrer"`. CSP пока не настроен
 - **Публичный POST `/api/rent/requests`** — ✅ закрыто: zod-схема (`src/shared/lib/rent-request.ts`: длины, email, реальные даты, телефон или email), серверный пересчёт `days`/`total`/`deposit`/`extras`, проверка активности авто, мин/макс срока (такси — от 7 дней). Клиентские суммы игнорируются
-- **Rate limit** — ✅ расширен: `/admin/login` (5/15 мин) + публичные POST `/api/rent/requests` и `/api/contact` (10/10 мин) в `src/proxy.ts`. In-memory: для нескольких инстансов нужен Redis. IP из `x-forwarded-for`/`x-real-ip` (за nginx; при прямом доступе заголовок подделывается)
+- **Rate limit** — ✅ расширен: `/admin/login` (5/15 мин) + публичные POST `/api/rent/requests` и `/api/contact` (10/10 мин), `/api/autopodbor/leads` (5/10 мин) в `src/proxy.ts`. In-memory: для нескольких инстансов нужен Redis. IP из `x-forwarded-for`/`x-real-ip` (за nginx; при прямом доступе заголовок подделывается)
+- **Автоподбор: изображения** — не сгенерированы (MCP `imagegen` отключён, ключей нет). Hero/OG/эксперт/галерея работают на фолбэках; после генерации по `docs/autopodbor-images-prompts.md` файлы подхватятся (проверка `publicAssetExists`)
+- **Автоподбор: цены и юридика** — тарифы, гарантия, дисклеймер и `/privacy` требуют утверждения владельцем (данные из анализа рынка и ТЗ)
+- **Автоподбор: сброс контента к дефолту** — в админке не реализован (опасная зона отложена); контент правится вручную/через seed
+- **Автоподбор: `any` в мапперах** — `row: any` в Prisma-репозитории (как в остальных репозиториях проекта) добавляет ~13 warning'ов
 - **Поиск по входящим** — простой `contains` по from/subject/textBody, без полнотекстового индекса
 - **`RentCar.brand/model`** — ✅ связано через FK (`brandId`/`modelId` на `car_brands`/`car_models`), имена резолвятся через `brandRel`/`modelRel`
 - **Ошибка «404 на /admin/login»** возникала из-за устаревшего кэша `.next` после рестарта. Решение: `Remove-Item .next -Recurse` + перезапуск dev
@@ -335,7 +352,7 @@ npm run build && npm run start
 | Задача | Файл |
 |---|---|
 | Схема БД | `prisma/schema.prisma` |
-| Сид | `scripts/seed.ts` |
+| Сид | `scripts/seed.ts` + `scripts/seed-autopodbor.ts` |
 | Точка входа админки | `src/app/(dashboard)/admin/layout.tsx` → `auth-layout.tsx` |
 | Авторизация | `src/lib/auth.server.ts` |
 | Меню админки | `src/app/api/admin/menu/route.ts` |
@@ -348,6 +365,15 @@ npm run build && npm run start
 | Калькулятор: публичный | `src/app/(marketing)/services/rent/calculator/page.tsx` |
 | Калькулятор: админка | `src/app/(dashboard)/admin/rent/calculator/page.tsx` |
 | Калькулятор: расчёт цены | `src/shared/lib/price.ts` → `calculateRentPrice` |
+| Автоподбор: лендинг | `src/app/(marketing)/services/inspection/page.tsx` + `src/features/autopodbor/ui/autopodbor-page.tsx` |
+| Автоподбор: админка | `src/app/(dashboard)/admin/inspection/page.tsx` + `src/features/admin/autopodbor/ui/*` |
+| Автоподбор: репо | `src/infrastructure/persistence/autopodbor.prisma.repository.ts` |
+| Автоподбор: схема/zod | `src/entities/autopodbor/autopodbor.schema.ts` |
+| Автоподбор: API-реестр | `src/app/api/autopodbor/_lib/registry.ts` |
+| Автоподбор: заявки API | `src/app/api/autopodbor/leads/route.ts` |
+| Автоподбор: сид | `scripts/seed-autopodbor.ts` |
+| Автоподбор: промпты картинок | `docs/autopodbor-images-prompts.md` |
+| Политика конфиденциальности | `src/app/(marketing)/privacy/page.tsx` |
 | Цены | `src/shared/lib/price.ts` |
 | Курс USD | `src/shared/lib/exchange-rate.ts` |
 | Почта: логика | `src/shared/lib/mail.ts` |
@@ -367,6 +393,9 @@ npm run build && npm run start
 | Справочники (топливо/коробка) | `src/shared/lib/car-dictionaries.ts` |
 | Услуги: репо (Prisma) | `src/infrastructure/persistence/service.prisma.repository.ts` |
 | Анализ конкурента | `docs/competitor-analysis.md` |
+| Автоподбор: анализ рынка (30+ сайтов, цены) | `docs/autopodbor-competitor-analysis.md` |
+| Автоподбор: промпт лендинга + админки | `docs/autopodbor-landing-prompt.md` |
+| Автоподбор: промпты изображений | `docs/autopodbor-images-prompts.md` |
 | DI | `src/di/composition-root.ts` |
 | Ошибки | `src/shared/lib/errors.ts` |
 

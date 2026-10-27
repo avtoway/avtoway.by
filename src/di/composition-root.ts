@@ -10,6 +10,7 @@ import { PrismaContactInfoRepository } from "@/infrastructure/persistence/contac
 import { PrismaServiceRepository } from "@/infrastructure/persistence/service.prisma.repository";
 import { PrismaPartnerRepository } from "@/infrastructure/persistence/partner.prisma.repository";
 import { PrismaContactRequestRepository } from "@/infrastructure/persistence/contact-request.prisma.repository";
+import { PrismaAutoPodborRepository } from "@/infrastructure/persistence/autopodbor.prisma.repository";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 import type { ContactRepository } from "@/entities/contact/contact.repository";
@@ -20,6 +21,7 @@ import type { AuditLogRepository } from "@/entities/audit/audit.repository";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 import type { RentCarHistoryRepository } from "@/entities/rent/rent-car-history.repository";
 import type { ContactInfoRepository } from "@/entities/contact/contact-info.repository";
+import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repository";
 
 function configureContainer() {
   container.register<ServiceRepository>("ServiceRepository", new PrismaServiceRepository());
@@ -35,6 +37,7 @@ function configureContainer() {
   container.register<RentCarHistoryRepository>("RentCarHistoryRepository", new PrismaRentCarHistoryRepository());
   container.register<ContactInfoRepository>("ContactInfoRepository", new PrismaContactInfoRepository());
   container.register<ContactRepository>("ContactRepository", new PrismaContactRequestRepository());
+  container.register<AutoPodborRepository>("AutoPodborRepository", new PrismaAutoPodborRepository());
 }
 
 configureContainer();

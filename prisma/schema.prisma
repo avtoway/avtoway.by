@@ -15,6 +15,7 @@ model User {
   profile    Profile?
   roles      UserRole[]
   auditLogs  AuditLog[]
+  autoPodborLeads AutoPodborLead[] @relation("AutoPodborAssignee")
 
   @@map("users")
 }
@@ -388,4 +389,266 @@ model RentCarHistory {
 
   @@index([carId])
   @@map("rent_car_history")
+}
+
+/* ─── Автоподбор (/services/inspection) ─── */
+
+model AutoPodborSettings {
+  id                String   @id @default("main")
+  isActive          Boolean  @default(true) @map("is_active")
+  heroBadge         String?  @map("hero_badge")
+  heroTitle         String   @map("hero_title")
+  heroHighlight     String?  @map("hero_highlight")
+  heroSubtitle      String?  @map("hero_subtitle")
+  heroImage         String?  @map("hero_image")
+  heroImageAlt      String?  @map("hero_image_alt")
+  priceFrom         Int?     @map("price_from")
+  ctaPrimaryLabel   String   @default("Подобрать авто") @map("cta_primary_label")
+  ctaSecondaryLabel String   @default("Смотреть тарифы") @map("cta_secondary_label")
+  phone             String?
+  telegram          String?
+  whatsapp          String?
+  viber             String?
+  address           String?
+  workingHours      String?  @map("working_hours")
+  yearsExperience   Int?     @map("years_experience")
+  carsChecked       Int?     @map("cars_checked")
+  citiesCount       Int?     @map("cities_count")
+  guaranteeDays     Int?     @map("guarantee_days")
+  avgSavings        Int?     @map("avg_savings")
+  reportTime        String?  @map("report_time")
+  expertName        String?  @map("expert_name")
+  expertRole        String?  @map("expert_role")
+  expertQuote       String?  @map("expert_quote")
+  expertPhoto       String?  @map("expert_photo")
+  expertFacts       String?  @map("expert_facts")
+  disclaimer        String?
+  seoTitle          String?  @map("seo_title")
+  seoDescription    String?  @map("seo_description")
+  ogImage           String?  @map("og_image")
+  noindex           Boolean  @default(false)
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("autopodbor_settings")
+}
+
+model AutoPodborSection {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  badge       String?
+  title       String?
+  subtitle    String?
+  description String?
+  image       String?
+  imageAlt    String?  @map("image_alt")
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("autopodbor_sections")
+}
+
+model AutoPodborTariff {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  groupName   String   @default("rb") @map("group_name")
+  title       String
+  subtitle    String?
+  description String?
+  price       Int?
+  priceFrom   Boolean  @default(true) @map("price_from")
+  currency    String   @default("BYN")
+  unit        String?
+  duration    String?
+  includes    String?
+  badge       String?
+  icon        String   @default("check")
+  image       String?
+  ctaLabel    String   @default("Оставить заявку") @map("cta_label")
+  isPopular   Boolean  @default(false) @map("is_popular")
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([groupName, isActive, sortOrder])
+  @@map("autopodbor_tariffs")
+}
+
+model AutoPodborStep {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  duration    String?
+  icon        String   @default("check")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("autopodbor_steps")
+}
+
+model AutoPodborFeature {
+  id          String   @id @default(uuid())
+  type        String   @default("advantage")
+  title       String
+  description String?
+  icon        String   @default("shield")
+  stat        String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([type, isActive, sortOrder])
+  @@map("autopodbor_features")
+}
+
+model AutoPodborCheckItem {
+  id          String   @id @default(uuid())
+  category    String
+  title       String
+  description String?
+  isCritical  Boolean  @default(false) @map("is_critical")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category, isActive, sortOrder])
+  @@map("autopodbor_check_items")
+}
+
+model AutoPodborCase {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  title         String
+  brand         String?
+  model         String?
+  year          Int?
+  budget        Int?
+  purchasePrice Int?     @map("purchase_price")
+  tradeAmount   Int?     @map("trade_amount")
+  days          Int?
+  city          String?
+  task          String?
+  found         String?
+  result        String?
+  photos        String?
+  mainPhoto     String?  @map("main_photo")
+  completedAt   String?  @map("completed_at")
+  isActive      Boolean  @default(true) @map("is_active")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("autopodbor_cases")
+}
+
+model AutoPodborReview {
+  id          String   @id @default(uuid())
+  name        String
+  city        String?
+  car         String?
+  rating      Int      @default(5)
+  text        String
+  source      String   @default("site")
+  sourceUrl   String?  @map("source_url")
+  isPublished Boolean  @default(false) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([isPublished, sortOrder])
+  @@map("autopodbor_reviews")
+}
+
+model AutoPodborFaq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  category  String?
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("autopodbor_faq")
+}
+
+model AutoPodborGalleryItem {
+  id        String   @id @default(uuid())
+  section   String
+  title     String?
+  alt       String
+  photo     String
+  prompt    String?
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([section, isActive, sortOrder])
+  @@map("autopodbor_gallery")
+}
+
+model AutoPodborCity {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+
+  @@map("autopodbor_cities")
+}
+
+model AutoPodborPromo {
+  id         String   @id @default(uuid())
+  title      String
+  subtitle   String?
+  discount   String?
+  validUntil String?  @map("valid_until")
+  isActive   Boolean  @default(true) @map("is_active")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("autopodbor_promos")
+}
+
+model AutoPodborLead {
+  id            String   @id @default(uuid())
+  name          String
+  phone         String?
+  email         String?
+  messenger     String?
+  city          String?
+  budgetFrom    Int?     @map("budget_from")
+  budgetTo      Int?     @map("budget_to")
+  brand         String?
+  model         String?
+  serviceSlug   String?  @map("service_slug")
+  serviceTitle  String?  @map("service_title")
+  comment       String?
+  quiz          String?
+  source        String   @default("form")
+  status        String   @default("new")
+  priceQuoted   Int?     @map("price_quoted")
+  assignedToId  String?  @map("assigned_to_id")
+  assignedTo    User?    @relation("AutoPodborAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  internalNote  String?  @map("internal_note")
+  pageUrl       String?  @map("page_url")
+  utmSource     String?  @map("utm_source")
+  utmMedium     String?  @map("utm_medium")
+  utmCampaign   String?  @map("utm_campaign")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([serviceSlug])
+  @@map("autopodbor_leads")
 }

@@ -1,5 +1,24 @@
 # Dev Log
 
+## 2026-10-27 — Автоподбор: лендинг + админка
+
+- [x] **Prisma**: 13 моделей `autopodbor_*` (settings/sections/tariffs/steps/features/checks/cases/reviews/faq/gallery/cities/promos/leads) + связь лида с `User` (ответственный)
+- [x] **Entities**: типы, zod-схемы (заявка + 11 сущностей), интерфейс репозитория, Prisma-репозиторий, DI
+- [x] **Seed**: настройки, 14 секций, 9 тарифов, 7 этапов, 48 проверок, 21 карточка (риски/преимущества/гарантии/trust), 10 FAQ, 18 городов. Отзывы не выдумываются, демо-кейс скрыт
+- [x] **Публичный API**: `GET /api/autopodbor` (кэш 5 мин), `POST /api/autopodbor/leads` — zod, honeypot, rate limit 5/10 мин, название/цена услуги из БД
+- [x] **Лендинг** `/services/inspection`: hero (фолбэк без AI-картинки), trust-bar, квиз 4 шага, риски, тарифы с табами, этапы, 48 проверок, пример отчёта, кейсы, гарантии, эксперт, отзывы, география, FAQ, форма, sticky CTA
+- [x] **SEO**: метаданные из БД (absolute title, canonical, robots/noindex, OG), JSON-LD (Service+Offer, FAQPage, BreadcrumbList), sitemap
+- [x] **Админка** `/admin/inspection` (7 вкладок): Обзор (статистика + график 14 дней), Контент (настройки + заголовки секций), Тарифы с превью, Как работаем (6 подтабов), Доказательства (4 подтаба), Заявки (фильтры/статусы/ответственный/заметки/CSV), Настройки
+- [x] **Интеграция**: пункт меню «Автоподбор» с badge, права `autopodbor.*`, guard в `proxy.ts`, аудит, категория `autopodbor` для upload
+- [x] **Юридика**: страница `/privacy`, ссылка из форм, дисклеймер из настроек
+- [x] Изображения не генерировались (MCP `imagegen` отключён) — пути hero/OG прописаны, есть фолбэки
+
+### Verification
+- typecheck: 0 ошибок · eslint: 0 ошибок · 55 тестов · build успешен (`/services/inspection` — ISR 5m)
+- Живая проверка: лендинг 200 (1 H1, тарифы, 48 проверок, FAQ, JSON-LD, Telegram); заявка valid → 201, honeypot → 201 без записи, без согласия → 400, без авторизации API → 401
+- Админка: `/admin/inspection` 200, статистика/тарифы/лиды/сотрудники доступны, меню с badge, CRUD тарифа (create → update → delete) работает
+- Тестовые заявки и тариф удалены; в БД 9 тарифов, 0 заявок
+
 ## 2026-10-27 — Telegram в контактах
 
 - [x] Контакт `telegram` обновлён на `https://t.me/avtoway_by` (БД + seed)
