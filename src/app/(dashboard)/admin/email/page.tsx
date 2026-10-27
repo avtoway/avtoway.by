@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
+
+// Тело письма — недоверенный HTML, санитайзим на клиенте (DOMPurify)
+const EmailBody = dynamic(() => import("./email-body"), { ssr: false });
 
 type Tab = "inbox" | "sent" | "settings";
 
@@ -226,7 +230,7 @@ function InboxTab({ toast }: { toast: (msg: string, type?: "error") => void }) {
                 </div>
               </div>
               <div className="flex-1 overflow-auto p-4">
-                <div className="text-sm text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: selected.body }} />
+                <EmailBody html={selected.body} className="text-sm text-slate-300 leading-relaxed" />
               </div>
             </div>
           )}
@@ -362,7 +366,7 @@ function SentTab() {
                   <div className="border-t border-slate-800 px-4 py-3 bg-slate-900/20">
                     {e.error && <p className="text-xs text-red-400 mb-2">Ошибка: {e.error}</p>}
                     <div className="rounded-lg border border-slate-700 bg-slate-950 p-3 overflow-auto max-h-64">
-                      <div className="text-xs text-slate-300" dangerouslySetInnerHTML={{ __html: e.body }} />
+                      <EmailBody html={e.body} className="text-xs text-slate-300" />
                     </div>
                   </div>
                 )}

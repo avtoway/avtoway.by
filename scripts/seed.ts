@@ -75,9 +75,9 @@ async function main() {
     await prisma.userRole.create({ data: { userId, roleId: role.id } });
   }
 
-  // Seed rent types
+  // Seed rent types (name is the single source of truth for the public UI)
   const rentTypes = [
-    { slug: "rent", name: "Аренда", sortOrder: 1 },
+    { slug: "rent", name: "Для личных целей", sortOrder: 1 },
     { slug: "taxi", name: "Под такси", sortOrder: 2 },
   ];
   for (const rt of rentTypes) {
@@ -85,6 +85,9 @@ async function main() {
     if (!existing) {
       await prisma.rentType.create({ data: rt });
       console.log(`  Тип аренды: ${rt.name}`);
+    } else if (existing.name !== rt.name) {
+      await prisma.rentType.update({ where: { slug: rt.slug }, data: { name: rt.name } });
+      console.log(`  Тип аренды обновлён: ${existing.name} → ${rt.name}`);
     }
   }
 

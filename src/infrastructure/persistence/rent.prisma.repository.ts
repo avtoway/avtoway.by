@@ -125,6 +125,26 @@ export class PrismaRentCarRepository implements RentCarRepository {
     return row ? toRentCar(row) : null;
   }
 
+  async getById(id: string): Promise<RentCar | null> {
+    const row = await this.db.rentCar.findUnique({
+      where: { id },
+      include: { rentType: true, brandRel: true, modelRel: true, classRel: true, conditions: { include: { condition: true } } },
+    });
+    return row ? toRentCar(row) : null;
+  }
+
+  async getRentSettings(): Promise<{ minDays: number; maxDays: number }> {
+    const rows = await this.db.setting.findMany({
+      where: { key: { in: ["rent_min_days", "rent_max_days"] } },
+    });
+    const map: Record<string, string> = {};
+    for (const r of rows) map[r.key] = r.value;
+    return {
+      minDays: parseInt(map.rent_min_days ?? "1", 10) || 1,
+      maxDays: parseInt(map.rent_max_days ?? "90", 10) || 90,
+    };
+  }
+
   async getTypes(): Promise<RentType[]> {
     const rows = await this.db.rentType.findMany({ orderBy: { sortOrder: "asc" } });
     return rows.map(toRentType);

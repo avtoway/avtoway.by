@@ -3,14 +3,32 @@ import type { NextRequest } from "next/server";
 import { checkRateLimit } from "@/shared/lib/rate-limiter";
 import { verifyToken } from "@/lib/auth.server";
 
+function clientIp(request: NextRequest): string {
+  // На VPS за nginx сюда приходит реальный IP; при прямом доступе заголовок можно подделать
+  const forwarded = request.headers.get("x-forwarded-for");
+  const first = forwarded?.split(",")[0]?.trim();
+  return first || request.headers.get("x-real-ip") || "unknown";
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin/login") && request.method === "POST") {
-    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    const ip = clientIp(request);
     if (!checkRateLimit(`login:${ip}`)) {
       return NextResponse.json({ ok: false, error: "Too many attempts. Try again later." }, { status: 429 });
     }
+  }
+
+  // Публичные формы: защита от спама/флуда (10 отправок за 10 минут с одного IP)
+  const isPublicWrite =
+    request.method === "POST" &&
+    (pathname === "/api/rent/requests" || pathname === "/api/contact");
+  if (isPublicWrite && !checkRateLimit(`public:${pathname}:${clientIp(request)}`, 10, 10 * 60 * 1000)) {
+    return NextResponse.json(
+      { ok: false, error: "Слишком много заявок. Попробуйте позже или позвоните нам." },
+      { status: 429 },
+    );
   }
 
   if (pathname.startsWith("/admin")) {
@@ -60,4 +78,4 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact"] };

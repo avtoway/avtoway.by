@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { calculateRentPrice, getPeriodPrices, type RentPricingTier } from "@/shared/lib/price";
-import { TRANSMISSION_LABEL, FUEL_LABEL, rentTypeLabel } from "@/shared/lib/car-dictionaries";
+import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface Car {
   id: string; name: string; slug: string; brand?: string; model?: string;
@@ -73,21 +73,28 @@ export default function RentCalculatorPage() {
     return [...set].sort();
   }, [cars]);
 
-  const countByType = (slug: string) => cars.filter(c => c.rentType?.slug === slug).length;
+  const baseCars = useMemo(() => cars.filter(c => {
+    if (classFilter && c.class !== classFilter) return false;
+    if (brandFilter && c.brand !== brandFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const hay = `${c.brand ?? ""} ${c.model ?? ""} ${c.name ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }), [cars, classFilter, brandFilter, search]);
 
-  const filtered = useMemo(() => {
-    return cars.filter(c => {
-      if (rentTypeFilter && c.rentType?.slug !== rentTypeFilter) return false;
-      if (classFilter && c.class !== classFilter) return false;
-      if (brandFilter && c.brand !== brandFilter) return false;
-      if (search) {
-        const q = search.toLowerCase();
-        const hay = `${c.brand ?? ""} ${c.model ?? ""} ${c.name ?? ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-  }, [cars, rentTypeFilter, classFilter, brandFilter, search]);
+  const countByType = (slug: string) => baseCars.filter(c => c.rentType?.slug === slug).length;
+
+  const filtered = useMemo(
+    () => (rentTypeFilter ? baseCars.filter(c => c.rentType?.slug === rentTypeFilter) : baseCars),
+    [baseCars, rentTypeFilter],
+  );
+
+  const usedClasses = useMemo(
+    () => classes.filter(cl => cars.some(c => c.class === cl.name)),
+    [classes, cars],
+  );
 
   // Берём выбранное авто только из отфильтрованного списка:
   // если оно скрыто фильтром, расчёт и заявка недоступны.
@@ -127,24 +134,20 @@ export default function RentCalculatorPage() {
     });
   }
 
-  const canSubmit = !!selectedCar && days >= effectiveMinDays && days <= maxDays && name.trim().length > 0;
+  const hasContact = phone.trim().length > 0 || email.trim().length > 0;
+  const canSubmit = !!selectedCar && days >= effectiveMinDays && days <= maxDays && name.trim().length > 0 && hasContact;
 
   async function submit() {
     if (!canSubmit) return;
     setSubmitting(true);
     setSubmitError("");
-    const extraNames = extras.filter(e => selectedExtras.has(e.id)).map(e => e.name);
     const body = {
       carId: selectedCar.id,
       name: name.trim(),
       phone: phone.trim() || null,
       email: email.trim() || null,
       startDate, endDate,
-      days,
-      extras: extraNames.join(", ") || null,
-      total,
-      deposit: deposit || null,
-      message: `Заявка из калькулятора: ${selectedCar.name}, ${days} дн. (${startDate} — ${endDate}), итог ${total} BYN, залог ${deposit || "по согласованию"} BYN.`,
+      extraIds: [...selectedExtras],
     };
     try {
       const res = await fetch("/api/rent/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -186,13 +189,13 @@ export default function RentCalculatorPage() {
                 <div className="flex flex-wrap gap-2">
                   <button type="button" aria-pressed={rentTypeFilter === ""} onClick={() => setRentTypeFilter("")}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${rentTypeFilter === "" ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
-                    Все авто <span className={rentTypeFilter === "" ? "text-white/70" : "text-zinc-500"}>({cars.length})</span>
+                    Все авто <span className={rentTypeFilter === "" ? "text-white/70" : "text-zinc-500"}>({baseCars.length})</span>
                   </button>
                   {rentTypes.map(t => (
                     <button type="button" key={t.slug} aria-pressed={rentTypeFilter === t.slug}
                       onClick={() => setRentTypeFilter(rentTypeFilter === t.slug ? "" : t.slug)}
                       className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${rentTypeFilter === t.slug ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
-                      {rentTypeLabel(t.slug, t.name)} <span className={rentTypeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
+                      {t.name} <span className={rentTypeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
                     </button>
                   ))}
                 </div>
@@ -201,7 +204,7 @@ export default function RentCalculatorPage() {
                     className={`rounded-full px-3 py-1.5 text-xs transition ${classFilter === "" ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
                     Все классы
                   </button>
-                  {classes.map(c => (
+                  {usedClasses.map(c => (
                     <button type="button" key={c.id} aria-pressed={classFilter === c.name}
                       onClick={() => setClassFilter(classFilter === c.name ? "" : c.name)}
                       className={`rounded-full px-3 py-1.5 text-xs transition ${classFilter === c.name ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
@@ -340,9 +343,14 @@ export default function RentCalculatorPage() {
 
                     {/* Lead form */}
                     <div className="space-y-3">
-                      <input value={name} onChange={e => setName(e.target.value)} placeholder="Ваше имя *" className={inputCls} />
-                      <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Телефон" className={inputCls} />
-                      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className={inputCls} />
+                      <input value={name} onChange={e => setName(e.target.value)} placeholder="Ваше имя *" autoComplete="name" className={inputCls} />
+                      <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Телефон" type="tel" autoComplete="tel" className={inputCls} />
+                      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email" autoComplete="email" className={inputCls} />
+                      {!hasContact && (
+                        <p className={`text-[11px] ${name.trim() ? "text-amber-400" : "text-zinc-600"}`}>
+                          Укажите телефон или email — иначе мы не сможем связаться.
+                        </p>
+                      )}
                       <button type="button" onClick={submit} disabled={!canSubmit || submitting}
                         className="w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
                         {submitting ? "Отправка..." : "Отправить заявку"}

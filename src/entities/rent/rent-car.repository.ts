@@ -8,8 +8,10 @@ export interface RentCarFilters {
 
 export interface RentCarRepository {
   getAll(filters?: RentCarFilters): Promise<RentCar[]>;
+  getById(id: string): Promise<RentCar | null>;
   getBySlug(slug: string): Promise<RentCar | null>;
   getTypes(): Promise<RentType[]>;
+  getRentSettings(): Promise<{ minDays: number; maxDays: number }>;
   create(data: Omit<RentCar, "id" | "rentType" | "conditions">): Promise<RentCar>;
   update(id: string, data: Partial<Omit<RentCar, "conditions">>): Promise<RentCar>;
   delete(id: string): Promise<void>;
