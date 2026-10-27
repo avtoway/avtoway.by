@@ -1,6 +1,6 @@
 import { getPrismaClient } from "./prisma.client";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
-import type { RentCar, RentType, CarClass, RentExtra, RentCondition, CarConditionInput, RentRequest } from "@/entities/rent/rent-car.types";
+import type { RentCar, RentType, CarClass, RentExtra, RentCondition, RentPricingTier, CarConditionInput, RentRequest } from "@/entities/rent/rent-car.types";
 import { randomUUID } from "node:crypto";
 
 function toRentCar(row: any): RentCar {
@@ -39,6 +39,10 @@ function toRentCar(row: any): RentCar {
 
 function toCarCondition(row: any) {
   return { id: row.id, name: row.name, slug: row.slug, placeholder: row.placeholder ?? undefined, sortOrder: row.sortOrder };
+}
+
+function toPricingTier(row: any): RentPricingTier {
+  return { id: row.id, minDays: row.minDays, maxDays: row.maxDays ?? null, discount: row.discount, sortOrder: row.sortOrder };
 }
 
 function toRentType(row: any): RentType {
@@ -294,6 +298,32 @@ export class PrismaRentCarRepository implements RentCarRepository {
         data: list.map(c => ({ carId, conditionId: c.conditionId, value: c.value ?? "" })),
       });
     }
+  }
+
+  /* ─── Pricing tiers ─── */
+
+  async getPricingTiers(): Promise<RentPricingTier[]> {
+    const rows = await this.db.rentPricingTier.findMany({ orderBy: { sortOrder: "asc" } });
+    return rows.map(toPricingTier);
+  }
+
+  async createPricingTier(data: Omit<RentPricingTier, "id">): Promise<RentPricingTier> {
+    const row = await this.db.rentPricingTier.create({
+      data: { minDays: data.minDays, maxDays: data.maxDays ?? null, discount: data.discount ?? 0, sortOrder: data.sortOrder ?? 0 },
+    });
+    return toPricingTier(row);
+  }
+
+  async updatePricingTier(id: string, data: Partial<RentPricingTier>): Promise<RentPricingTier> {
+    const row = await this.db.rentPricingTier.update({
+      where: { id },
+      data: { minDays: data.minDays, maxDays: data.maxDays ?? null, discount: data.discount, sortOrder: data.sortOrder },
+    });
+    return toPricingTier(row);
+  }
+
+  async deletePricingTier(id: string): Promise<void> {
+    await this.db.rentPricingTier.delete({ where: { id } });
   }
 
   /* ─── Rental requests ─── */

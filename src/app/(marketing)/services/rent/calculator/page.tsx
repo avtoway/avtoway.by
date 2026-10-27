@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { calculateRentPrice, getPeriodPrices, DEFAULT_DISCOUNTS, type RentDiscounts } from "@/shared/lib/price";
+import { calculateRentPrice, getPeriodPrices, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 
 interface Car {
@@ -24,7 +24,7 @@ export default function RentCalculatorPage() {
   const [extras, setExtras] = useState<Extra[]>([]);
   const [minDays, setMinDays] = useState(1);
   const [maxDays, setMaxDays] = useState(90);
-  const [discounts, setDiscounts] = useState<RentDiscounts>(DEFAULT_DISCOUNTS);
+  const [tiers, setTiers] = useState<RentPricingTier[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [classFilter, setClassFilter] = useState("");
@@ -48,14 +48,15 @@ export default function RentCalculatorPage() {
       fetch("/api/rent/classes").then(r => r.json()),
       fetch("/api/rent/extras").then(r => r.json()),
       fetch("/api/rent/settings").then(r => r.json()),
-    ]).then(([cRes, clRes, eRes, sRes]) => {
+      fetch("/api/rent/pricing-tiers").then(r => r.json()),
+    ]).then(([cRes, clRes, eRes, sRes, tRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (clRes.ok) setClasses(clRes.data);
       if (eRes.ok) setExtras(eRes.data);
       if (sRes.ok) {
         setMinDays(sRes.data.minDays); setMaxDays(sRes.data.maxDays);
-        if (sRes.data.discounts) setDiscounts(sRes.data.discounts);
       }
+      if (tRes.ok) setTiers(tRes.data);
       setLoading(false);
     });
   }, []);
@@ -91,8 +92,8 @@ export default function RentCalculatorPage() {
     return Math.round((b - a) / 86400000);
   }, [startDate, endDate]);
 
-  const rentalBase = selectedCar && days > 0 ? calculateRentPrice(selectedCar, days, discounts, isTaxi) : 0;
-  const periodPrices = selectedCar && !isTaxi && selectedCar.priceDay != null ? getPeriodPrices(selectedCar.priceDay, discounts) : null;
+  const rentalBase = selectedCar && days > 0 ? calculateRentPrice(selectedCar, days, tiers, isTaxi) : 0;
+  const periodPrices = selectedCar && !isTaxi && selectedCar.priceDay != null ? getPeriodPrices(selectedCar.priceDay, tiers) : null;
   const extrasTotal = useMemo(() => {
     let sum = 0;
     for (const e of extras) {

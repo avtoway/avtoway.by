@@ -5,44 +5,52 @@ export function formatPrice(amount: number | null | undefined, period?: string):
   return `${amount} ${CURRENCY_SYMBOL}${period ? `/${period}` : ""}`;
 }
 
-/**
- * Скидки за длительный срок (для аренды «личные цели»), в процентах.
- * Настраиваются в админке → Калькулятор аренды → Настройки.
- */
-export interface RentDiscounts {
-  d3_7: number;   // % скидки на 3–7 суток
-  d8_14: number;  // % скидки на 8–14 суток
-  d15_31: number; // % скидки на 15–31 суток
+/** Тарифная ступень (управляется в админке → Калькулятор → Тарифы). */
+export interface RentPricingTier {
+  id: string;
+  minDays: number;
+  maxDays?: number | null; // null = без верхней границы (31+)
+  discount: number;        // % скидки от цены за сутки
+  sortOrder: number;
 }
 
-export const DEFAULT_DISCOUNTS: RentDiscounts = { d3_7: 20, d8_14: 25, d15_31: 30 };
-
-/** Цена за сутки для каждого периода (личные цели). */
-export function getPeriodPrices(priceDay: number, discounts: RentDiscounts = DEFAULT_DISCOUNTS) {
-  return [
-    { label: "1–2 суток", perDay: priceDay },
-    { label: "3–7 суток", perDay: Math.round(priceDay * (1 - discounts.d3_7 / 100)) },
-    { label: "8–14 суток", perDay: Math.round(priceDay * (1 - discounts.d8_14 / 100)) },
-    { label: "15–31 суток", perDay: Math.round(priceDay * (1 - discounts.d15_31 / 100)) },
-  ];
+/** Ступень, подходящая под количество суток. */
+export function findTier(tiers: RentPricingTier[], days: number): RentPricingTier | null {
+  const sorted = [...tiers].sort((a, b) => a.minDays - b.minDays);
+  for (const t of sorted) {
+    const max = t.maxDays ?? Infinity;
+    if (days >= t.minDays && days <= max) return t;
+  }
+  for (const t of sorted) if (days >= t.minDays) return t;
+  return null;
 }
 
-function getPersonalPerDay(priceDay: number, days: number, discounts: RentDiscounts): number {
-  if (days >= 15) return Math.round(priceDay * (1 - discounts.d15_31 / 100));
-  if (days >= 8) return Math.round(priceDay * (1 - discounts.d8_14 / 100));
-  if (days >= 3) return Math.round(priceDay * (1 - discounts.d3_7 / 100));
-  return priceDay;
+/** Цена за сутки для конкретного количества дней (со скидкой ступени). */
+export function getPerDayRate(priceDay: number, days: number, tiers: RentPricingTier[]): number {
+  const tier = findTier(tiers, days);
+  if (!tier) return priceDay;
+  return Math.round(priceDay * (1 - tier.discount / 100));
+}
+
+/** Цены за сутки по каждой ступени (для таблицы на странице авто). */
+export function getPeriodPrices(priceDay: number, tiers: RentPricingTier[]) {
+  const sorted = [...tiers].sort((a, b) => a.minDays - b.minDays);
+  return sorted.map(t => ({
+    label: t.maxDays == null ? `${t.minDays}+ суток` : `${t.minDays}–${t.maxDays} суток`,
+    perDay: Math.round(priceDay * (1 - t.discount / 100)),
+    discount: t.discount,
+  }));
 }
 
 /**
  * Итоговая стоимость аренды.
- * Личные цели: цена за сутки × дни со скидкой по периоду.
+ * Личные цели: цена за сутки × дни со скидкой по ступени.
  * Такси: только от недели, цена за неделю (округляем до целых недель вверх).
  */
 export function calculateRentPrice(
   car: { priceDay?: number | null; price7Days?: number | null },
   days: number,
-  discounts: RentDiscounts = DEFAULT_DISCOUNTS,
+  tiers: RentPricingTier[],
   isTaxi = false,
 ): number {
   const d = Math.max(1, Math.floor(days));
@@ -51,7 +59,7 @@ export function calculateRentPrice(
     return Math.ceil(d / 7) * car.price7Days;
   }
   if (car.priceDay == null) return 0;
-  return getPersonalPerDay(car.priceDay, d, discounts) * d;
+  return getPerDayRate(car.priceDay, d, tiers) * d;
 }
 
 /** Короткая «от …» цена для карточки и таблицы админки. */

@@ -1,4 +1,4 @@
-import type { RentCar, RentType, CarClass, RentExtra, RentCondition, CarConditionInput, RentRequest } from "./rent-car.types";
+import type { RentCar, RentType, CarClass, RentExtra, RentCondition, RentPricingTier, CarConditionInput, RentRequest } from "./rent-car.types";
 
 export interface RentCarFilters {
   rentTypeSlug?: string;
@@ -32,6 +32,12 @@ export interface RentCarRepository {
   updateCondition(id: string, data: Partial<RentCondition>): Promise<RentCondition>;
   deleteCondition(id: string): Promise<void>;
   setCarConditions(carId: string, conditions: CarConditionInput[]): Promise<void>;
+
+  // Pricing tiers
+  getPricingTiers(): Promise<RentPricingTier[]>;
+  createPricingTier(data: Omit<RentPricingTier, "id">): Promise<RentPricingTier>;
+  updatePricingTier(id: string, data: Partial<RentPricingTier>): Promise<RentPricingTier>;
+  deletePricingTier(id: string): Promise<void>;
 
   // Rental requests (calculator leads)
   createRentRequest(data: Omit<RentRequest, "id" | "createdAt" | "status">): Promise<RentRequest>;

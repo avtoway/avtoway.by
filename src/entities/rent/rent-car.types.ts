@@ -65,6 +65,14 @@ export interface RentCondition {
   sortOrder: number;
 }
 
+export interface RentPricingTier {
+  id: string;
+  minDays: number;
+  maxDays?: number | null;
+  discount: number;
+  sortOrder: number;
+}
+
 export interface CarConditionInput {
   conditionId: string;
   value: string;

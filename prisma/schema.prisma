@@ -308,6 +308,16 @@ model RentCarCondition {
   @@map("rent_car_conditions")
 }
 
+model RentPricingTier {
+  id        String  @id @default(uuid())
+  minDays   Int     @map("min_days")
+  maxDays   Int?    @map("max_days")
+  discount  Int     @default(0)
+  sortOrder Int     @default(0) @map("sort_order")
+
+  @@map("rent_pricing_tiers")
+}
+
 model ComfortFeature {
   id        String   @id @default(uuid())
   name      String   @unique

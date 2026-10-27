@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
-import { getPriceLabel, getPeriodPrices, DEFAULT_DISCOUNTS, formatPrice } from "@/shared/lib/price";
+import { getPriceLabel, getPeriodPrices, formatPrice, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PhotoGallery from "@/shared/ui/photo-gallery";
 import type { Metadata } from "next";
@@ -20,16 +20,10 @@ async function getCar(slug: string) {
     include: { rentType: true, classRel: true, conditions: { include: { condition: true } } },
   });
 }
-async function getDiscounts() {
+async function getPricingTiers(): Promise<RentPricingTier[]> {
   const db = getPrismaClient();
-  const rows = await db.setting.findMany({ where: { key: { in: ["rent_disc_3_7", "rent_disc_8_14", "rent_disc_15_31"] } } });
-  const map: Record<string, string> = {};
-  for (const r of rows) map[r.key] = r.value;
-  return {
-    d3_7: parseInt(map.rent_disc_3_7 ?? "", 10) || DEFAULT_DISCOUNTS.d3_7,
-    d8_14: parseInt(map.rent_disc_8_14 ?? "", 10) || DEFAULT_DISCOUNTS.d8_14,
-    d15_31: parseInt(map.rent_disc_15_31 ?? "", 10) || DEFAULT_DISCOUNTS.d15_31,
-  };
+  const rows = await db.rentPricingTier.findMany({ orderBy: { sortOrder: "asc" } });
+  return rows.map(r => ({ id: r.id, minDays: r.minDays, maxDays: r.maxDays ?? null, discount: r.discount, sortOrder: r.sortOrder }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -51,12 +45,12 @@ export default async function RentCarDetailPage({ params }: Props) {
   const features = (car.features ?? "").split(",").filter(Boolean);
   const mainPhoto = car.mainPhoto ?? photos[0];
   const usdRate = await getUsdRate();
-  const discounts = await getDiscounts();
+  const tiers = await getPricingTiers();
   const isTaxi = car.rentType?.slug === "taxi";
   const priceLabel = getPriceLabel(car);
   const priceAmount = priceLabel ? parseInt(priceLabel.replace(/\D/g, "")) : null;
   const heroUsd = usdRate && priceAmount ? Math.round(priceAmount / usdRate) : null;
-  const periodPrices = !isTaxi && car.priceDay != null ? getPeriodPrices(car.priceDay, discounts) : null;
+  const periodPrices = !isTaxi && car.priceDay != null ? getPeriodPrices(car.priceDay, tiers) : null;
   const conditions = (car.conditions ?? []).filter((c: any) => c.condition?.name);
 
   return (

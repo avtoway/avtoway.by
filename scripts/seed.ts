@@ -214,13 +214,23 @@ async function main() {
   const calcSettings: Record<string, string> = {
     rent_min_days: "1",
     rent_max_days: "90",
-    rent_disc_3_7: "20",
-    rent_disc_8_14: "25",
-    rent_disc_15_31: "30",
   };
   for (const [key, value] of Object.entries(calcSettings)) {
     const exists = await prisma.setting.findUnique({ where: { key } });
     if (!exists) await prisma.setting.create({ data: { key, value } });
+  }
+
+  // Seed pricing tiers (тарифные ступени) — только если таблица пуста
+  const pricingTiers = [
+    { minDays: 1, maxDays: 2, discount: 0, sortOrder: 1 },
+    { minDays: 3, maxDays: 7, discount: 10, sortOrder: 2 },
+    { minDays: 8, maxDays: 14, discount: 17, sortOrder: 3 },
+    { minDays: 15, maxDays: 30, discount: 25, sortOrder: 4 },
+    { minDays: 31, maxDays: null, discount: 32, sortOrder: 5 },
+  ];
+  if (await prisma.rentPricingTier.count() === 0) {
+    for (const t of pricingTiers) await prisma.rentPricingTier.create({ data: t });
+    console.log("  Тарифные ступени: 5");
   }
 
   // Seed rent conditions (условия аренды)
