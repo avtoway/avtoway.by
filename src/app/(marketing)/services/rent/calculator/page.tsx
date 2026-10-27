@@ -44,6 +44,7 @@ export default function RentCalculatorPage() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -88,7 +89,9 @@ export default function RentCalculatorPage() {
     });
   }, [cars, rentTypeFilter, classFilter, brandFilter, search]);
 
-  const selectedCar = cars.find(c => c.id === selectedId) ?? null;
+  // Берём выбранное авто только из отфильтрованного списка:
+  // если оно скрыто фильтром, расчёт и заявка недоступны.
+  const selectedCar = filtered.find(c => c.id === selectedId) ?? null;
   const isTaxi = selectedCar?.rentType?.slug === "taxi";
   const effectiveMinDays = isTaxi ? 7 : minDays;
 
@@ -124,11 +127,12 @@ export default function RentCalculatorPage() {
     });
   }
 
-  const canSubmit = !!selectedCar && days >= effectiveMinDays && name.trim().length > 0;
+  const canSubmit = !!selectedCar && days >= effectiveMinDays && days <= maxDays && name.trim().length > 0;
 
   async function submit() {
     if (!canSubmit) return;
     setSubmitting(true);
+    setSubmitError("");
     const extraNames = extras.filter(e => selectedExtras.has(e.id)).map(e => e.name);
     const body = {
       carId: selectedCar.id,
@@ -142,10 +146,16 @@ export default function RentCalculatorPage() {
       deposit: deposit || null,
       message: `Заявка из калькулятора: ${selectedCar.name}, ${days} дн. (${startDate} — ${endDate}), итог ${total} BYN, залог ${deposit || "по согласованию"} BYN.`,
     };
-    const res = await fetch("/api/rent/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const j = await res.json();
-    setSubmitting(false);
-    if (j.ok) setSubmitted(true);
+    try {
+      const res = await fetch("/api/rent/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const j = await res.json().catch(() => ({}));
+      if (j.ok) setSubmitted(true);
+      else setSubmitError(j.error ?? "Не удалось отправить заявку. Попробуйте позже или позвоните нам.");
+    } catch {
+      setSubmitError("Нет связи с сервером. Попробуйте позже или позвоните нам.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -174,24 +184,26 @@ export default function RentCalculatorPage() {
               {/* Filters */}
               <div className="mb-5 space-y-3">
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setRentTypeFilter("")}
+                  <button type="button" aria-pressed={rentTypeFilter === ""} onClick={() => setRentTypeFilter("")}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${rentTypeFilter === "" ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
                     Все авто <span className={rentTypeFilter === "" ? "text-white/70" : "text-zinc-500"}>({cars.length})</span>
                   </button>
                   {rentTypes.map(t => (
-                    <button key={t.slug} onClick={() => setRentTypeFilter(rentTypeFilter === t.slug ? "" : t.slug)}
+                    <button type="button" key={t.slug} aria-pressed={rentTypeFilter === t.slug}
+                      onClick={() => setRentTypeFilter(rentTypeFilter === t.slug ? "" : t.slug)}
                       className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${rentTypeFilter === t.slug ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
                       {rentTypeLabel(t.slug, t.name)} <span className={rentTypeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
                     </button>
                   ))}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setClassFilter("")}
+                  <button type="button" aria-pressed={classFilter === ""} onClick={() => setClassFilter("")}
                     className={`rounded-full px-3 py-1.5 text-xs transition ${classFilter === "" ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
                     Все классы
                   </button>
                   {classes.map(c => (
-                    <button key={c.id} onClick={() => setClassFilter(classFilter === c.name ? "" : c.name)}
+                    <button type="button" key={c.id} aria-pressed={classFilter === c.name}
+                      onClick={() => setClassFilter(classFilter === c.name ? "" : c.name)}
                       className={`rounded-full px-3 py-1.5 text-xs transition ${classFilter === c.name ? "bg-red-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
                       {c.name}
                     </button>
@@ -310,6 +322,10 @@ export default function RentCalculatorPage() {
                       </div>
                     )}
 
+                    {selectedCar && days > 0 && rentalBase === 0 && (
+                      <p className="mb-3 text-xs text-amber-400">Цена не задана — стоимость уточним после заявки.</p>
+                    )}
+
                     {/* Summary */}
                     {selectedCar && days > 0 && (
                       <div className="mb-4 space-y-1.5 border-t border-zinc-800 pt-4 text-sm">
@@ -327,10 +343,11 @@ export default function RentCalculatorPage() {
                       <input value={name} onChange={e => setName(e.target.value)} placeholder="Ваше имя *" className={inputCls} />
                       <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Телефон" className={inputCls} />
                       <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className={inputCls} />
-                      <button onClick={submit} disabled={!canSubmit || submitting}
+                      <button type="button" onClick={submit} disabled={!canSubmit || submitting}
                         className="w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
                         {submitting ? "Отправка..." : "Отправить заявку"}
                       </button>
+                      {submitError && <p className="text-xs text-red-400">{submitError}</p>}
                       <p className="text-[10px] text-zinc-600">Это предварительный расчёт. Точную смету согласуем до начала аренды.</p>
                     </div>
                   </>

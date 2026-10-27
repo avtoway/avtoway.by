@@ -308,6 +308,9 @@ npm run build && npm run start
 
 - **Ошибки lint** — исправлены (0 errors). Осталось 64 warning'а: `@typescript-eslint/no-explicit-any` (в Prisma-репозиториях из-за рыхлой типизации libSQL-адаптера) и `@next/next/no-img-element` (`<img>` вместо `next/image`). Не критичны, чистятся по желанию
 - **IMAP-парсер** в `mail.ts` — наивное извлечение HTML из сырого письма (регэксп). Для сложных multipart может дать неполный HTML. Можно улучшить через mailparser
+- **⚠ XSS в просмотре письма** — `/admin/email` рендерит тело входящего письма через `dangerouslySetInnerHTML` без санитайзера (стр. 229, 365). Письмо от внешнего отправителя = исполняемый HTML/JS в админке (кража действий админа, т.к. cookie httpOnly, но same-origin запросы проходят). Нужен DOMPurify/sanitize-html или `<iframe sandbox>` + CSP. Пока почта на тестовом ящике — риск низкий
+- **Публичный POST `/api/rent/requests`** — проверяется только `name`. Нет zod-схемы, лимитов длины, honeypot/rate-limit; `total`/`deposit`/`days` приходят с клиента и показываются в админке как есть. План: серверный `/api/rent/quote` + zod + лимиты
+- **Rate limit только на логине** — `src/proxy.ts`, matcher `/admin/:path*`, in-memory (на нескольких инстансах не работает). Публичные API (заявки, контакты) не ограничены
 - **Поиск по входящим** — простой `contains` по from/subject/textBody, без полнотекстового индекса
 - **`RentCar.brand/model`** — ✅ связано через FK (`brandId`/`modelId` на `car_brands`/`car_models`), имена резолвятся через `brandRel`/`modelRel`
 - **Ошибка «404 на /admin/login»** возникала из-за устаревшего кэша `.next` после рестарта. Решение: `Remove-Item .next -Recurse` + перезапуск dev

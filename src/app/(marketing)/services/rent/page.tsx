@@ -11,14 +11,21 @@ interface RentCar {
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string;
   photos?: string; mainPhoto?: string; description?: string;
-  priceDay?: number; price3Days?: number; price7Days?: number;
-  priceMonth?: number; priceDayTaxi?: number;
+  priceDay?: number; price7Days?: number; priceDayTaxi?: number;
   rentType?: { id: string; name: string; slug: string };
   isActive: boolean; bookedUntil?: string;
 }
 
 interface ComfortFeature { id: string; name: string; slug: string; }
 interface ClassItem { id: string; name: string; slug: string; }
+
+/** Цена за сутки для фильтра: у такси — средняя из недельной. */
+function perDayPrice(c: RentCar): number {
+  if (c.rentType?.slug === "taxi") {
+    return c.priceDayTaxi ?? (c.price7Days != null ? Math.round(c.price7Days / 7) : 0);
+  }
+  return c.priceDay ?? 0;
+}
 
 export default function RentPage() {
   const [cars, setCars] = useState<RentCar[]>([]);
@@ -36,6 +43,7 @@ export default function RentPage() {
   const [featureFilters, setFeatureFilters] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [comfortFeatures, setComfortFeatures] = useState<ComfortFeature[]>([]);
+  const [discountFrom, setDiscountFrom] = useState<number | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -44,24 +52,31 @@ export default function RentPage() {
       fetch("/api/rent/classes").then(r => r.json()),
       fetch("/api/exchange-rate").then(r => r.json()),
       fetch("/api/comfort-features").then(r => r.json()),
-    ]).then(([cRes, tRes, clRes, eRes, fRes]) => {
+      fetch("/api/rent/pricing-tiers").then(r => r.json()),
+    ]).then(([cRes, tRes, clRes, eRes, fRes, tierRes]) => {
       if (cRes.ok) setCars(cRes.data);
       if (tRes.ok) setTypes(tRes.data);
       if (clRes.ok) setClasses(clRes.data);
       if (eRes.ok) setUsdRate(eRes.rate);
       if (fRes.ok) setComfortFeatures(fRes.data);
+      if (tierRes.ok) {
+        const first = (tierRes.data as { minDays: number; discount: number }[])
+          .filter(t => t.discount > 0)
+          .sort((a, b) => a.minDays - b.minDays)[0];
+        setDiscountFrom(first?.minDays ?? null);
+      }
       setLoading(false);
     });
   }, []);
 
-  const filtered = cars.filter(c => {
-    if (typeFilter && c.rentType?.slug !== typeFilter) return false;
+  // Фильтры без типа аренды — чтобы счётчики на чипах были честными
+  const baseCars = cars.filter(c => {
     if (classFilter && c.class !== classFilter) return false;
     if (transmissionFilter && c.transmission !== transmissionFilter) return false;
     if (fuelFilter && c.fuel !== fuelFilter) return false;
     if (seatsFilter && (c.seats ?? 0) < parseInt(seatsFilter)) return false;
-    if (priceFrom && (c.priceDay ?? 0) < parseInt(priceFrom)) return false;
-    if (priceTo && (c.priceDay ?? 0) > parseInt(priceTo)) return false;
+    if (priceFrom && perDayPrice(c) < parseInt(priceFrom)) return false;
+    if (priceTo && perDayPrice(c) > parseInt(priceTo)) return false;
     if (featureFilters.size > 0) {
       const carFeatures = c.features?.split(",").map(f => f.trim()) ?? [];
       for (const f of featureFilters) if (!carFeatures.includes(f)) return false;
@@ -69,7 +84,11 @@ export default function RentPage() {
     return true;
   });
 
-  const countByType = (slug: string) => cars.filter(c => c.rentType?.slug === slug).length;
+  const filtered = typeFilter
+    ? baseCars.filter(c => c.rentType?.slug === typeFilter)
+    : baseCars;
+
+  const countByType = (slug: string) => baseCars.filter(c => c.rentType?.slug === slug).length;
 
   function toggleFeature(f: string) {
     setFeatureFilters(prev => {
@@ -189,25 +208,28 @@ export default function RentPage() {
           </aside>
 
           <div className="flex-1">
-            <div className="mb-4 flex flex-wrap gap-2">
-              <button onClick={() => setTypeFilter("")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${typeFilter === "" ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
-                Все авто <span className={typeFilter === "" ? "text-white/70" : "text-zinc-500"}>({cars.length})</span>
-              </button>
-              {types.map(t => (
-                <button key={t.id} onClick={() => setTypeFilter(typeFilter === t.slug ? "" : t.slug)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${typeFilter === t.slug ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
-                  {rentTypeLabel(t.slug, t.name)} <span className={typeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
+            {!loading && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                <button type="button" aria-pressed={typeFilter === ""} onClick={() => setTypeFilter("")}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${typeFilter === "" ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
+                  Все авто <span className={typeFilter === "" ? "text-white/70" : "text-zinc-500"}>({baseCars.length})</span>
                 </button>
-              ))}
-            </div>
+                {types.map(t => (
+                  <button type="button" key={t.id} aria-pressed={typeFilter === t.slug}
+                    onClick={() => setTypeFilter(typeFilter === t.slug ? "" : t.slug)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${typeFilter === t.slug ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
+                    {rentTypeLabel(t.slug, t.name)} <span className={typeFilter === t.slug ? "text-white/70" : "text-zinc-500"}>({countByType(t.slug)})</span>
+                  </button>
+                ))}
+              </div>
+            )}
             {loading ? (
               <p className="pt-10 text-center text-zinc-500">Загрузка...</p>
             ) : filtered.length === 0 ? (
               <p className="pt-10 text-center text-zinc-600">Нет автомобилей под ваши фильтры</p>
             ) : (
                   <div className="flex flex-col gap-4">
-                {filtered.map(c => <CarCard key={c.id} car={c} usdRate={usdRate} />)}
+                {filtered.map(c => <CarCard key={c.id} car={c} usdRate={usdRate} discountFrom={discountFrom} />)}
               </div>
             )}
           </div>
@@ -217,7 +239,7 @@ export default function RentPage() {
   );
 }
 
-function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
+function CarCard({ car, usdRate, discountFrom }: { car: RentCar; usdRate: number | null; discountFrom: number | null }) {
   const firstPhoto = car.mainPhoto || car.photos?.split(",")[0];
   const carFeatures = car.features?.split(",").map(f => f.trim()).filter(Boolean) ?? [];
   const priceLabel = getPriceLabel(car);
@@ -280,8 +302,12 @@ function CarCard({ car, usdRate }: { car: RentCar; usdRate: number | null }) {
           <div>
             <p className="text-xs text-zinc-500">от</p>
             <p className="text-xl font-bold text-green-400">{priceLabel}</p>
-            {usdVal && <p className="text-xs text-zinc-500">≈ ${usdVal.toLocaleString()}</p>}
-            {!isTaxi && <p className="mt-1 text-[10px] text-zinc-600">скидки от 3 суток</p>}
+            {usdVal && <p className="text-xs text-zinc-500">≈ {usdVal.toLocaleString()}${isTaxi ? "/нед" : ""}</p>}
+            {!isTaxi && discountFrom != null && (
+              <p className="mt-1 text-[10px] text-zinc-600">
+                {discountFrom > 1 ? `скидки от ${discountFrom} суток` : "скидки при длительной аренде"}
+              </p>
+            )}
           </div>
         ) : (
           <p className="text-xs text-zinc-600">Цена не указана</p>
