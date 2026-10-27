@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { AutoPodborCity, AutoPodborTariff } from "@/entities/autopodbor/autopodbor.types";
 import { telegramUrl } from "@/shared/lib/social";
 import type { SectionHeadingData } from "../lib/defaults";
-import { phoneHref, viberHref, whatsappHref } from "../lib/defaults";
+import { phoneHref } from "../lib/defaults";
 import { trackEvent } from "../lib/analytics";
 import SectionHeading from "./section-heading";
 import AutoIcon from "./icon";
@@ -13,20 +13,10 @@ import AutoIcon from "./icon";
 const input =
   "w-full rounded-xl border border-zinc-700 bg-zinc-900/70 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/40";
 
-const MESSENGERS = [
-  { value: "telegram", label: "Telegram" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "viber", label: "Viber" },
-  { value: "call", label: "Звонок" },
-];
-
 interface FormState {
   name: string;
   phone: string;
-  email: string;
-  messenger: string;
   city: string;
-  budgetFrom: string;
   budgetTo: string;
   brand: string;
   model: string;
@@ -36,12 +26,18 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  name: "", phone: "", email: "", messenger: "", city: "",
-  budgetFrom: "", budgetTo: "", brand: "", model: "", comment: "",
-  consent: false, company: "",
+  name: "",
+  phone: "",
+  city: "",
+  budgetTo: "",
+  brand: "",
+  model: "",
+  comment: "",
+  consent: false,
+  company: "",
 };
 
-type Errors = Partial<Record<keyof FormState | "budget", string>>;
+type Errors = Partial<Record<keyof FormState, string>>;
 
 export default function LeadForm({
   heading,
@@ -49,8 +45,6 @@ export default function LeadForm({
   tariffs,
   phone,
   telegram,
-  whatsapp,
-  viber,
   address,
   workingHours,
 }: {
@@ -59,8 +53,6 @@ export default function LeadForm({
   tariffs: AutoPodborTariff[];
   phone?: string;
   telegram?: string;
-  whatsapp?: string;
-  viber?: string;
   address?: string;
   workingHours?: string;
 }) {
@@ -89,12 +81,9 @@ export default function LeadForm({
 
   function validate(): Errors {
     const next: Errors = {};
-    if (form.name.trim().length < 2) next.name = "Укажите имя (минимум 2 символа)";
+    if (form.name.trim().length < 2) next.name = "Укажите имя";
     if (form.phone.replace(/\D/g, "").length < 7) next.phone = "Укажите телефон";
     if (!form.consent) next.consent = "Нужно согласие на обработку данных";
-    if (form.budgetFrom && form.budgetTo && Number(form.budgetFrom) > Number(form.budgetTo)) {
-      next.budget = "Бюджет «от» не может быть больше «до»";
-    }
     return next;
   }
 
@@ -110,14 +99,10 @@ export default function LeadForm({
     setServerError("");
 
     const params = new URLSearchParams(window.location.search);
-
     const body = {
       name: form.name.trim(),
       phone: form.phone.trim(),
-      email: form.email.trim() || undefined,
-      messenger: form.messenger || undefined,
       city: form.city || undefined,
-      budgetFrom: form.budgetFrom ? Number(form.budgetFrom.replace(/\s/g, "")) : null,
       budgetTo: form.budgetTo ? Number(form.budgetTo.replace(/\s/g, "")) : null,
       brand: form.brand.trim() || undefined,
       model: form.model.trim() || undefined,
@@ -145,7 +130,6 @@ export default function LeadForm({
           source: "form",
           service_slug: serviceSlug || undefined,
           city: form.city || undefined,
-          budget: form.budgetFrom || undefined,
         });
       } else {
         setServerError(json.error ?? "Не удалось отправить заявку. Попробуйте позже.");
@@ -159,8 +143,6 @@ export default function LeadForm({
 
   const tg = telegramUrl(telegram);
   const tel = phoneHref(phone);
-  const wa = whatsappHref(whatsapp);
-  const vb = viberHref(viber);
 
   return (
     <section id="lead" className="scroll-mt-24 py-20 pb-28 sm:py-24 lg:py-28">
@@ -176,7 +158,7 @@ export default function LeadForm({
                 </span>
                 <h3 className="mt-5 text-xl font-semibold text-white">Спасибо! Заявка у нас.</h3>
                 <p className="mt-2 max-w-sm text-sm text-zinc-400">
-                  Свяжемся с вами в течение 15 минут в рабочее время.
+                  Свяжемся в течение 15 минут в рабочее время.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
                   {tg && (
@@ -225,19 +207,6 @@ export default function LeadForm({
                   </label>
 
                   <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Email</span>
-                    <input className={input} value={form.email} onChange={set("email")} maxLength={100} type="email" autoComplete="email" placeholder="you@example.com" />
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Мессенджер</span>
-                    <select className={input} value={form.messenger} onChange={set("messenger")}>
-                      <option value="">Любой</option>
-                      {MESSENGERS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
                     <span className="text-xs text-zinc-500">Город</span>
                     <select className={input} value={form.city} onChange={set("city")}>
                       <option value="">Выберите город</option>
@@ -247,22 +216,8 @@ export default function LeadForm({
                   </label>
 
                   <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Услуга</span>
-                    <select className={input} value={serviceSlug} onChange={event => setServiceSlug(event.target.value)}>
-                      <option value="">Подберите за меня</option>
-                      {tariffs.map(tariff => <option key={tariff.slug} value={tariff.slug}>{tariff.title}</option>)}
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Бюджет от, $</span>
-                    <input className={input} value={form.budgetFrom} onChange={set("budgetFrom")} inputMode="numeric" maxLength={7} placeholder="10 000" />
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
                     <span className="text-xs text-zinc-500">Бюджет до, $</span>
-                    <input className={input} value={form.budgetTo} onChange={set("budgetTo")} inputMode="numeric" maxLength={7} placeholder="20 000" aria-invalid={!!errors.budget} />
-                    {errors.budget && <span className="text-xs text-red-400">{errors.budget}</span>}
+                    <input className={input} value={form.budgetTo} onChange={set("budgetTo")} inputMode="numeric" maxLength={7} placeholder="20 000" />
                   </label>
 
                   <label className="flex flex-col gap-1.5">
@@ -274,11 +229,19 @@ export default function LeadForm({
                     <span className="text-xs text-zinc-500">Модель</span>
                     <input className={input} value={form.model} onChange={set("model")} maxLength={60} placeholder="Passat B8" />
                   </label>
+
+                  <label className="flex flex-col gap-1.5 sm:col-span-2">
+                    <span className="text-xs text-zinc-500">Услуга</span>
+                    <select className={input} value={serviceSlug} onChange={event => setServiceSlug(event.target.value)}>
+                      <option value="">Подберите за меня</option>
+                      {tariffs.map(tariff => <option key={tariff.slug} value={tariff.slug}>{tariff.title}</option>)}
+                    </select>
+                  </label>
                 </div>
 
                 <label className="mt-3 flex flex-col gap-1.5">
                   <span className="text-xs text-zinc-500">Комментарий</span>
-                  <textarea className={`${input} min-h-24 resize-y`} value={form.comment} onChange={set("comment")} maxLength={1000} placeholder="Что важно учесть: пробег, коробка, цвет, сроки…" />
+                  <textarea className={`${input} min-h-24 resize-y`} value={form.comment} onChange={set("comment")} maxLength={1000} placeholder="Что важно учесть: пробег, коробка, сроки…" />
                 </label>
 
                 {/* honeypot */}
@@ -320,13 +283,12 @@ export default function LeadForm({
                 </button>
 
                 <p className="mt-3 text-center text-[11px] text-zinc-600">
-                  Ответим в течение 15 минут в рабочее время. Данные не передаём третьим лицам.
+                  Ответим в течение 15 минут. Данные не передаём третьим лицам.
                 </p>
               </form>
             )}
           </div>
 
-          {/* Contacts */}
           <aside className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6">
             <p className="text-sm font-semibold text-white">Или свяжитесь напрямую</p>
 
@@ -340,18 +302,6 @@ export default function LeadForm({
               <a href={tg} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("telegram_click")} className="flex items-center gap-3 rounded-xl border border-zinc-800 px-4 py-3 text-sm text-zinc-300 transition hover:border-zinc-600 hover:text-white">
                 <AutoIcon name="telegram" className="h-5 w-5 text-sky-400" />
                 <span>Telegram</span>
-              </a>
-            )}
-            {wa && (
-              <a href={wa} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("whatsapp_click")} className="flex items-center gap-3 rounded-xl border border-zinc-800 px-4 py-3 text-sm text-zinc-300 transition hover:border-zinc-600 hover:text-white">
-                <AutoIcon name="whatsapp" className="h-5 w-5 text-green-400" />
-                <span>WhatsApp</span>
-              </a>
-            )}
-            {vb && (
-              <a href={vb} className="flex items-center gap-3 rounded-xl border border-zinc-800 px-4 py-3 text-sm text-zinc-300 transition hover:border-zinc-600 hover:text-white">
-                <AutoIcon name="viber" className="h-5 w-5 text-violet-400" />
-                <span>Viber</span>
               </a>
             )}
 

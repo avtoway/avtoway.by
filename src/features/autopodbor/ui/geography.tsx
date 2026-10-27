@@ -1,4 +1,3 @@
-import Reveal from "@/shared/ui/reveal";
 import type { AutoPodborCity } from "@/entities/autopodbor/autopodbor.types";
 import type { SectionHeadingData } from "../lib/defaults";
 import SectionHeading from "./section-heading";
@@ -12,19 +11,17 @@ export default function Geography({ heading, cities }: { heading: SectionHeading
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading {...heading} />
 
-        <Reveal>
-          <div className="flex flex-wrap justify-center gap-2.5">
-            {cities.map(city => (
-              <span
-                key={city.id}
-                className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-300 transition hover:border-zinc-600 hover:text-white"
-              >
-                <AutoIcon name="map-pin" className="h-4 w-4 text-primary/80" />
-                {city.name}
-              </span>
-            ))}
-          </div>
-        </Reveal>
+        <div className="flex flex-wrap justify-center gap-2.5">
+          {cities.map(city => (
+            <span
+              key={city.id}
+              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-300 transition hover:border-zinc-600 hover:text-white"
+            >
+              <AutoIcon name="map-pin" className="h-4 w-4 text-primary/80" />
+              {city.name}
+            </span>
+          ))}
+        </div>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
           Не нашли свой город?{" "}

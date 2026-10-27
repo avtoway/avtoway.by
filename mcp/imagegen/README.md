@@ -26,6 +26,8 @@
 
 Готовые файлы: `public/images/generated/`, URL: `/images/generated/<файл>.webp`.
 
+> **Бесплатный вариант:** `pollinations-flux` работает без ключа, но classic API Pollinations может требовать pollen key/оплату (`https://enter.pollinations.ai`). Для стабильной генерации добавьте `FAL_KEY` или `GOOGLE_API_KEY`.
+
 ## Инструменты
 
 | Инструмент | Зачем |

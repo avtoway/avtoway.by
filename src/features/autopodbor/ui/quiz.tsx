@@ -12,20 +12,14 @@ import SectionHeading from "./section-heading";
 import AutoIcon from "./icon";
 
 const TASKS = [
-  { id: "check", label: "Проверить автомобиль, который я уже нашёл", slug: "single-check" },
-  { id: "turnkey", label: "Найти автомобиль под ключ", slug: "turnkey" },
-  { id: "day", label: "Посмотреть несколько вариантов за один день", slug: "day-expert" },
-  { id: "abroad", label: "Подобрать и пригнать из-за границы", slug: "europe" },
+  { id: "check", label: "Проверить авто, которое я нашёл", slug: "single-check" },
+  { id: "turnkey", label: "Найти авто под ключ", slug: "turnkey" },
+  { id: "day", label: "Посмотреть несколько за день", slug: "day-expert" },
+  { id: "abroad", label: "Пригнать из-за границы", slug: "abroad" },
 ];
 
 const BUDGETS = ["до 10 000 $", "10–20 000 $", "20–35 000 $", "35–50 000 $", "50 000 $+"];
 const TIMEFRAMES = ["На этой неделе", "В течение месяца", "Пока присматриваюсь"];
-const MESSENGERS = [
-  { value: "telegram", label: "Telegram" },
-  { value: "whatsapp", label: "WhatsApp" },
-  { value: "viber", label: "Viber" },
-  { value: "call", label: "Звонок" },
-];
 
 const input =
   "w-full rounded-xl border border-zinc-700 bg-zinc-950/60 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/40";
@@ -50,7 +44,6 @@ export default function Quiz({
   const [timeframe, setTimeframe] = useState("");
   const [name, setName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  const [messenger, setMessenger] = useState("");
   const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState("");
   const [error, setError] = useState("");
@@ -96,7 +89,6 @@ export default function Quiz({
     const body = {
       name: name.trim(),
       phone: contactPhone.trim(),
-      messenger: messenger || undefined,
       city,
       serviceSlug: recommended?.slug,
       consent: true,
@@ -273,13 +265,6 @@ export default function Quiz({
                   <label className="flex flex-col gap-1.5">
                     <span className="text-xs text-zinc-500">Телефон *</span>
                     <input className={input} value={contactPhone} onChange={event => setContactPhone(event.target.value)} maxLength={20} inputMode="tel" autoComplete="tel" placeholder="+375 (__) ___-__-__" />
-                  </label>
-                  <label className="flex flex-col gap-1.5 sm:col-span-2">
-                    <span className="text-xs text-zinc-500">Мессенджер</span>
-                    <select className={input} value={messenger} onChange={event => setMessenger(event.target.value)}>
-                      <option value="">Любой</option>
-                      {MESSENGERS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-                    </select>
                   </label>
                 </div>
 

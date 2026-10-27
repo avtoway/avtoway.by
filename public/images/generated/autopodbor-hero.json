@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-27T15:48:41.427Z",
+  "model": "pollinations-flux",
+  "provider": "pollinations",
+  "prompt": "A professional automotive inspector in a dark underground garage, wearing a black technical jacket and nitrile gloves, holding a tablet and a paint thickness gauge, standing beside a modern dark grey sedan with the hood open; red rim light traces the car's body line; a rolling tool cart with a diagnostic scanner and a flashlight; wet concrete floor with soft reflections; volumetric haze; inspector seen from three-quarter back, face not visible; calm, trustworthy, expert mood; left third of the frame is dark and uncluttered for a headline. cinematic automotive editorial photography, dark moody atmosphere, deep blacks and charcoal greys, single crimson red accent light (#ef4444), wet reflective concrete, volumetric haze, shallow depth of field, 35mm full-frame look, subtle film grain, professional advertising campaign, wide 16:9 composition, main subject right of centre, clean dark negative space on the left, photorealistic, no text, no letters, no watermark, no logos, no brand emblems, no readable license plates, no distorted wheels, no extra parts",
+  "negativePrompt": null,
+  "aspect": "16:9",
+  "seed": 73126,
+  "quality": null,
+  "priceUsd": 0,
+  "source": "generate_image",
+  "files": [
+    {
+      "url": "/images/generated/autopodbor-hero.webp",
+      "path": "public/images/generated/autopodbor-hero.webp",
+      "width": 1200,
+      "height": 900,
+      "bytes": 24848,
+      "variants": [
+        "/images/generated/autopodbor-hero@1024.webp",
+        "/images/generated/autopodbor-hero@640.webp"
+      ]
+    }
+  ],
+  "note": "Кадр обрезан под hero: убраны фигура и водяной знак, справа добавлен тёмный градиент.",
+  "extra": {
+    "seed": 73126,
+    "provider": "pollinations"
+  }
+}

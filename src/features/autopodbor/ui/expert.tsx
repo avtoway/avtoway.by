@@ -20,15 +20,18 @@ export default function Expert({ heading, settings }: { heading: SectionHeadingD
         <SectionHeading {...heading} align="left" />
 
         <div className="grid items-center gap-8 lg:grid-cols-[320px_1fr] lg:gap-14">
-          <div className="relative mx-auto aspect-[4/5] w-full max-w-[320px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40">
+          <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 ring-1 ring-white/5">
             {hasPhoto ? (
-              <Image
-                src={settings.expertPhoto as string}
-                alt={settings.expertName || "Эксперт АВТОWAY"}
-                fill
-                sizes="(max-width: 1024px) 80vw, 320px"
-                className="object-cover"
-              />
+              <>
+                <Image
+                  src={settings.expertPhoto as string}
+                  alt={settings.expertName || "Эксперт АВТОWAY"}
+                  fill
+                  sizes="(max-width: 1024px) 80vw, 320px"
+                  className="object-cover"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/50 via-transparent to-transparent" />
+              </>
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(239,68,68,0.12),transparent_70%)]">
                 <span className="flex h-24 w-24 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-3xl font-bold text-zinc-300">

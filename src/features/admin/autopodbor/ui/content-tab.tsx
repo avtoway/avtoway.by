@@ -202,10 +202,9 @@ export default function ContentTab() {
           <fieldset>
             <legend className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Hero</legend>
             <div className="grid gap-4 sm:grid-cols-2">
-              {text("heroBadge", "Бейдж", "АВТОПОДБОР · МИНСК И ВСЯ БЕЛАРУСЬ")}
-              {text("heroHighlight", "Подсветка в H1", "живое авто")}
+              {text("heroBadge", "Бейдж", "АВТОПОДБОР · МИНСК И БЕЛАРУСЬ")}
+              {text("heroHighlight", "Подсветка в H1", "Живое авто")}
               {text("heroTitle", "H1")}
-              {num("priceFrom", "Цена «от», BYN")}
               {area("heroSubtitle", "Подзаголовок")}
               {text("ctaPrimaryLabel", "Кнопка 1")}
               {text("ctaSecondaryLabel", "Кнопка 2")}
@@ -215,14 +214,9 @@ export default function ContentTab() {
           </fieldset>
 
           <fieldset>
-            <legend className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Статистика (0 = скрыть)</legend>
+            <legend className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Гарантия</legend>
             <div className="grid gap-4 sm:grid-cols-3">
-              {num("yearsExperience", "Лет опыта")}
-              {num("carsChecked", "Авто проверено")}
-              {num("citiesCount", "Городов")}
-              {num("guaranteeDays", "Дней гарантии")}
-              {num("avgSavings", "Средний торг, BYN")}
-              {text("reportTime", "Время отчёта")}
+              {num("guaranteeDays", "Дней гарантии", "0 — скрыть блок")}
             </div>
           </fieldset>
 

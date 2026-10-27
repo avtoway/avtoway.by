@@ -1,5 +1,3 @@
-import Reveal from "@/shared/ui/reveal";
-
 export default function SectionHeading({
   badge,
   title,
@@ -17,19 +15,13 @@ export default function SectionHeading({
   return (
     <div className={`mb-10 flex max-w-3xl flex-col sm:mb-14 ${alignment}`}>
       {badge && (
-        <Reveal>
-          <span className="mb-4 inline-flex rounded-full border border-zinc-800 bg-zinc-900/60 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-            {badge}
-          </span>
-        </Reveal>
+        <span className="mb-4 inline-flex rounded-full border border-zinc-800 bg-zinc-900/60 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+          {badge}
+        </span>
       )}
-      <Reveal delay={60}>
-        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{title}</h2>
-      </Reveal>
+      <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{title}</h2>
       {subtitle && (
-        <Reveal delay={120}>
-          <p className="mt-4 text-base leading-relaxed text-zinc-400 sm:text-lg">{subtitle}</p>
-        </Reveal>
+        <p className="mt-4 text-base leading-relaxed text-zinc-400 sm:text-lg">{subtitle}</p>
       )}
     </div>
   );

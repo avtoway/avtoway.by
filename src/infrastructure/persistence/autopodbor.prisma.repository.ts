@@ -707,10 +707,13 @@ export class PrismaAutoPodborRepository implements AutoPodborRepository {
   }
 
   async getStats(): Promise<AutoPodborStats> {
-    const [total, grouped, avg, latest, topTariff] = await Promise.all([
+    const [total, grouped, budgets, latest, topTariff] = await Promise.all([
       this.db.autoPodborLead.count(),
       this.db.autoPodborLead.groupBy({ by: ["status"], _count: { _all: true } }),
-      this.db.autoPodborLead.aggregate({ _avg: { budgetFrom: true } }),
+      this.db.autoPodborLead.findMany({
+        where: { OR: [{ budgetFrom: { not: null } }, { budgetTo: { not: null } }] },
+        select: { budgetFrom: true, budgetTo: true },
+      }),
       this.db.autoPodborLead.findMany({
         include: LEAD_INCLUDE,
         orderBy: { createdAt: "desc" },
@@ -746,6 +749,9 @@ export class PrismaAutoPodborRepository implements AutoPodborRepository {
     }
 
     const done = byStatus.get("done") ?? 0;
+    const avgBudget = budgets.length > 0
+      ? Math.round(budgets.reduce((sum, lead) => sum + (lead.budgetFrom ?? lead.budgetTo ?? 0), 0) / budgets.length)
+      : 0;
 
     return {
       total,
@@ -754,7 +760,7 @@ export class PrismaAutoPodborRepository implements AutoPodborRepository {
       done,
       cancelled: (byStatus.get("cancelled") ?? 0) + (byStatus.get("spam") ?? 0),
       conversion: total > 0 ? Math.round((done / total) * 100) : 0,
-      avgBudget: Math.round(avg._avg.budgetFrom ?? 0),
+      avgBudget,
       topTariff: topTariff[0]?.serviceTitle
         ? { title: topTariff[0].serviceTitle, count: topTariff[0]._count._all }
         : undefined,

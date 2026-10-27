@@ -116,8 +116,7 @@ export default function Tariffs({
 
         <div className="mt-8 space-y-2 text-center">
           <p className="text-sm text-zinc-500">Выезд за МКАД — 0,35 BYN/км в обе стороны.</p>
-          <p className="text-sm text-zinc-500">Разовый осмотр — 150 BYN. Если авто не подошло, вы потеряли 150, а не 15 000.</p>
-          {disclaimer && <p className="pt-2 text-xs text-zinc-600">{disclaimer}</p>}
+          {disclaimer && <p className="text-xs text-zinc-600">{disclaimer}</p>}
         </div>
       </div>
     </section>

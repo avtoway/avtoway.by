@@ -1,4 +1,3 @@
-import Reveal from "@/shared/ui/reveal";
 import type { AutoPodborReview } from "@/entities/autopodbor/autopodbor.types";
 import type { SectionHeadingData } from "../lib/defaults";
 import { REVIEW_SOURCE_LABEL } from "../lib/parse";
@@ -47,26 +46,24 @@ export default function Reviews({ heading, items }: { heading: SectionHeadingDat
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((review, index) => (
-            <Reveal key={review.id} delay={index * 60}>
-              <figure className="h-full rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-                <Stars rating={review.rating} />
-                <blockquote className="mt-3 text-sm leading-relaxed text-zinc-300">{review.text}</blockquote>
-                <figcaption className="mt-5 border-t border-zinc-800/70 pt-4 text-xs text-zinc-500">
-                  <span className="font-medium text-zinc-300">{review.name}</span>
-                  {review.city && <span> · {review.city}</span>}
-                  {review.car && <span> · {review.car}</span>}
-                  <span className="mt-1 flex items-center gap-1.5">
-                    {REVIEW_SOURCE_LABEL[review.source] ?? review.source}
-                    {review.sourceUrl && (
-                      <a href={review.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
-                        источник
-                      </a>
-                    )}
-                  </span>
-                </figcaption>
-              </figure>
-            </Reveal>
+          {items.map(review => (
+            <figure key={review.id} className="h-full rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+              <Stars rating={review.rating} />
+              <blockquote className="mt-3 text-sm leading-relaxed text-zinc-300">{review.text}</blockquote>
+              <figcaption className="mt-5 border-t border-zinc-800/70 pt-4 text-xs text-zinc-500">
+                <span className="font-medium text-zinc-300">{review.name}</span>
+                {review.city && <span> · {review.city}</span>}
+                {review.car && <span> · {review.car}</span>}
+                <span className="mt-1 flex items-center gap-1.5">
+                  {REVIEW_SOURCE_LABEL[review.source] ?? review.source}
+                  {review.sourceUrl && (
+                    <a href={review.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                      источник
+                    </a>
+                  )}
+                </span>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </div>

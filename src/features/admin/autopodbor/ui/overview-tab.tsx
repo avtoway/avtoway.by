@@ -123,7 +123,7 @@ export default function OverviewTab({ onNavigate }: { onNavigate: (tab: AdminTab
                     <td className="px-4 py-2 text-white">{lead.name}</td>
                     <td className="px-4 py-2 text-slate-400">{lead.phone ?? "—"}</td>
                     <td className="px-4 py-2 text-slate-400">{lead.serviceTitle ?? "—"}</td>
-                    <td className="px-4 py-2 text-slate-400">{formatPrice(lead.budgetFrom, { from: true, currency: "$" }) ?? "—"}</td>
+                    <td className="px-4 py-2 text-slate-400">{formatPrice(lead.budgetFrom ?? lead.budgetTo, { from: lead.budgetFrom != null, currency: "$" }) ?? "—"}</td>
                     <td className="px-4 py-2 text-slate-300">{LEAD_STATUS_LABEL[lead.status] ?? lead.status}</td>
                   </tr>
                 ))}

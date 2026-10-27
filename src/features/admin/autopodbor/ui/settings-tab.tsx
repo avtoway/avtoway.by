@@ -134,10 +134,10 @@ export default function SettingsTab() {  const [settings, setSettings] = useStat
       <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 lg:col-span-2">
         <h3 className="mb-2 text-base font-semibold text-white">Где что редактируется</h3>
         <div className="grid gap-2 text-sm text-slate-400 sm:grid-cols-2">
-          <p><span className="text-white">Контент</span> — тексты hero, статистика, эксперт, контакты, SEO, дисклеймер, заголовки секций.</p>
+          <p><span className="text-white">Контент</span> — hero, эксперт, контакты, SEO, гарантия, дисклеймер, заголовки секций.</p>
           <p><span className="text-white">Тарифы</span> — цены, состав, группы, популярность.</p>
           <p><span className="text-white">Как работаем</span> — этапы, проверки, риски, преимущества, гарантии, trust-bar.</p>
-          <p><span className="text-white">Доказательства</span> — кейсы, отзывы, галерея, FAQ.</p>
+          <p><span className="text-white">Доказательства</span> — отзывы и FAQ.</p>
           <p><span className="text-white">Заявки</span> — фильтры, статусы, ответственные, заметки, экспорт CSV.</p>
           <p><span className="text-white">Настройки</span> — публикация, индексация, кэш, защита.</p>
         </div>

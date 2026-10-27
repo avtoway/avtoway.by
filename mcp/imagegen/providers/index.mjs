@@ -5,6 +5,7 @@ import * as openai from "./openai.mjs";
 import * as ideogram from "./ideogram.mjs";
 import * as replicate from "./replicate.mjs";
 import * as comfyui from "./comfyui.mjs";
+import * as pollinations from "./pollinations.mjs";
 
 export const providers = {
   fal,
@@ -14,6 +15,7 @@ export const providers = {
   ideogram,
   replicate,
   comfyui,
+  pollinations,
 };
 
 export function getProvider(id) {

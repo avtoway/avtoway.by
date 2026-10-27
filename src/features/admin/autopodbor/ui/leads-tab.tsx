@@ -225,7 +225,7 @@ export default function LeadsTab() {
                 <td className="px-3 py-2 text-slate-400">{lead.phone ?? "—"}</td>
                 <td className="px-3 py-2 text-slate-400">{lead.city ?? "—"}</td>
                 <td className="px-3 py-2 text-slate-400">{lead.serviceTitle ?? "—"}</td>
-                <td className="px-3 py-2 text-slate-400">{formatPrice(lead.budgetFrom, { from: true, currency: "$" }) ?? "—"}</td>
+                <td className="px-3 py-2 text-slate-400">{formatPrice(lead.budgetFrom ?? lead.budgetTo, { from: lead.budgetFrom != null, currency: "$" }) ?? "—"}</td>
                 <td className="px-3 py-2 text-xs text-slate-500">{lead.source}</td>
                 <td className="px-3 py-2">
                   <span className={`rounded px-2 py-0.5 text-[11px] ${STATUS_STYLE[lead.status] ?? "bg-slate-800 text-slate-300"}`}>

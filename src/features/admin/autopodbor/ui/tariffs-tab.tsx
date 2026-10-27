@@ -18,7 +18,6 @@ const FIELDS: FieldDef[] = [
   { key: "ctaLabel", label: "Текст кнопки", placeholder: "Оставить заявку" },
   { key: "description", label: "Описание", type: "textarea", full: true },
   { key: "includes", label: "Что входит", type: "textarea", full: true, help: "По одному пункту в строке" },
-  { key: "image", label: "Изображение", type: "image", full: true },
   { key: "isPopular", label: "Популярный", type: "checkbox" },
   { key: "isActive", label: "Активен", type: "checkbox" },
   { key: "sortOrder", label: "Порядок", type: "number" },
@@ -29,7 +28,7 @@ const KEYS = FIELDS.map(field => field.key);
 const EMPTY = {
   title: "", slug: "", groupName: "rb", price: "", priceFrom: true, duration: "", unit: "",
   currency: "BYN", badge: "", icon: "check", ctaLabel: "Оставить заявку", description: "",
-  includes: "", image: "", isPopular: false, isActive: true, sortOrder: "0",
+  includes: "", isPopular: false, isActive: true, sortOrder: "0",
 };
 
 export default function TariffsTab() {

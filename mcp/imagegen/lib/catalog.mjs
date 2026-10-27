@@ -13,6 +13,24 @@ import { maskSecret } from "./env.mjs";
  */
 export const MODELS = [
   {
+    id: "pollinations-flux",
+    label: "Pollinations FLUX (бесплатно)",
+    provider: "pollinations",
+    apiModel: "flux",
+    keyEnv: null,
+    keyUrl: "https://pollinations.ai",
+    priceUsd: 0,
+    quality: 4,
+    speed: 3,
+    sizeMode: "pixels",
+    maxCount: 4,
+    maxMegapixels: 4,
+    supports: { negative: false, seed: true, edit: false, text: "плохо" },
+    bestFor: ["черновики", "фоны", "атмосферные фото", "hero", "иллюстрации"],
+    avoid: "текст, логотипы, точные лица",
+    note: "Бесплатный FLUX через Pollinations: без API-ключа, для черновиков и атмосферных фонов. Качество ниже flux-1.1-pro, но для лендинга достаточно.",
+  },
+  {
     id: "flux-1.1-pro",
     label: "FLUX 1.1 Pro",
     provider: "fal",
@@ -340,6 +358,7 @@ export function formatPrice(usd) {
 }
 
 export function availability(model) {
+  if (model.provider === "pollinations") return "бесплатно";
   if (!model.keyEnv) return "локально";
   return process.env[model.keyEnv] ? "ключ есть" : "нет ключа";
 }
