@@ -68,7 +68,14 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
-    if (pathname.startsWith("/admin/sell") && !perms.includes("sell.manage")) {
+    // Старые cookie могли быть выданы до появления sell.manage.
+    // API всё равно проверит актуальные права из БД, поэтому для входа в раздел
+    // достаточно services.manage или роли администратора.
+    const canOpenSell =
+      perms.includes("sell.manage") ||
+      perms.includes("services.manage") ||
+      user.role === "Администратор";
+    if (pathname.startsWith("/admin/sell") && !canOpenSell) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
