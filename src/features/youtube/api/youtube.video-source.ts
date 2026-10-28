@@ -19,7 +19,8 @@ export class YouTubeVideoSource implements VideoSource {
     const playlistResult = await fetchPlaylistItems(
       this.apiKey,
       uploadsPlaylistId,
-      maxResults * 2,
+      // Берём с запасом: часть свежих роликов — Shorts, их отфильтруем.
+      Math.min(50, maxResults * 3),
     );
 
     if (!playlistResult.ok) {

@@ -11,7 +11,7 @@ export function parseDurationToSeconds(iso: string): number {
 
 export function excludeShorts(durationSeconds: number): boolean {
   if (!VIDEO_CONFIG.EXCLUDE_SHORTS) return true;
-  return durationSeconds >= VIDEO_CONFIG.SHORTS_MAX_DURATION;
+  return durationSeconds > VIDEO_CONFIG.SHORTS_MAX_DURATION;
 }
 
 export function buildDurationMap(
