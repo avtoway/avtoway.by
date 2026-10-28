@@ -216,6 +216,14 @@ prisma/schema.prisma      # Схема БД
 - **Демо-данные**: 6 авто (BMW 530i, Toyota Camry, Passat B8, Geely Monjaro, Audi A6, Tesla Model 3) с фото в `public/uploads/sell/demo-*.jpg`, характеристиками, комплектацией и отчётами. Seed идемпотентный.
 - **Проверки**: typecheck OK, eslint 0 errors (85 warnings), 68 tests, build успешен; API create/patch/delete и заявки проверены вручную.
 
+### 5.14 Аренда: новая витрина и демо-парк (28.10.2026)
+- **Каталог `/services/rent`** переработан в витрину: hero с количеством авто и CTA, фильтры в карточке, мобильная шторка, сортировка, сетка/список, URL-параметры.
+- **Серверный рендер**: `RentCarRepository` + `comfortFeature` + тарифные ступени + курс НБРБ; каталог не ждёт клиентских fetch.
+- **Карточки**: фото с hover-прокруткой, класс/тип/бронь, цена BYN + USD, опции, ссылка на карточку.
+- **Карточка аренды**: общий fullscreen-lightbox `shared/ui/photo-lightbox-gallery.tsx`, блок похожих авто.
+- **Демо-парк**: `scripts/seed-rent.ts` — Hyundai Solaris, Kia Rio (такси), Passat B8, BMW 530i, Mercedes E 200, VW Touran; фото `public/uploads/rent/demo-*.jpg`, условия аренды, цены.
+- **Проверки**: typecheck OK, eslint 0 errors (85 warnings), 68 tests; `/services/rent`, карточки и sitemap 200.
+
 ---
 
 ## 6. Технические решения и паттерны

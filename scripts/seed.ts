@@ -3,6 +3,7 @@ import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
 import { seedAutoPodbor } from "./seed-autopodbor";
 import { seedSaleCars } from "./seed-sell";
+import { seedRentCars } from "./seed-rent";
 
 const url = process.env.DATABASE_URL ?? "file:./data/avtoway.db";
 const adapter = new PrismaLibSql({ url });
@@ -305,6 +306,7 @@ async function main() {
     });
   }
 
+  await seedRentCars(prisma);
   await seedSaleCars(prisma);
   await seedAutoPodbor(prisma);
 

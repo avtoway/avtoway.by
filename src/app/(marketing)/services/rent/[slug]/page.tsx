@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceLabel, getPeriodPrices, formatPrice, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import { telegramHandle, telegramUrl } from "@/shared/lib/social";
-import PhotoGallery from "@/shared/ui/photo-gallery";
+import PhotoLightboxGallery from "@/shared/ui/photo-lightbox-gallery";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { ServiceSchema } from "@/shared/ui/json-ld";
 import type { Metadata } from "next";
@@ -27,6 +28,21 @@ async function getPricingTiers(): Promise<RentPricingTier[]> {
   const db = getPrismaClient();
   const rows = await db.rentPricingTier.findMany({ orderBy: { sortOrder: "asc" } });
   return rows.map(r => ({ id: r.id, minDays: r.minDays, maxDays: r.maxDays ?? null, discount: r.discount, sortOrder: r.sortOrder }));
+}
+
+async function getSimilarCars(carId: string, classId: string | null, rentTypeId: string | null) {
+  const db = getPrismaClient();
+  const rows = await db.rentCar.findMany({
+    where: { isActive: true, id: { not: carId } },
+    include: { rentType: true, classRel: true },
+    orderBy: { sortOrder: "asc" },
+  });
+  return rows
+    .sort((a, b) => {
+      const score = (row: typeof a) => (row.classId === classId ? 2 : 0) + (row.rentTypeId === rentTypeId ? 1 : 0);
+      return score(b) - score(a);
+    })
+    .slice(0, 3);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -63,8 +79,12 @@ export default async function RentCarDetailPage({ params }: Props) {
   const photos = (car.photos ?? "").split(",").filter(Boolean);
   const features = (car.features ?? "").split(",").filter(Boolean);
   const mainPhoto = car.mainPhoto ?? photos[0];
+  const orderedPhotos = mainPhoto
+    ? [mainPhoto, ...photos.filter(photo => photo !== mainPhoto)]
+    : photos;
   const usdRate = await getUsdRate();
   const tiers = await getPricingTiers();
+  const similar = await getSimilarCars(car.id, car.classId, car.rentTypeId);
   const isTaxi = car.rentType?.slug === "taxi";
   const priceLabel = getPriceLabel(car);
   const priceAmount = priceLabel ? parseInt(priceLabel.replace(/\D/g, "")) : null;
@@ -134,7 +154,7 @@ export default async function RentCarDetailPage({ params }: Props) {
       {/* Photo gallery */}
       <section className="bg-zinc-900/30">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-          <PhotoGallery photos={photos} mainPhoto={mainPhoto} />
+          <PhotoLightboxGallery photos={orderedPhotos} title={car.name} />
         </div>
       </section>
 
@@ -234,7 +254,39 @@ export default async function RentCarDetailPage({ params }: Props) {
           <ContactBlock contact={contact} />
         </section>
       )}
+
+      {similar.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white">Похожие авто в аренду</h2>
+            <Link href="/services/rent" className="text-sm text-red-400 hover:text-red-300">Весь парк →</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {similar.map(item => <SimilarRentCard key={item.id} car={item} />)}
+          </div>
+        </section>
+      )}
     </div>
+  );
+}
+
+type SimilarRentCar = Awaited<ReturnType<typeof getSimilarCars>>[number];
+
+function SimilarRentCard({ car }: { car: SimilarRentCar }) {
+  const photo = car.mainPhoto || car.photos?.split(",")[0] || "/images/placeholder-car.webp";
+  const price = getPriceLabel(car);
+  return (
+    <Link href={`/services/rent/${car.slug}`} className="group overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 transition hover:border-zinc-600 hover:bg-zinc-900">
+      <div className="relative aspect-[16/10] overflow-hidden bg-zinc-800">
+        <Image src={photo} alt={car.name} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover transition duration-500 group-hover:scale-[1.03]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+        <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] text-white backdrop-blur-sm">{price ?? "по запросу"}</span>
+      </div>
+      <div className="p-4">
+        <p className="text-sm font-semibold text-white group-hover:text-red-400">{car.name}</p>
+        <p className="mt-1 text-xs text-zinc-500">{car.year} · {car.classRel?.name ?? "Аренда"} · {car.rentType?.name ?? ""}</p>
+      </div>
+    </Link>
   );
 }
 

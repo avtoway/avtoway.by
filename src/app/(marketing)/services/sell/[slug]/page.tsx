@@ -19,7 +19,7 @@ import {
   saleFeatureGroups,
 } from "@/shared/lib/car-dictionaries";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
-import SaleGallery from "@/features/sell/ui/sale-gallery";
+import PhotoLightboxGallery from "@/shared/ui/photo-lightbox-gallery";
 import SaleContactCard from "@/features/sell/ui/sale-contact-card";
 import SaleCard from "@/features/sell/ui/sale-card";
 import SaleStructuredData from "@/features/sell/ui/sale-structured-data";
@@ -138,7 +138,7 @@ export default async function SaleCarPage({ params }: Props) {
 
         <div className="grid gap-8 lg:grid-cols-12">
           <div className="space-y-8 lg:col-span-8">
-            <SaleGallery photos={car.photos} videoUrl={car.videoUrl} title={car.title} />
+            <PhotoLightboxGallery photos={car.photos} videoUrl={car.videoUrl} title={car.title} />
 
             <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <KeySpec label="Год" value={`${car.year} г.`} />

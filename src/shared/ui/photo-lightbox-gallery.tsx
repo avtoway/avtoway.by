@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 
 const FALLBACK = "/images/placeholder-car.webp";
 
-export default function SaleGallery({
+export default function PhotoLightboxGallery({
   photos,
   videoUrl,
   title,

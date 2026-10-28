@@ -46,6 +46,9 @@ snapshots/
 !/public/uploads/sell/
 /public/uploads/sell/*
 !/public/uploads/sell/demo-*.jpg
+!/public/uploads/rent/
+/public/uploads/rent/*
+!/public/uploads/rent/demo-*.jpg
 
 # исходники картинок (в репозиторий идут только собранные webp/jpg)
 /assets-src/*
