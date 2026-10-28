@@ -11,7 +11,7 @@
         "type": "local",
         "command": ["node", "mcp/imagegen/server.mjs"],
         "cwd": ".",
-        "disabled": false,
+        "disabled": true,
         "timeout": {
           "execution": 600000
         }

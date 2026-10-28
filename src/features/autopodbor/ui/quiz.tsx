@@ -15,7 +15,6 @@ const TASKS = [
   { id: "check", label: "Проверить авто, которое я нашёл", slug: "single-check" },
   { id: "turnkey", label: "Найти авто под ключ", slug: "turnkey" },
   { id: "day", label: "Посмотреть несколько за день", slug: "day-expert" },
-  { id: "abroad", label: "Пригнать из-за границы", slug: "abroad" },
 ];
 
 const BUDGETS = ["до 10 000 $", "10–20 000 $", "20–35 000 $", "35–50 000 $", "50 000 $+"];

@@ -37,10 +37,6 @@ export const DEFAULT_HEADINGS: Record<string, SectionHeadingData> = {
     title: "Отзывы",
     subtitle: "Реальные отзывы клиентов.",
   },
-  geography: {
-    title: "Работаем по Беларуси",
-    subtitle: "Минск и областные центры.",
-  },
   faq: { title: "Вопросы" },
   lead: {
     title: "Подберём авто под ваш бюджет",

@@ -1,6 +1,5 @@
 import type { AutoPodborPublicData } from "@/entities/autopodbor/autopodbor.types";
 import { isSectionActive, sectionHeading } from "../lib/defaults";
-import { publicAssetExists } from "../lib/assets";
 import Hero from "./hero";
 import Quiz from "./quiz";
 import Risks from "./risks";
@@ -10,7 +9,6 @@ import Checks from "./checks";
 import Guarantees from "./guarantees";
 import Expert from "./expert";
 import Reviews from "./reviews";
-import Geography from "./geography";
 import Faq from "./faq";
 import LeadForm from "./lead-form";
 import StickyCta from "./sticky-cta";
@@ -25,12 +23,7 @@ export default function AutopodborPage({ data }: { data: AutoPodborPublicData })
 
   return (
     <div className="min-h-screen bg-zinc-950">
-      <Hero
-        settings={settings}
-        tariffs={tariffs}
-        trust={trust}
-        hasImage={publicAssetExists(settings.heroImage)}
-      />
+      <Hero settings={settings} tariffs={tariffs} trust={trust} />
 
       {isSectionActive(sections, "quiz") && (
         <Quiz
@@ -76,10 +69,6 @@ export default function AutopodborPage({ data }: { data: AutoPodborPublicData })
       )}
 
       {isSectionActive(sections, "reviews") && <Reviews heading={sectionHeading(sections, "reviews")} items={reviews} />}
-
-      {isSectionActive(sections, "geography") && (
-        <Geography heading={sectionHeading(sections, "geography")} cities={cities} />
-      )}
 
       {isSectionActive(sections, "faq") && <Faq heading={sectionHeading(sections, "faq")} items={faq} />}
 

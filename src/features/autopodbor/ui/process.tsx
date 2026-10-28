@@ -11,7 +11,7 @@ export default function Process({ heading, steps }: { heading: SectionHeadingDat
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading {...heading} />
 
-        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, index) => (
             <li key={step.id} className="relative h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6">
               <div className="mb-4 flex items-center justify-between">

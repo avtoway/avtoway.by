@@ -21,8 +21,8 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
         heroHighlight: "Живое авто",
         heroSubtitle:
           "Проверим кузов, технику, пробег и документы до сделки — без сюрпризов после покупки.",
-        heroImage: "/images/generated/autopodbor-hero.webp",
-        heroImageAlt: "Автомобиль в тёмном гараже перед проверкой",
+        heroImage: null,
+        heroImageAlt: null,
         priceFrom: 150,
         ctaPrimaryLabel: "Подобрать авто",
         ctaSecondaryLabel: "Тарифы",
@@ -48,7 +48,7 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
         seoTitle: "Автоподбор в Минске и по Беларуси — проверка авто перед покупкой",
         seoDescription:
           "Разовый осмотр, эксперт на день и подбор под ключ. Проверяем кузов, технику, пробег и документы, торгуемся за вас.",
-        ogImage: "/images/generated/autopodbor-og.webp",
+        ogImage: null,
         noindex: false,
       },
     });
@@ -70,7 +70,6 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
     { key: "guarantees", title: "Почему нам доверяют", subtitle: "Работаем на покупателя, а не на продавца." },
     { key: "expert", title: "Кто будет искать авто", subtitle: null },
     { key: "reviews", title: "Отзывы", subtitle: "Реальные отзывы клиентов." },
-    { key: "geography", title: "Работаем по Беларуси", subtitle: "Минск и областные центры." },
     { key: "faq", title: "Вопросы", subtitle: null },
     { key: "lead", title: "Подберём авто под ваш бюджет", subtitle: "Оставьте контакт — вернёмся с вариантами." },
   ];
@@ -115,13 +114,6 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
       description: "Найдём, проверим и сопроводим сделку.",
       includes: nl(["Поиск и отсев", "Выезды и диагностика", "Юридическая проверка", "Торг и сделка"]),
       sortOrder: 3,
-    },
-    {
-      slug: "abroad", groupName: "abroad", title: "Подбор из-за границы", price: 900, priceFrom: true,
-      duration: "от 2 недель", icon: "globe", ctaLabel: "Обсудить пригон",
-      description: "Европа, США, Корея, Китай.",
-      includes: nl(["Подбор лота", "Проверка истории", "Документы и логистика", "Растаможка"]),
-      sortOrder: 4,
     },
     {
       slug: "vin-report", groupName: "extra", title: "VIN-отчёт", price: 29, priceFrom: false,
@@ -179,7 +171,6 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
     { title: "Поиск", duration: "1–2 дня", description: "Отбираем варианты и звоним продавцам." },
     { title: "Осмотр", duration: "2–3 часа", description: "Кузов, техника, электроника, документы." },
     { title: "Торг и сделка", duration: "день покупки", description: "Снижаем цену и сопровождаем передачу." },
-    { title: "Гарантия", duration: "30 дней", description: "Остаёмся на связи после покупки." },
   ];
   if (await prisma.autoPodborStep.count() === 0) {
     for (const [index, step] of steps.entries()) {
@@ -207,7 +198,7 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
     { type: "guarantee", title: "Поддержка после покупки", description: "Остаёмся на связи.", icon: "clock" },
 
     { type: "trust", title: "Договор", description: "", icon: "document" },
-    { type: "trust", title: "30+ параметров", description: "", icon: "shield" },
+    { type: "trust", title: "24 параметра", description: "", icon: "shield" },
     { type: "trust", title: "Отчёт за 30 минут", description: "", icon: "clock" },
     { type: "trust", title: "Гарантия в договоре", description: "", icon: "check" },
   ];
@@ -233,37 +224,31 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
     { category: "body", title: "Толщиномер по кузову", critical: true },
     { category: "body", title: "Зазоры и геометрия", critical: true },
     { category: "body", title: "Следы сварки", critical: true },
-    { category: "body", title: "Стёкла и оптика" },
     { category: "body", title: "Коррозия и днище" },
 
     { category: "engine", title: "Запуск и работа", critical: true },
     { category: "engine", title: "Течи масла и антифриза" },
     { category: "engine", title: "Ошибки блока", critical: true },
-    { category: "engine", title: "Эндоскопия цилиндров" },
     { category: "engine", title: "АКПП и рывки" },
 
     { category: "chassis", title: "Подъёмник и люфты", critical: true },
     { category: "chassis", title: "Сайлентблоки и шаровые" },
     { category: "chassis", title: "Ступицы" },
-    { category: "chassis", title: "Амортизаторы" },
     { category: "chassis", title: "Тормоза" },
 
     { category: "electronics", title: "Сканирование блоков", critical: true },
     { category: "electronics", title: "Ошибки и пробег", critical: true },
     { category: "electronics", title: "SRS и подушки" },
     { category: "electronics", title: "Электрика салона" },
-    { category: "electronics", title: "Датчики и камеры" },
 
     { category: "interior", title: "Износ руля и сидений", critical: true },
     { category: "interior", title: "Следы затопления", critical: true },
     { category: "interior", title: "Комплектность и ключи" },
     { category: "interior", title: "Обогревы и климат" },
-    { category: "interior", title: "Ремни" },
 
     { category: "legal", title: "Сверка VIN", critical: true },
     { category: "legal", title: "Техпаспорт" },
     { category: "legal", title: "Залоги и розыск", critical: true },
-    { category: "legal", title: "Таможня", critical: true },
     { category: "legal", title: "Автогражданка и техосмотр" },
   ];
   if (await prisma.autoPodborCheckItem.count() === 0) {
@@ -278,7 +263,7 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
         },
       });
     }
-    console.log("  Автоподбор: проверки (30)");
+    console.log("  Автоподбор: проверки (24)");
   }
 
   /* faq */
@@ -287,7 +272,6 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
     ["Сколько времени занимает?", "Осмотр — 2–3 часа. Подбор — от нескольких дней до нескольких недель."],
     ["Можно без моего присутствия?", "Да. Пришлём фото, видео и отчёт в Telegram."],
     ["Даёте гарантию?", "Да, 30 дней на двигатель и КПП по договору."],
-    ["Вы продаёте авто?", "Нет. Мы работаем только на покупателя."],
     ["Работаете по всей Беларуси?", "Да, Минск и областные центры. Выезд за МКАД — по договорённости."],
   ];
   if (await prisma.autoPodborFaq.count() === 0) {

@@ -208,8 +208,6 @@ export default function ContentTab() {
               {area("heroSubtitle", "Подзаголовок")}
               {text("ctaPrimaryLabel", "Кнопка 1")}
               {text("ctaSecondaryLabel", "Кнопка 2")}
-              {image("heroImage", "Фоновое изображение")}
-              {text("heroImageAlt", "Alt изображения")}
             </div>
           </fieldset>
 
@@ -248,7 +246,6 @@ export default function ContentTab() {
             <div className="grid gap-4 sm:grid-cols-2">
               {text("seoTitle", "SEO title")}
               {area("seoDescription", "SEO description")}
-              {image("ogImage", "OG-изображение (1200×630)")}
             </div>
           </fieldset>
 
