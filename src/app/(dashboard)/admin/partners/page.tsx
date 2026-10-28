@@ -32,13 +32,13 @@ export default function AdminPartnersPage() {
 
   async function loadPartners() {
     setLoading(true);
-    const res = await fetch("/api/partners").then(r => r.json());
+    const res = await fetch("/api/partners", { cache: "no-store" }).then(r => r.json());
     if (res.ok) setPartners(res.data);
     setLoading(false);
   }
 
   useEffect(() => {
-    fetch("/api/partners").then(r => r.json()).then(json => {
+    fetch("/api/partners", { cache: "no-store" }).then(r => r.json()).then(json => {
       if (json.ok) setPartners(json.data);
       setLoading(false);
     });

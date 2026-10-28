@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SaleCar } from "@/entities/sell/sale-car.types";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
+import EmptyState from "@/shared/ui/empty-state";
+import { IconCar, IconCheckCircle } from "@/shared/ui/icons";
 import {
   BODY_TYPE_LABEL,
   DRIVE_TYPE_LABEL,
@@ -326,7 +328,9 @@ export default function SellCatalog({
           <div className="max-w-3xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-300">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {cars.filter(car => car.status !== "sold").length} авто в наличии
+              {cars.length > 0
+                ? `${cars.filter(car => car.status !== "sold").length} авто в наличии`
+                : "Витрина обновляется"}
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
               Автомобили в продаже с проверкой АВТОWAY
@@ -336,11 +340,47 @@ export default function SellCatalog({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <a href="#catalog" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">Подобрать авто в каталоге ↓</a>
-            <a href="#sell-own" className="rounded-xl border border-zinc-700 bg-zinc-900/60 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:text-white">Продать свой автомобиль</a>
+            {cars.length > 0 ? (
+              <>
+                <a href="#catalog" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">Подобрать авто в каталоге ↓</a>
+                <a href="#sell-own" className="rounded-xl border border-zinc-700 bg-zinc-900/60 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:text-white">Продать свой автомобиль</a>
+              </>
+            ) : (
+              <a href="#sell-own" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">Продать свой автомобиль</a>
+            )}
           </div>
         </div>
 
+        {cars.length === 0 ? (
+          <EmptyState
+            accent="emerald"
+            icon={<IconCar className="h-8 w-8" />}
+            badge="Витрина обновляется"
+            title="Сейчас в продаже нет автомобилей"
+            description="Мы готовим новые проверенные автомобили. Расскажите, что ищете — подберём вариант под ваш бюджет или поможем продать вашу машину."
+            actions={[
+              { label: "Подобрать авто", href: "/contacts" },
+              { label: "Продать свой автомобиль", href: "#sell-own" },
+            ]}
+            features={[
+              {
+                title: "Проверка перед продажей",
+                text: "Диагностика кузова, техники и документов.",
+                icon: <IconCheckCircle className="h-4 w-4" />,
+              },
+              {
+                title: "Поможем с выбором",
+                text: "Сориентируем по бюджету, модели и состоянию.",
+                icon: <IconCheckCircle className="h-4 w-4" />,
+              },
+              {
+                title: "Сопровождение сделки",
+                text: "Проверим документы и поможем с оформлением.",
+                icon: <IconCheckCircle className="h-4 w-4" />,
+              },
+            ]}
+          />
+        ) : (
         <div id="catalog" className="scroll-mt-24">
           <div className="mb-3 flex items-center justify-between gap-3 lg:hidden">
             <button type="button" onClick={() => setMobileOpen(true)} className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white">
@@ -375,11 +415,15 @@ export default function SellCatalog({
           </div>
 
           {filtered.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 py-20 text-center">
-              <p className="text-lg font-medium text-white">По вашим фильтрам ничего не найдено</p>
-              <p className="mt-2 text-sm text-zinc-500">Попробуйте убрать часть параметров или расширить диапазон цены.</p>
-              <button type="button" onClick={reset} className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">Сбросить фильтры</button>
-            </div>
+            <EmptyState
+              compact
+              accent="amber"
+              icon={<IconCar className="h-7 w-7" />}
+              badge="Нет совпадений"
+              title="По вашим фильтрам ничего не найдено"
+              description="Попробуйте убрать часть параметров или расширить диапазон цены."
+              actions={[{ label: "Сбросить фильтры", onClick: reset }]}
+            />
           ) : (
             <div className={filters.view === "list" ? "grid gap-4" : "grid gap-5 md:grid-cols-2 lg:grid-cols-3"}>
               {filtered.map(car => (
@@ -388,6 +432,7 @@ export default function SellCatalog({
             </div>
           )}
         </div>
+        )}
 
         <section id="sell-own" className="mt-20 scroll-mt-24">
           <div className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-red-950/30 via-zinc-900/70 to-zinc-950 p-6 sm:p-10">

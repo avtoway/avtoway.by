@@ -2,6 +2,7 @@
 
 import Reveal from "@/shared/ui/reveal";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
+import EmptyState from "@/shared/ui/empty-state";
 import { telegramUrl } from "@/shared/lib/social";
 import ContactForm from "./contact-form";
 
@@ -63,7 +64,14 @@ export default function ContactsView({ contact }: { contact: ContactData | null 
         </div>
 
         {!hasAny ? (
-          <p className="text-center text-zinc-600">Контактная информация скоро появится.</p>
+          <EmptyState
+            compact
+            accent="blue"
+            icon={<PhoneIcon />}
+            badge="Контакты обновляются"
+            title="Реквизиты скоро появятся"
+            description="Пока вы можете оставить заявку в форме ниже — мы получим её и свяжемся с вами удобным способом."
+          />
         ) : (
           <>
             {/* Main contact grid */}

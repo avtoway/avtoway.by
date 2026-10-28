@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
+import EmptyState from "@/shared/ui/empty-state";
+import { IconCar, IconCheckCircle } from "@/shared/ui/icons";
 import {
   FUEL_GROUPS,
   FUEL_LABEL,
@@ -357,7 +359,7 @@ export default function RentCatalog({
           <div className="relative max-w-3xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-300">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {cars.length} авто в парке · доставка по Минску
+              {cars.length > 0 ? `${cars.length} авто в парке · доставка по Минску` : "Автопарк обновляется"}
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
               Аренда авто в Минске <span className="text-red-400">без сюрпризов</span>
@@ -366,12 +368,47 @@ export default function RentCatalog({
               Чистые автомобили, прозрачные цены и понятные условия. От эконома до бизнес-класса — подберите машину под задачу и сразу рассчитайте стоимость.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
-              <a href="#fleet" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">Подобрать авто ↓</a>
+              {cars.length > 0 ? (
+                <a href="#fleet" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">Подобрать авто ↓</a>
+              ) : (
+                <Link href="/services/rent/calculator" className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">Оставить заявку</Link>
+              )}
               <Link href="/services/rent/calculator" className="rounded-xl border border-zinc-700 bg-zinc-900/60 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:text-white">Рассчитать аренду</Link>
             </div>
           </div>
         </div>
 
+        {cars.length === 0 ? (
+          <EmptyState
+            className="mt-8"
+            accent="blue"
+            icon={<IconCar className="h-8 w-8" />}
+            badge="Автопарк обновляется"
+            title="Сейчас в парке нет свободных автомобилей"
+            description="Мы готовим новые машины и обновляем парк. Оставьте заявку — подберём вариант под вашу задачу или сообщим, когда появится подходящее авто."
+            actions={[
+              { label: "Оставить заявку", href: "/services/rent/calculator" },
+              { label: "Связаться с нами", href: "/contacts" },
+            ]}
+            features={[
+              {
+                title: "Подберём под задачу",
+                text: "Класс, коробка, топливо и бюджет — обсудим детали.",
+                icon: <IconCheckCircle className="h-4 w-4" />,
+              },
+              {
+                title: "Прозрачные условия",
+                text: "Стоимость, залог и дополнительные опции — заранее.",
+                icon: <IconCheckCircle className="h-4 w-4" />,
+              },
+              {
+                title: "Поможем с документами",
+                text: "Подскажем по страховке и оформлению аренды.",
+                icon: <IconCheckCircle className="h-4 w-4" />,
+              },
+            ]}
+          />
+        ) : (
         <div id="fleet" className="mt-8 scroll-mt-24">
           <div className="mb-4 flex flex-wrap gap-2">
             <button type="button" onClick={() => update({ type: "" })} className={`rounded-full px-4 py-2 text-sm font-medium transition ${filters.type === "" ? "bg-red-600 text-white" : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"}`}>
@@ -408,17 +445,22 @@ export default function RentCatalog({
           </div>
 
           {filtered.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 py-20 text-center">
-              <p className="text-lg font-medium text-white">Под ваши фильтры пока нет авто</p>
-              <p className="mt-2 text-sm text-zinc-500">Сбросьте часть параметров — в парке есть разные классы.</p>
-              <button type="button" onClick={reset} className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">Сбросить фильтры</button>
-            </div>
+            <EmptyState
+              compact
+              accent="amber"
+              icon={<IconCar className="h-7 w-7" />}
+              badge="Нет совпадений"
+              title="Под ваши фильтры пока нет авто"
+              description="Сбросьте часть параметров — в парке есть разные классы и комплектации."
+              actions={[{ label: "Сбросить фильтры", onClick: reset }]}
+            />
           ) : (
             <div className={filters.view === "list" ? "grid gap-4" : "grid gap-5 md:grid-cols-2 lg:grid-cols-3"}>
               {filtered.map(car => <RentCard key={car.id} car={car} usdRate={usdRate} discountFrom={discountFrom} view={filters.view} />)}
             </div>
           )}
         </div>
+        )}
 
         <section className="mt-12 grid gap-4 sm:grid-cols-3">
           {[

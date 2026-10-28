@@ -1,5 +1,6 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
@@ -7,6 +8,8 @@ import { validateOrResponse } from "@/shared/lib/validation";
 import { toApiError } from "@/shared/lib/errors";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const partnerRepo = container.get<PartnerRepository>("PartnerRepository");
@@ -46,6 +49,7 @@ export async function POST(request: Request) {
       details: { name: partner.name },
     });
 
+    revalidatePath("/partners");
     return NextResponse.json({ ok: true, data: partner }, { status: 201 });
   } catch (e) { return toApiError(e); }
 }

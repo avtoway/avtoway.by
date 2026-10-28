@@ -1,5 +1,6 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
@@ -28,6 +29,7 @@ export async function PUT(
       details: { changes: Object.keys(body) },
     });
 
+    revalidatePath("/partners");
     return NextResponse.json({ ok: true, data: updated });
   } catch (e) { return toApiError(e); }
 }
@@ -47,6 +49,7 @@ export async function DELETE(
       userId: user.id, action: "DELETE", entity: "Partner", entityId: id, details: {},
     });
 
+    revalidatePath("/partners");
     return NextResponse.json({ ok: true, data: { deleted: id } });
   } catch (e) { return toApiError(e); }
 }
