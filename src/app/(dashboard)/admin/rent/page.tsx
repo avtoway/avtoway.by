@@ -42,6 +42,7 @@ export default function AdminRentPage() {
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeSlug, setNewTypeSlug] = useState("");
   const [carConditions, setCarConditions] = useState<{ conditionId: string; value: string }[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const { confirm, dialog } = useConfirm();
 
@@ -58,11 +59,17 @@ export default function AdminRentPage() {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount (setState only after await)
   useEffect(() => { load(); }, []);
 
-  function setFormField(field: string, value: any) {
-    setForm(prev => ({ ...prev, [field]: value }));
+  function setFormField(field: string, value: unknown) {
+    setForm(prev => ({ ...prev, [field]: value }) as typeof prev);
+    setFormErrors(prev => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   }
 
-  function openCreate() { setForm({ ...EMPTY_FORM }); setEditing(null); setCarConditions([]); setModal(true); }
+  function openCreate() { setForm({ ...EMPTY_FORM }); setEditing(null); setCarConditions([]); setFormErrors({}); setModal(true); }
 
   function openEdit(c: RentCar) {
     setForm({
@@ -77,6 +84,7 @@ export default function AdminRentPage() {
       rentTypeId: c.rentTypeId ?? "", isActive: c.isActive, bookedUntil: c.bookedUntil ?? "",
     });
     setCarConditions((c.conditions ?? []).map(x => ({ conditionId: x.conditionId, value: x.value })));
+    setFormErrors({});
     setEditing(c);
     setModal(true);
   }
@@ -84,9 +92,22 @@ export default function AdminRentPage() {
   const NUM_FIELDS = new Set(["year", "seats", "priceDay", "price7Days", "priceDayTaxi", "sortOrder"]);
 
   const handleSave = useCallback(async () => {
+    const type = types.find(t => t.id === form.rentTypeId);
+    const errors: Record<string, string> = {};
+    if (!form.name.trim()) errors.name = "Укажите название";
+    if (!form.slug.trim()) errors.slug = "Укажите slug";
+    if (!form.rentTypeId) errors.rentTypeId = "Выберите тип аренды";
+    if (type?.slug === "taxi" && !form.price7Days) errors.price7Days = "Укажите цену за неделю";
+    if (type?.slug === "rent" && !form.priceDay) errors.priceDay = "Укажите цену за сутки";
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast("Заполните обязательные поля", "error");
+      return;
+    }
+
     setSaving(true);
     try {
-      const body: Record<string, any> = {};
+      const body: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(form)) {
         if (v === "" || v === null || v === undefined) { body[k] = null; continue; }
         body[k] = NUM_FIELDS.has(k) ? Number(v) : v;
@@ -95,12 +116,18 @@ export default function AdminRentPage() {
       const url = editing ? `/api/rent/${editing.id}` : "/api/rent";
       const method = editing ? "PUT" : "POST";
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const json = await res.json();
-      if (json.ok) { setModal(false); await load(); toast(editing ? "Сохранено" : "Авто добавлено"); }
-      else toast(json.error ?? "Ошибка", "error");
+      const json = await res.json().catch(() => ({})) as { ok?: boolean; error?: string };
+      if (json.ok) {
+        setModal(false);
+        setFormErrors({});
+        await load();
+        toast(editing ? "Сохранено" : "Авто добавлено");
+      } else {
+        toast(json.error ?? "Ошибка", "error");
+      }
     } catch { toast("Ошибка при сохранении", "error"); }
     setSaving(false);
-  }, [form, editing, carConditions, toast]);
+  }, [form, editing, carConditions, toast, types, load]);
 
   async function handleDelete(id: string, name: string) {
     const ok = await confirm({ title: "Удаление авто", message: `Удалить «${name}»?`, confirmLabel: "Удалить", variant: "danger" });
@@ -205,6 +232,7 @@ export default function AdminRentPage() {
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
                       <button onClick={() => openEdit(c)} className="rounded px-2.5 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-white">Ред</button>
+                      <a href={`/services/rent/${c.slug}`} target="_blank" rel="noopener noreferrer" className="rounded px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">Сайт ↗</a>
                       <button onClick={() => handleDelete(c.id, c.name)} className="rounded px-2.5 py-1 text-xs text-red-400 hover:bg-red-950 hover:text-red-300">Удл</button>
                     </div>
                   </td>
@@ -216,16 +244,25 @@ export default function AdminRentPage() {
       )}
 
       {/* Car modal */}
-      <AdminModal open={modal} onClose={() => setModal(false)} size="lg" title={editing ? "Редактировать авто" : "Новый автомобиль"}>
+      <AdminModal open={modal} onClose={() => setModal(false)} size="xl" title={editing ? "Редактировать авто" : "Новый автомобиль"}>
         <RentCarForm key={editing?.id ?? "new"} form={form} onChange={setFormField} rentTypes={types}
-          initialConditions={carConditions} onConditionsChange={setCarConditions} />
+          errors={formErrors} initialConditions={carConditions} onConditionsChange={setCarConditions} />
         {editing && <RentCarHistoryPanel carId={editing.id} />}
-        <div className="flex justify-end gap-3 pt-5">
-          <button onClick={() => setModal(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
-          <button onClick={handleSave} disabled={saving}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
-            {saving ? "Сохранение..." : "Сохранить"}
-          </button>
+        <div className="sticky bottom-0 -mx-6 mt-5 flex items-center justify-between gap-3 border-t border-slate-800 bg-slate-950 px-6 py-4">
+          <div className="min-w-0">
+            {editing && (
+              <a href={`/services/rent/${editing.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-500 hover:text-white">
+                Открыть на сайте ↗
+              </a>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setModal(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>
+            <button onClick={handleSave} disabled={saving}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
+              {saving ? "Сохранение..." : "Сохранить"}
+            </button>
+          </div>
         </div>
       </AdminModal>
 

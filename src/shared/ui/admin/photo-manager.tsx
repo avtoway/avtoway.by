@@ -1,19 +1,22 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState } from "react";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 
-const MAX_PHOTOS = 40;
 const BATCH_SIZE = 4;
 
-export default function SalePhotoManager({
+export default function PhotoManager({
   photos,
   mainPhoto,
   onChange,
+  category = "general",
+  max = 40,
 }: {
   photos: string[];
   mainPhoto: string;
   onChange: (photos: string[], mainPhoto: string) => void;
+  category?: string;
+  max?: number;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -23,7 +26,7 @@ export default function SalePhotoManager({
   const { confirm, dialog } = useConfirm();
 
   async function uploadFiles(files: File[]) {
-    const remaining = MAX_PHOTOS - photos.length;
+    const remaining = max - photos.length;
     const selected = files.filter(file => file.type.startsWith("image/")).slice(0, remaining);
     if (selected.length === 0) return;
 
@@ -37,7 +40,7 @@ export default function SalePhotoManager({
         const body = new FormData();
         body.append("file", file);
         try {
-          const response = await fetch("/api/upload?category=sell", { method: "POST", body });
+          const response = await fetch(`/api/upload?category=${category}`, { method: "POST", body });
           const json = await response.json();
           return json.ok ? String(json.url) : null;
         } catch {
@@ -87,7 +90,7 @@ export default function SalePhotoManager({
     <div className="rounded-xl border border-slate-800 p-4">
       {dialog}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-medium text-slate-500">Фотографии: {photos.length} / {MAX_PHOTOS}</p>
+        <p className="text-xs font-medium text-slate-500">Фотографии: {photos.length} / {max}</p>
         {photos.length > 0 && (
           <button type="button" onClick={clearAll} className="text-xs text-red-400 hover:text-red-300">Удалить все фото</button>
         )}
@@ -116,10 +119,10 @@ export default function SalePhotoManager({
           }}
         />
         <p className="text-sm text-slate-300">Перетащите фото сюда или выберите файлы</p>
-        <p className="mt-1 text-xs text-slate-500">JPG, PNG, WebP · до 40 фото · загрузка пачками по 4</p>
+        <p className="mt-1 text-xs text-slate-500">JPG, PNG, WebP · до {max} фото · загрузка пачками по 4</p>
         <button
           type="button"
-          disabled={uploading || photos.length >= MAX_PHOTOS}
+          disabled={uploading || photos.length >= max}
           onClick={() => inputRef.current?.click()}
           className="mt-3 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 disabled:opacity-50"
         >

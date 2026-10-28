@@ -15,7 +15,7 @@ import {
   SALE_STATUS_LABEL,
   TRANSMISSION_LABEL,
 } from "@/shared/lib/car-dictionaries";
-import SalePhotoManager from "./sale-photo-manager";
+import PhotoManager from "@/shared/ui/admin/photo-manager";
 
 export interface SaleCarFormState {
   title: string;
@@ -159,7 +159,8 @@ export default function SaleCarForm({
     <div className="flex flex-col gap-5">
       <div className="rounded-xl border border-slate-800 p-4">
         <p className="mb-3 text-xs font-medium text-slate-400">Фотографии и видео</p>
-        <SalePhotoManager
+        <PhotoManager
+          category="sell"
           photos={form.photos}
           mainPhoto={form.mainPhoto}
           onChange={(photos, mainPhoto) => {
