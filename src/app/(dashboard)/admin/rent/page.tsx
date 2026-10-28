@@ -8,6 +8,7 @@ import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { getPriceLabel } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
+import { validateTaxiRequirements } from "@/shared/lib/taxi-requirements";
 
 interface RentType { id: string; name: string; slug: string; sortOrder: number; }
 
@@ -16,6 +17,7 @@ interface RentCar {
   brand?: string; model?: string; classId?: string; class?: string;
   year?: number; color?: string; transmission?: string; fuel?: string;
   engineVolume?: string; seats?: number; features?: string; description?: string;
+  taxiRequirements?: string;
   priceDay?: number; price7Days?: number; priceDayTaxi?: number;
   rentTypeId?: string; rentType?: { id: string; name: string; slug: string };
   isActive: boolean; bookedUntil?: string; photos?: string; mainPhoto?: string;
@@ -25,7 +27,7 @@ interface RentCar {
 const EMPTY_FORM = {
   name: "", slug: "", brandId: "", modelId: "", classId: "", year: "", color: "",
   transmission: "", fuel: "", engineVolume: "", seats: "", features: "",
-  photos: "", mainPhoto: "", description: "",
+  photos: "", mainPhoto: "", description: "", taxiRequirements: "",
   priceDay: "", price7Days: "", priceDayTaxi: "",
   rentTypeId: "", isActive: true, bookedUntil: "",
 };
@@ -78,7 +80,8 @@ export default function AdminRentPage() {
       year: c.year?.toString() ?? "", color: c.color ?? "",
       transmission: c.transmission ?? "", fuel: c.fuel ?? "",
       engineVolume: c.engineVolume ?? "", seats: c.seats?.toString() ?? "",
-      features: c.features ?? "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "", description: c.description ?? "",
+      features: c.features ?? "", photos: c.photos ?? "", mainPhoto: c.mainPhoto ?? "",
+      description: c.description ?? "", taxiRequirements: c.taxiRequirements ?? "",
       priceDay: c.priceDay?.toString() ?? "",
       price7Days: c.price7Days?.toString() ?? "", priceDayTaxi: c.priceDayTaxi?.toString() ?? "",
       rentTypeId: c.rentTypeId ?? "", isActive: c.isActive, bookedUntil: c.bookedUntil ?? "",
@@ -99,6 +102,8 @@ export default function AdminRentPage() {
     if (!form.rentTypeId) errors.rentTypeId = "Выберите тип аренды";
     if (type?.slug === "taxi" && !form.price7Days) errors.price7Days = "Укажите цену за неделю";
     if (type?.slug === "rent" && !form.priceDay) errors.priceDay = "Укажите цену за сутки";
+    const taxiTextError = validateTaxiRequirements(form.taxiRequirements, type?.slug === "taxi");
+    if (taxiTextError) errors.taxiRequirements = taxiTextError;
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       toast("Заполните обязательные поля", "error");

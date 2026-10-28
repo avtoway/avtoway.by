@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
+import { DEFAULT_TAXI_REQUIREMENTS } from "../src/shared/lib/taxi-requirements";
 
 interface SeedRentCar {
   name: string;
@@ -18,6 +19,7 @@ interface SeedRentCar {
   priceDayTaxi?: number;
   photos: string[];
   description: string;
+  taxiRequirements?: string;
   features: string[];
   bookedUntil?: string;
   sortOrder: number;
@@ -71,6 +73,7 @@ const DEMO: SeedRentCar[] = [
     photos: ["/uploads/rent/demo-kia.jpg", "/uploads/rent/demo-interior-1.jpg"],
     description:
       "Kia Rio под такси: экономичный двигатель, автомат, подготовлен к ежедневной работе. Аренда от недели, помощь с документами для таксопарка.",
+    taxiRequirements: DEFAULT_TAXI_REQUIREMENTS,
     features: ["Кондиционер", "ABS", "ESP", "Bluetooth", "USB", "Подогрев сидений", "Круиз-контроль"],
     sortOrder: 2,
   },
@@ -164,7 +167,16 @@ export async function seedRentCars(prisma: PrismaClient) {
 
   for (const car of DEMO) {
     const existing = await prisma.rentCar.findUnique({ where: { slug: car.slug } });
-    if (existing) continue;
+    if (existing) {
+      const existingType = rentTypes.find(item => item.id === existing.rentTypeId);
+      if (existingType?.slug === "taxi" && !existing.taxiRequirements) {
+        await prisma.rentCar.update({
+          where: { id: existing.id },
+          data: { taxiRequirements: DEFAULT_TAXI_REQUIREMENTS },
+        });
+      }
+      continue;
+    }
 
     const brand = await prisma.carBrand.findUnique({ where: { slug: car.brand } });
     const model = brand
@@ -190,6 +202,7 @@ export async function seedRentCars(prisma: PrismaClient) {
         photos: car.photos.join(","),
         mainPhoto: car.photos[0],
         description: car.description,
+        taxiRequirements: car.taxiRequirements ?? null,
         priceDay: car.priceDay ?? null,
         price7Days: car.price7Days ?? null,
         priceDayTaxi: car.priceDayTaxi ?? null,

@@ -9,6 +9,7 @@ import { telegramHandle, telegramUrl } from "@/shared/lib/social";
 import PhotoLightboxGallery from "@/shared/ui/photo-lightbox-gallery";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { ServiceSchema } from "@/shared/ui/json-ld";
+import { DEFAULT_TAXI_REQUIREMENTS } from "@/shared/lib/taxi-requirements";
 import type { Metadata } from "next";
 
 interface Props { params: Promise<{ slug: string }> }
@@ -86,6 +87,7 @@ export default async function RentCarDetailPage({ params }: Props) {
   const tiers = await getPricingTiers();
   const similar = await getSimilarCars(car.id, car.classId, car.rentTypeId);
   const isTaxi = car.rentType?.slug === "taxi";
+  const taxiRequirements = isTaxi ? (car.taxiRequirements?.trim() || DEFAULT_TAXI_REQUIREMENTS) : "";
   const priceLabel = getPriceLabel(car);
   const priceAmount = priceLabel ? parseInt(priceLabel.replace(/\D/g, "")) : null;
   const heroUsd = usdRate && priceAmount ? Math.round(priceAmount / usdRate) : null;
@@ -248,6 +250,50 @@ export default async function RentCarDetailPage({ params }: Props) {
         </section>
       )}
 
+      {/* Taxi driver requirements and liability */}
+      {isTaxi && taxiRequirements && (
+        <section className="mx-auto max-w-5xl px-4 pb-10 sm:px-6">
+          <div className="overflow-hidden rounded-2xl border border-amber-500/25 bg-gradient-to-br from-amber-500/[0.08] via-zinc-900/60 to-zinc-950">
+            <div className="border-b border-amber-500/15 p-6 sm:p-7">
+              <div className="flex items-start gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-400/10 text-xl text-amber-300" aria-hidden="true">
+                  !
+                </span>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300">Памятка водителю такси</p>
+                  <h2 className="mt-1 text-2xl font-bold text-white">Допуск и ответственность</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+                    Перед началом аренды водитель подтверждает, что соответствует требованиям законодательства Республики Беларусь,
+                    прошёл необходимые осмотры и несёт ответственность за допуск к управлению.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 sm:p-7">
+              <TaxiRequirementText text={taxiRequirements} />
+            </div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-amber-500/15 bg-black/20 px-6 py-4 sm:px-7">
+              <span className="mr-1 text-[11px] uppercase tracking-wide text-zinc-500">Источники:</span>
+              <a href="https://pravo.by/document/?guid=12551&p0=C22600147" target="_blank" rel="noopener noreferrer"
+                className="rounded-md border border-zinc-700/80 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-amber-400/50 hover:text-amber-200">
+                Правила № 147
+              </a>
+              <a href="https://pravo.by/document/?guid=12551&p0=P32400032" target="_blank" rel="noopener noreferrer"
+                className="rounded-md border border-zinc-700/80 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-amber-400/50 hover:text-amber-200">
+                Указ № 32
+              </a>
+              <a href="https://www.mintrans.gov.by/ru/administrativnye-protsedury/litsenzirovanie-transportnoj-deyatelnosti" target="_blank" rel="noopener noreferrer"
+                className="rounded-md border border-zinc-700/80 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-amber-400/50 hover:text-amber-200">
+                Лицензирование · Минтранс
+              </a>
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-zinc-600">
+            Информация носит справочный характер. Актуальные требования и перечень документов уточняйте в официальных источниках и у перевозчика.
+          </p>
+        </section>
+      )}
+
       {/* Contact */}
       {contact && (
         <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-16">
@@ -266,6 +312,29 @@ export default async function RentCarDetailPage({ params }: Props) {
           </div>
         </section>
       )}
+    </div>
+  );
+}
+
+function TaxiRequirementText({ text }: { text: string }) {
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  return (
+    <div className="space-y-2.5">
+      {lines.map((line, index) => {
+        if (/^Допуск водителя/i.test(line)) return null;
+        if (/^Лицензия и ответственность$/i.test(line)) {
+          return <h3 key={`heading-${index}`} className="pt-3 text-base font-semibold text-white">{line}</h3>;
+        }
+        if (line.startsWith("•")) {
+          return (
+            <div key={`item-${index}`} className="flex gap-3 text-sm leading-6 text-zinc-300">
+              <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true" />
+              <span>{line.slice(1).trim()}</span>
+            </div>
+          );
+        }
+        return <p key={`text-${index}`} className="text-sm leading-7 text-zinc-300">{line}</p>;
+      })}
     </div>
   );
 }

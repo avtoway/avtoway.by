@@ -19,6 +19,7 @@ export interface RentCar {
   photos?: string;
   mainPhoto?: string;
   description?: string;
+  taxiRequirements?: string;
   priceDay?: number;
   price7Days?: number;
   priceDayTaxi?: number;

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
+import { normalizeTaxiRequirements, validateTaxiRequirements } from "@/shared/lib/taxi-requirements";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 
 export async function GET(request: Request) {
@@ -34,6 +35,11 @@ export async function POST(request: Request) {
     await requireAuth("rent.manage");
     const body = await request.json().catch(() => ({}));
     const repo = container.get<RentCarRepository>("RentCarRepository");
+    const types = await repo.getTypes();
+    const rentType = types.find(type => type.id === body.rentTypeId);
+    const taxiError = validateTaxiRequirements(body.taxiRequirements, rentType?.slug === "taxi");
+    if (taxiError) return NextResponse.json({ ok: false, error: taxiError }, { status: 400 });
+    body.taxiRequirements = normalizeTaxiRequirements(body.taxiRequirements) || null;
     const { conditions, ...carData } = body;
     const car = await repo.create(carData);
     if (Array.isArray(conditions)) await repo.setCarConditions(car.id, conditions);

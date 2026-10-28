@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import FieldError from "@/shared/ui/field-error";
 import PhotoManager from "@/shared/ui/admin/photo-manager";
 import { slugify } from "@/shared/lib/slug";
+import { DEFAULT_TAXI_REQUIREMENTS, TAXI_REQUIREMENTS_MAX_LENGTH } from "@/shared/lib/taxi-requirements";
 
 interface FormData {
   name: string; slug: string; brandId: string; modelId: string; classId: string;
   year: string; color: string; transmission: string; fuel: string;
   engineVolume: string; seats: string; features: string;
-  photos: string; mainPhoto: string; description: string;
+  photos: string; mainPhoto: string; description: string; taxiRequirements: string;
   priceDay: string; price7Days: string; priceDayTaxi: string;
   rentTypeId: string; isActive: boolean; bookedUntil: string;
 }
@@ -73,6 +74,7 @@ export default function RentCarForm({
   const selectedType = rentTypes.find(t => t.id === form.rentTypeId);
   const isTaxi = selectedType?.slug === "taxi";
   const isRent = selectedType?.slug === "rent";
+  const taxiRequirementsLength = (form.taxiRequirements ?? "").length;
   const selectedFeatures = useMemo(
     () => form.features ? form.features.split(",").map(f => f.trim()).filter(Boolean) : [],
     [form.features],
@@ -254,7 +256,14 @@ export default function RentCarForm({
             <div className="mt-3 grid gap-4 sm:grid-cols-3">
               <label className={label}>
                 <span className="text-xs text-slate-400">Тип</span>
-                <select value={form.rentTypeId} onChange={e => onChange("rentTypeId", e.target.value)} className={field}>
+                <select value={form.rentTypeId} onChange={e => {
+                  const value = e.target.value;
+                  const nextType = rentTypes.find(t => t.id === value);
+                  onChange("rentTypeId", value);
+                  if (nextType?.slug === "taxi" && !(form.taxiRequirements ?? "").trim()) {
+                    onChange("taxiRequirements", DEFAULT_TAXI_REQUIREMENTS);
+                  }
+                }} className={field}>
                   <option value="">Выберите</option>
                   {rentTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
@@ -269,6 +278,39 @@ export default function RentCarForm({
               </label>
             </div>
           </fieldset>
+
+          {isTaxi && (
+            <fieldset className="rounded-xl border border-amber-500/40 bg-amber-500/[0.03] p-4">
+              <legend className="px-1 text-xs font-medium text-amber-300">Допуск водителя такси *</legend>
+              <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+                <p className="max-w-xl text-xs leading-relaxed text-slate-400">
+                  Обязательный текст для карточки авто под такси. Он показывается на публичной странице
+                  и фиксирует требования законодательства РБ, медицинский осмотр, техконтроль и ответственность водителя.
+                </p>
+                <button type="button" onClick={() => onChange("taxiRequirements", DEFAULT_TAXI_REQUIREMENTS)}
+                  className="rounded-lg border border-amber-500/40 px-3 py-1.5 text-xs text-amber-200 transition hover:bg-amber-500/10">
+                  Вставить типовой текст
+                </button>
+              </div>
+              <textarea
+                value={form.taxiRequirements ?? ""}
+                onChange={e => onChange("taxiRequirements", e.target.value.slice(0, TAXI_REQUIREMENTS_MAX_LENGTH))}
+                rows={15}
+                maxLength={TAXI_REQUIREMENTS_MAX_LENGTH}
+                placeholder="Опишите, кто допускается к работе на этом автомобиле-такси и какую ответственность несёт водитель"
+                className={`${field} mt-3 w-full resize-y leading-relaxed ${eb("taxiRequirements")}`}
+              />
+              <div className="mt-1 flex items-start justify-between gap-3">
+                <FieldError error={errors?.taxiRequirements} />
+                <span className={`ml-auto shrink-0 text-[10px] ${taxiRequirementsLength >= TAXI_REQUIREMENTS_MAX_LENGTH ? "text-red-400" : "text-slate-500"}`}>
+                  {taxiRequirementsLength} / {TAXI_REQUIREMENTS_MAX_LENGTH}
+                </span>
+              </div>
+              <p className="mt-1 text-[10px] leading-relaxed text-slate-600">
+                Ссылки на Правила № 147, Указ № 32 и Закон № 213-З уже включены в типовой текст. Проверяйте актуальность при изменении законодательства.
+              </p>
+            </fieldset>
+          )}
 
           {selectedType && (
             <fieldset className="rounded-xl border border-slate-800 p-4">
