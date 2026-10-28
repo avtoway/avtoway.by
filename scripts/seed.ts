@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
 import { seedAutoPodbor } from "./seed-autopodbor";
+import { seedSaleCars } from "./seed-sell";
 
 const url = process.env.DATABASE_URL ?? "file:./data/avtoway.db";
 const adapter = new PrismaLibSql({ url });
@@ -15,8 +16,8 @@ async function main() {
   ];
 
   const perms: Record<string, string[]> = {
-    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view", "rent.manage", "contacts.manage", "email.manage", "autopodbor.manage", "autopodbor.requests", "autopodbor.view"],
-    "Редактор": ["services.manage", "partners.manage", "rent.manage", "contacts.manage", "autopodbor.manage", "autopodbor.requests"],
+    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view", "rent.manage", "sell.manage", "contacts.manage", "email.manage", "autopodbor.manage", "autopodbor.requests", "autopodbor.view"],
+    "Редактор": ["services.manage", "partners.manage", "rent.manage", "sell.manage", "contacts.manage", "autopodbor.manage", "autopodbor.requests"],
     "Наблюдатель": ["services.view", "partners.view", "autopodbor.view"],
   };
 
@@ -142,6 +143,7 @@ async function main() {
     { name: "Renault", slug: "renault", models: [{ name: "Duster", slug: "duster" }, { name: "Kaptur", slug: "kaptur" }, { name: "Logan", slug: "logan" }, { name: "Megane", slug: "megane" }, { name: "Sandero", slug: "sandero" }] },
     { name: "Skoda", slug: "skoda", models: [{ name: "Fabia", slug: "fabia" }, { name: "Kodiaq", slug: "kodiaq" }, { name: "Octavia", slug: "octavia" }, { name: "Rapid", slug: "rapid" }, { name: "Superb", slug: "superb" }] },
     { name: "Subaru", slug: "subaru", models: [{ name: "Forester", slug: "forester" }, { name: "Impreza", slug: "impreza" }, { name: "Legacy", slug: "legacy" }, { name: "Outback", slug: "outback" }] },
+    { name: "Tesla", slug: "tesla", models: [{ name: "Model 3", slug: "model-3" }, { name: "Model S", slug: "model-s" }, { name: "Model X", slug: "model-x" }, { name: "Model Y", slug: "model-y" }] },
     { name: "Toyota", slug: "toyota", models: [{ name: "Camry", slug: "camry" }, { name: "Corolla", slug: "corolla" }, { name: "Highlander", slug: "highlander" }, { name: "Land Cruiser", slug: "land-cruiser" }, { name: "RAV4", slug: "rav4" }] },
     { name: "Volkswagen", slug: "volkswagen", models: [{ name: "Golf", slug: "golf" }, { name: "Jetta", slug: "jetta" }, { name: "Passat", slug: "passat" }, { name: "Polo", slug: "polo" }, { name: "Tiguan", slug: "tiguan" }, { name: "Touran", slug: "touran" }] },
     { name: "Volvo", slug: "volvo", models: [{ name: "S60", slug: "s60" }, { name: "S90", slug: "s90" }, { name: "XC40", slug: "xc40" }, { name: "XC60", slug: "xc60" }, { name: "XC90", slug: "xc90" }] },
@@ -303,6 +305,7 @@ async function main() {
     });
   }
 
+  await seedSaleCars(prisma);
   await seedAutoPodbor(prisma);
 
   console.log("База данных готова");

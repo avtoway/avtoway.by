@@ -7,14 +7,14 @@ datasource db {
 }
 
 model User {
-  id         String      @id @default(uuid())
-  login      String      @unique
-  password   String
-  createdAt  DateTime    @default(now()) @map("created_at")
-  updatedAt  DateTime    @updatedAt @map("updated_at")
-  profile    Profile?
-  roles      UserRole[]
-  auditLogs  AuditLog[]
+  id              String           @id @default(uuid())
+  login           String           @unique
+  password        String
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  profile         Profile?
+  roles           UserRole[]
+  auditLogs       AuditLog[]
   autoPodborLeads AutoPodborLead[] @relation("AutoPodborAssignee")
 
   @@map("users")
@@ -96,10 +96,10 @@ model Service {
   photo       String?
   icon        String   @default("car")
   color       String   @default("#E74C3C")
-  isActive      Boolean  @default(true) @map("is_active")
-  sortOrder     Int      @default(0) @map("sort_order")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("services")
 }
@@ -136,7 +136,7 @@ model Setting {
 }
 
 model Contact {
-  id           String  @id @default(uuid())
+  id           String   @id @default(uuid())
   phone        String?
   email        String?
   telegram     String?
@@ -147,7 +147,7 @@ model Contact {
   rutube       String?
   vk           String?
   address      String?
-  workingHours String? @map("working_hours")
+  workingHours String?  @map("working_hours")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("contacts")
@@ -183,17 +183,17 @@ model SentEmail {
 }
 
 model InboxEmail {
-  id          String   @id @default(uuid())
-  messageId   String?  @unique @map("message_id")
-  from        String
-  to          String
-  subject     String
-  body        String
-  textBody    String?  @map("text_body")
-  isRead      Boolean  @default(false) @map("is_read")
-  isDeleted   Boolean  @default(false) @map("is_deleted")
-  receivedAt  DateTime @map("received_at")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid())
+  messageId  String?  @unique @map("message_id")
+  from       String
+  to         String
+  subject    String
+  body       String
+  textBody   String?  @map("text_body")
+  isRead     Boolean  @default(false) @map("is_read")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  receivedAt DateTime @map("received_at")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   @@index([receivedAt])
   @@index([isRead])
@@ -211,11 +211,12 @@ model RentType {
 }
 
 model CarBrand {
-  id      String     @id @default(uuid())
-  name    String     @unique
-  slug    String     @unique
-  models  CarModel[]
-  rentCars RentCar[] @relation("RentCarBrand")
+  id       String     @id @default(uuid())
+  name     String     @unique
+  slug     String     @unique
+  models   CarModel[]
+  rentCars RentCar[]  @relation("RentCarBrand")
+  saleCars SaleCar[]  @relation("SaleCarBrand")
 
   @@map("car_brands")
 }
@@ -237,60 +238,61 @@ model Transmission {
 }
 
 model CarModel {
-  id       String   @id @default(uuid())
-  brandId  String   @map("brand_id")
-  brand    CarBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  id       String    @id @default(uuid())
+  brandId  String    @map("brand_id")
+  brand    CarBrand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
   name     String
   slug     String
   rentCars RentCar[] @relation("RentCarModel")
+  saleCars SaleCar[] @relation("SaleCarModel")
 
   @@unique([brandId, slug])
   @@map("car_models")
 }
 
 model RentCar {
-  id            String           @id @default(uuid())
-  name          String
-  slug          String           @unique
-  brandId       String?          @map("brand_id")
-  modelId       String?          @map("model_id")
-  brandRel      CarBrand?        @relation("RentCarBrand", fields: [brandId], references: [id], onDelete: SetNull)
-  modelRel      CarModel?        @relation("RentCarModel", fields: [modelId], references: [id], onDelete: SetNull)
-  classId       String?          @map("class_id")
-  classRel      CarClass?        @relation(fields: [classId], references: [id], onDelete: SetNull)
-  year          Int?
-  color         String?
-  transmission  String?
-  fuel          String?
-  engineVolume  String?          @map("engine_volume")
-  seats         Int?
-  features      String?
-  photos        String?
-  mainPhoto     String?          @map("main_photo")
-  description   String?
-  priceDay      Int?             @map("price_day")
-  price7Days    Int?             @map("price_7days")
-  priceDayTaxi  Int?             @map("price_day_taxi")
-  rentTypeId    String?          @map("rent_type_id")
-  rentType      RentType?        @relation(fields: [rentTypeId], references: [id])
-  isActive      Boolean          @default(true) @map("is_active")
-  bookedUntil   String?          @map("booked_until")
-  sortOrder     Int              @default(0) @map("sort_order")
-  createdAt     DateTime         @default(now()) @map("created_at")
-  updatedAt     DateTime         @updatedAt @map("updated_at")
-  history       RentCarHistory[]
-  requests      RentRequest[]
-  conditions    RentCarCondition[]
+  id           String             @id @default(uuid())
+  name         String
+  slug         String             @unique
+  brandId      String?            @map("brand_id")
+  modelId      String?            @map("model_id")
+  brandRel     CarBrand?          @relation("RentCarBrand", fields: [brandId], references: [id], onDelete: SetNull)
+  modelRel     CarModel?          @relation("RentCarModel", fields: [modelId], references: [id], onDelete: SetNull)
+  classId      String?            @map("class_id")
+  classRel     CarClass?          @relation(fields: [classId], references: [id], onDelete: SetNull)
+  year         Int?
+  color        String?
+  transmission String?
+  fuel         String?
+  engineVolume String?            @map("engine_volume")
+  seats        Int?
+  features     String?
+  photos       String?
+  mainPhoto    String?            @map("main_photo")
+  description  String?
+  priceDay     Int?               @map("price_day")
+  price7Days   Int?               @map("price_7days")
+  priceDayTaxi Int?               @map("price_day_taxi")
+  rentTypeId   String?            @map("rent_type_id")
+  rentType     RentType?          @relation(fields: [rentTypeId], references: [id])
+  isActive     Boolean            @default(true) @map("is_active")
+  bookedUntil  String?            @map("booked_until")
+  sortOrder    Int                @default(0) @map("sort_order")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  history      RentCarHistory[]
+  requests     RentRequest[]
+  conditions   RentCarCondition[]
 
   @@map("rent_cars")
 }
 
 model RentCondition {
-  id          String             @id @default(uuid())
-  name        String             @unique
-  slug        String             @unique
-  placeholder String?
-  sortOrder   Int                @default(0) @map("sort_order")
+  id            String             @id @default(uuid())
+  name          String             @unique
+  slug          String             @unique
+  placeholder   String?
+  sortOrder     Int                @default(0) @map("sort_order")
   carConditions RentCarCondition[]
 
   @@map("rent_conditions")
@@ -310,20 +312,20 @@ model RentCarCondition {
 }
 
 model RentPricingTier {
-  id        String  @id @default(uuid())
-  minDays   Int     @map("min_days")
-  maxDays   Int?    @map("max_days")
-  discount  Int     @default(0)
-  sortOrder Int     @default(0) @map("sort_order")
+  id        String @id @default(uuid())
+  minDays   Int    @map("min_days")
+  maxDays   Int?   @map("max_days")
+  discount  Int    @default(0)
+  sortOrder Int    @default(0) @map("sort_order")
 
   @@map("rent_pricing_tiers")
 }
 
 model ComfortFeature {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  slug      String   @unique
-  sortOrder Int      @default(0) @map("sort_order")
+  id        String @id @default(uuid())
+  name      String @unique
+  slug      String @unique
+  sortOrder Int    @default(0) @map("sort_order")
 
   @@map("comfort_features")
 }
@@ -391,7 +393,9 @@ model RentCarHistory {
   @@map("rent_car_history")
 }
 
-/* ─── Автоподбор (/services/inspection) ─── */
+/**
+ * ─── Автоподбор (/services/inspection) ───
+ */
 
 model AutoPodborSettings {
   id                String   @id @default("main")
@@ -597,11 +601,11 @@ model AutoPodborGalleryItem {
 }
 
 model AutoPodborCity {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  slug      String   @unique
-  isActive  Boolean  @default(true) @map("is_active")
-  sortOrder Int      @default(0) @map("sort_order")
+  id        String  @id @default(uuid())
+  name      String  @unique
+  slug      String  @unique
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @default(0) @map("sort_order")
 
   @@map("autopodbor_cities")
 }
@@ -621,34 +625,138 @@ model AutoPodborPromo {
 }
 
 model AutoPodborLead {
-  id            String   @id @default(uuid())
-  name          String
-  phone         String?
-  email         String?
-  messenger     String?
-  city          String?
-  budgetFrom    Int?     @map("budget_from")
-  budgetTo      Int?     @map("budget_to")
-  brand         String?
-  model         String?
-  serviceSlug   String?  @map("service_slug")
-  serviceTitle  String?  @map("service_title")
-  comment       String?
-  quiz          String?
-  source        String   @default("form")
-  status        String   @default("new")
-  priceQuoted   Int?     @map("price_quoted")
-  assignedToId  String?  @map("assigned_to_id")
-  assignedTo    User?    @relation("AutoPodborAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
-  internalNote  String?  @map("internal_note")
-  pageUrl       String?  @map("page_url")
-  utmSource     String?  @map("utm_source")
-  utmMedium     String?  @map("utm_medium")
-  utmCampaign   String?  @map("utm_campaign")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  name         String
+  phone        String?
+  email        String?
+  messenger    String?
+  city         String?
+  budgetFrom   Int?     @map("budget_from")
+  budgetTo     Int?     @map("budget_to")
+  brand        String?
+  model        String?
+  serviceSlug  String?  @map("service_slug")
+  serviceTitle String?  @map("service_title")
+  comment      String?
+  quiz         String?
+  source       String   @default("form")
+  status       String   @default("new")
+  priceQuoted  Int?     @map("price_quoted")
+  assignedToId String?  @map("assigned_to_id")
+  assignedTo   User?    @relation("AutoPodborAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  internalNote String?  @map("internal_note")
+  pageUrl      String?  @map("page_url")
+  utmSource    String?  @map("utm_source")
+  utmMedium    String?  @map("utm_medium")
+  utmCampaign  String?  @map("utm_campaign")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([status, createdAt])
   @@index([serviceSlug])
   @@map("autopodbor_leads")
+}
+
+/**
+ * ─── Продажа авто (/services/sell) ───
+ */
+
+model SaleCar {
+  id    String @id @default(uuid())
+  slug  String @unique
+  title String
+
+  brandId    String?   @map("brand_id")
+  modelId    String?   @map("model_id")
+  brandRel   CarBrand? @relation("SaleCarBrand", fields: [brandId], references: [id], onDelete: SetNull)
+  modelRel   CarModel? @relation("SaleCarModel", fields: [modelId], references: [id], onDelete: SetNull)
+  generation String?
+
+  priceUsd      Int     @map("price_usd")
+  priceByn      Int?    @map("price_byn")
+  oldPriceUsd   Int?    @map("old_price_usd")
+  isNegotiable  Boolean @default(true) @map("is_negotiable")
+  allowExchange Boolean @default(false) @map("allow_exchange")
+  allowCredit   Boolean @default(false) @map("allow_credit")
+
+  year             Int
+  mileageKm        Int     @map("mileage_km")
+  bodyType         String  @map("body_type")
+  transmission     String
+  fuel             String
+  engineVolume     Float?  @map("engine_volume")
+  enginePowerHp    Int?    @map("engine_power_hp")
+  driveType        String  @map("drive_type")
+  color            String?
+  interiorMaterial String? @map("interior_material")
+  interiorColor    String? @map("interior_color")
+  steering         String  @default("left")
+  seats            Int?    @default(5)
+  doors            Int?    @default(4)
+
+  condition      String  @default("used")
+  ownersCount    String? @map("owners_count")
+  originCountry  String? @map("origin_country")
+  customsCleared Boolean @default(true) @map("customs_cleared")
+  vin            String?
+  vinVerified    Boolean @default(false) @map("vin_verified")
+  originalPaint  Boolean @default(false) @map("original_paint")
+  noAccidents    Boolean @default(false) @map("no_accidents")
+  serviceBook    Boolean @default(false) @map("service_book")
+
+  isInspected    Boolean @default(true) @map("is_inspected")
+  expertSummary  String? @map("expert_summary")
+  bodyCheckNote  String? @map("body_check_note")
+  techCheckNote  String? @map("tech_check_note")
+  legalCheckNote String? @map("legal_check_note")
+  diagnosticsPdf String? @map("diagnostics_pdf")
+
+  features    String?
+  customSpecs String? @map("custom_specs")
+  description String?
+  mainPhoto   String? @map("main_photo")
+  photos      String?
+  videoUrl    String? @map("video_url")
+
+  city         String  @default("Минск")
+  contactName  String? @map("contact_name")
+  contactPhone String? @map("contact_phone")
+
+  status     String  @default("available")
+  isFeatured Boolean @default(false) @map("is_featured")
+  isActive   Boolean @default(true) @map("is_active")
+  viewsCount Int     @default(0) @map("views_count")
+  sortOrder  Int     @default(0) @map("sort_order")
+
+  seoTitle       String? @map("seo_title")
+  seoDescription String? @map("seo_description")
+
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  requests  SaleRequest[]
+
+  @@index([status, isActive, sortOrder])
+  @@index([brandId, modelId])
+  @@index([priceUsd])
+  @@index([year])
+  @@map("sale_cars")
+}
+
+model SaleRequest {
+  id          String   @id @default(uuid())
+  type        String   @default("buy")
+  carId       String?  @map("car_id")
+  car         SaleCar? @relation(fields: [carId], references: [id], onDelete: SetNull)
+  clientName  String   @map("client_name")
+  clientPhone String   @map("client_phone")
+  carInfo     String?  @map("car_info")
+  offerPrice  Int?     @map("offer_price")
+  comment     String?
+  status      String   @default("new")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([carId])
+  @@map("sale_requests")
 }

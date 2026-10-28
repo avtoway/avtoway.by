@@ -89,6 +89,8 @@ prisma/schema.prisma      # Схема БД
 | ContactRequest | contact_requests | Заявки с сайта (форма обратной связи) |
 | SentEmail | sent_emails | Отправленные письма |
 | InboxEmail | inbox_emails | Входящие письма (кеш из IMAP) |
+| SaleCar | sale_cars | Автомобили в продаже (каталог `/services/sell`) |
+| SaleRequest | sale_requests | Заявки на осмотр, trade-in и продажу своего авто |
 
 ### Ключевые поля RentCar
 `name, slug, brandId, modelId, classId, year, color, transmission, fuel, engineVolume, seats, features (CSV строка), photos (CSV), mainPhoto, description, priceDay, price7Days, priceDayTaxi, rentTypeId, isActive, bookedUntil, sortOrder`
@@ -202,6 +204,17 @@ prisma/schema.prisma      # Схема БД
 - **Главная**: секция «О проекте» получила фон, градиент, бейдж и более контрастный текст.
 - **Архитектурный план**: `docs/architecture/scalability-crm-seo.md` — ServiceModule, унифицированная CRM (`leads`, `lead_messages`, `lead_status_history`), миграция старых заявок без потери данных, города, блог, интеграции, финансы, SEO-чеклист. Схема БД **не применялась** — это проект на согласование.
 - **Проверки**: typecheck OK, eslint 0 errors (77 warnings), 55 tests, build успешен.
+
+### 5.13 Продажа авто: каталог, карточка и админка (28.10.2026)
+- **БД**: `sale_cars` + `sale_requests`; связи `SaleCar` с `CarBrand`/`CarModel`. Поля: цена USD/BYN, характеристики, история, отчёт эксперта, комплектация, SEO, статусы, 40 фото.
+- **Публичный каталог `/services/sell`**: компактный hero, фильтры (марка/модель/поколение, цена USD/BYN, год, КПП, топливо, объём, кузов, привод, пробег, проверки, trade-in), сортировка, сетка/список, мобильная шторка, URL-синхронизация, карточки с hover-прокруткой фото, ценой в двух валютах и бейджами. Внизу — блок продажи своего авто с формой.
+- **Карточка `/services/sell/[slug]`**: галерея до 40 фото + fullscreen lightbox (клавиши/свайп/колесо), ключевые параметры, отчёт эксперта, сгруппированные характеристики без пустых полей, описание, комплектация по категориям, похожие авто, sticky-цена, мобильная нижняя панель.
+- **Заявки**: публичная форма (buy / trade_in / sell_own), honeypot, rate limit; админка `/admin/sell` — 2 вкладки «Автомобили»/«Заявки», быстрый статус, активность, поиск, фильтры, менеджер фото до 40 (drag-and-drop, пачки по 4, порядок, главная, удаление), custom specs, SEO.
+- **API**: `/api/sell` (GET/POST), `/api/sell/[id]` (GET/PATCH/DELETE), `/api/sell/requests` (GET/POST), `/api/sell/requests/[id]` (PATCH/DELETE); `requireAuth("sell.manage")`, audit, `revalidatePath`.
+- **SEO**: canonical/OG, `Car`+`Offer` JSON-LD, breadcrumbs, sitemap (6 demo cars + услуга), динамические метаданные.
+- **Права/меню**: `sell.manage` в seed (Администратор/Редактор), пункт «Продажа авто» в разделе «Услуги» с badge новых заявок, proxy guard.
+- **Демо-данные**: 6 авто (BMW 530i, Toyota Camry, Passat B8, Geely Monjaro, Audi A6, Tesla Model 3) с фото в `public/uploads/sell/demo-*.jpg`, характеристиками, комплектацией и отчётами. Seed идемпотентный.
+- **Проверки**: typecheck OK, eslint 0 errors (85 warnings), 68 tests, build успешен; API create/patch/delete и заявки проверены вручную.
 
 ---
 

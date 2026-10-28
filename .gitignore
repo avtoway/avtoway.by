@@ -41,6 +41,11 @@ snapshots/
 
 # uploaded files
 /public/uploads/
+# demo photos for the sale catalog (seed data)
+!/public/uploads/
+!/public/uploads/sell/
+/public/uploads/sell/*
+!/public/uploads/sell/demo-*.jpg
 
 # исходники картинок (в репозиторий идут только собранные webp/jpg)
 /assets-src/*

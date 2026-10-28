@@ -15,7 +15,7 @@ const ALLOWED: Record<string, string> = {
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 // Категории — это просто подпапки в public/uploads, чтобы фото авто не смешивались с фото партнёров.
-const CATEGORIES = new Set(["partners", "rent", "avatars", "services", "general", "autopodbor"]);
+const CATEGORIES = new Set(["partners", "rent", "sell", "avatars", "services", "general", "autopodbor"]);
 
 export async function POST(request: Request) {
   try {

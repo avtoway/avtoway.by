@@ -1,5 +1,16 @@
 # Dev Log
 
+## 2026-10-28 — Модуль «Продажа авто»
+
+- [x] **БД**: `sale_cars`, `sale_requests`, связи с марками/моделями; `prisma db push` + generate без reset.
+- [x] **Публичный каталог** `/services/sell`: фильтры av.by-стиля, цена USD/BYN, URL-синхронизация, мобильная шторка, grid/list, hover-просмотр фото, карточки со статусами и отчётом.
+- [x] **Карточка** `/services/sell/[slug]`: галерея + lightbox, ключевые параметры, экспертный отчёт, таблица характеристик, комплектация по группам, похожие авто, sticky-цена и мобильный CTA.
+- [x] **Заявки**: `buy` / `trade_in` / `sell_own`, honeypot, rate-limit, API, админ-вкладка.
+- [x] **Админка** `/admin/sell`: список, быстрый статус, активность, форма, custom specs, SEO, фото до 40 пачками, drag-and-drop, порядок и главная.
+- [x] **SEO**: canonical/OG, Car+Offer JSON-LD, breadcrumbs, sitemap, 6 демо-авто.
+- [x] **Права**: `sell.manage` в seed, меню с badge, proxy guard, audit.
+- [x] **Проверки**: typecheck OK, eslint 0 errors, 68 tests, build успешен; API create/patch/delete и заявки проверены.
+
 ## 2026-10-28 — Адаптивность, SEO и масштабируемость
 
 - [x] **Reveal** больше не скрывает контент: без JS и для краулеров блоки видимы, с JS — только лёгкий сдвиг. Убран `opacity: 0`; добавлен `js`-класс и `prefers-reduced-motion`.

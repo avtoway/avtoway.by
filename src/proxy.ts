@@ -22,9 +22,10 @@ export function proxy(request: NextRequest) {
 
   // Публичные формы: защита от спама/флуда (лиды автоподбора — 5/10 мин, остальные — 10/10 мин)
   const isAutoPodborLead = pathname === "/api/autopodbor/leads";
+  const isSaleRequest = pathname === "/api/sell/requests";
   const isPublicWrite =
     request.method === "POST" &&
-    (pathname === "/api/rent/requests" || pathname === "/api/contact" || isAutoPodborLead);
+    (pathname === "/api/rent/requests" || pathname === "/api/contact" || isAutoPodborLead || isSaleRequest);
   if (isPublicWrite && !checkRateLimit(
     `public:${pathname}:${clientIp(request)}`,
     isAutoPodborLead ? 5 : 10,
@@ -67,6 +68,10 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
+    if (pathname.startsWith("/admin/sell") && !perms.includes("sell.manage")) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
     if (pathname.startsWith("/admin/contacts") && !perms.includes("contacts.manage")) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
@@ -91,4 +96,4 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/autopodbor/leads/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/autopodbor/leads/:path*", "/api/sell/requests/:path*"] };

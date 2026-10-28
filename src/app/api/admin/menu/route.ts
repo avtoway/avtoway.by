@@ -4,6 +4,7 @@ import { container } from "@/di/container";
 import { getAuthUser } from "@/lib/auth.server";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repository";
+import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
 
 interface MenuItem {
   label: string;
@@ -32,6 +33,14 @@ export async function GET() {
     serviceChildren.push({ label: "Калькулятор аренды", icon: "calculator", href: "/admin/rent/calculator", perm: "rent.manage" });
   }
 
+  let newSaleRequests = 0;
+  if (perms.some(p => p.startsWith("sell."))) {
+    try {
+      const saleRepo = container.get<SaleCarRepository>("SaleCarRepository");
+      newSaleRequests = await saleRepo.countNewRequests();
+    } catch { /* таблица ещё не создана — не ломаем меню */ }
+  }
+
   let newAutoPodborLeads = 0;
   if (perms.some(p => p.startsWith("autopodbor."))) {
     try {
@@ -50,6 +59,7 @@ export async function GET() {
       children: [
         { label: "Все услуги", icon: "settings", href: "/admin/services", perm: "services.manage" },
         ...serviceChildren,
+        { label: "Продажа авто", icon: "dollar", href: "/admin/sell", perm: "sell.manage", badge: newSaleRequests || undefined },
       ],
     },
     { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
