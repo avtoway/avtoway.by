@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import AuditFilters from "@/features/admin/audit-logs/ui/audit-filters";
 
 interface LogEntry {
@@ -145,8 +145,8 @@ export default function AdminAuditLogsPage() {
             </thead>
             <tbody>
               {filtered.map(l => (
-                <>
-                  <tr key={l.id} className="border-b border-slate-800/50 hover:bg-slate-900/50 cursor-pointer" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>
+                <Fragment key={l.id}>
+                  <tr className="border-b border-slate-800/50 hover:bg-slate-900/50 cursor-pointer" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>
                     <td className="whitespace-nowrap px-4 py-3 text-slate-500">{new Date(l.createdAt).toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className="text-white">{actionDescription(l)}</span>
@@ -154,7 +154,7 @@ export default function AdminAuditLogsPage() {
                     <td className="px-4 py-3 text-slate-600">{expanded === l.id ? "▲" : "▼"}</td>
                   </tr>
                   {expanded === l.id && (
-                    <tr key={`${l.id}-detail`} className="bg-slate-900/30">
+                    <tr className="bg-slate-900/30">
                       <td colSpan={3} className="px-4 py-3">
                         <div className="space-y-1 text-xs text-slate-400">
                           <p><span className="text-slate-500">Пользователь:</span> {describeWho(l)}{l.userLogin ? ` @${l.userLogin}` : ""}</p>
@@ -171,7 +171,7 @@ export default function AdminAuditLogsPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
