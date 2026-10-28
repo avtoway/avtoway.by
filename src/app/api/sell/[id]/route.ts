@@ -52,6 +52,7 @@ export async function PATCH(request: Request, { params }: Props) {
     });
     revalidatePath("/services/sell");
     revalidatePath(`/services/sell/${updated.slug}`);
+    revalidatePath("/sitemap.xml");
     return NextResponse.json({ ok: true, data: updated });
   } catch (e) {
     return toApiError(e);
@@ -71,6 +72,7 @@ export async function DELETE(_: Request, { params }: Props) {
     });
     revalidatePath("/services/sell");
     revalidatePath(`/services/sell/${existing.slug}`);
+    revalidatePath("/sitemap.xml");
     return NextResponse.json({ ok: true });
   } catch (e) {
     return toApiError(e);

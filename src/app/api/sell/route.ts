@@ -104,6 +104,7 @@ export async function POST(request: Request) {
       details: { title: created.title, slug: created.slug },
     });
     revalidatePath("/services/sell");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ ok: true, data: created }, { status: 201 });
   } catch (e) {
