@@ -6,14 +6,7 @@ import type { Video } from "@/entities/video/video";
 import Carousel from "@/shared/ui/carousel";
 
 export default function VideoCarousel({ videos }: { videos: Video[] }) {
-  if (videos.length === 0) {
-    return (
-      <p className="py-12 text-center text-zinc-500">
-        Видео пока не загружены. Добавьте YOUTUBE_API_KEY и YOUTUBE_CHANNEL_ID
-        в .env.local
-      </p>
-    );
-  }
+  if (videos.length === 0) return null;
 
   return (
     <div className="relative">

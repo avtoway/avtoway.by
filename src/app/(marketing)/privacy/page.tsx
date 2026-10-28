@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Политика конфиденциальности | АВТОWAY",
+  title: { absolute: "Политика конфиденциальности | АВТОWAY" },
   description: "Как АВТОWAY обрабатывает персональные данные, оставленные в формах на сайте.",
-  robots: { index: false, follow: true },
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-zinc-950 pb-20 pt-28">
       <div className="mx-auto max-w-3xl px-6">
-        <nav className="mb-6 text-xs text-zinc-500">
-          <Link href="/" className="hover:text-white">Главная</Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-zinc-400">Политика конфиденциальности</span>
-        </nav>
+        <BreadcrumbSchema items={[{ label: "Главная", href: "/" }, { label: "Политика конфиденциальности" }]} />
+        <PageBreadcrumbs
+          className="mb-6"
+          items={[
+            { label: "Главная", href: "/" },
+            { label: "Политика конфиденциальности" },
+          ]}
+        />
 
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Политика конфиденциальности</h1>
         <p className="mt-3 text-sm text-zinc-500">Редакция от 27.10.2026</p>

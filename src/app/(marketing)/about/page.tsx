@@ -7,14 +7,17 @@ import AboutTimeline from "@/features/about/ui/about-timeline";
 import AboutSocial from "@/features/about/ui/about-social";
 import AboutCta from "@/features/about/ui/about-cta";
 import { ServiceSchema } from "@/shared/ui/json-ld";
+import { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 
 export const metadata: Metadata = {
   title: "О проекте",
   description:
     "АВТОWAY — личный бренд Виктора про автомобили. Честные обзоры, ремонты, услуги: аренда, автоподбор, продажа.",
+  alternates: { canonical: "/about" },
   openGraph: {
     title: "О проекте | АВТОWAY",
     description: "История создания бренда, таймлайн, социальные сети.",
+    url: "/about",
   },
 };
 
@@ -36,6 +39,7 @@ export default async function AboutPage() {
         description="Честные обзоры, ремонты, лайфхаки и полезные услуги про автомобили."
         url="/about"
       />
+      <BreadcrumbSchema items={[{ label: "Главная", href: "/" }, { label: "О проекте" }]} />
       <AboutHero />
       <AboutStory />
       <AboutTimeline />

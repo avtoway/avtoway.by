@@ -12,6 +12,9 @@ export function useInView(
     const el = ref.current;
     if (!el) return;
 
+    // Контент не скрывается CSS, поэтому без IntersectionObserver он всё равно виден.
+    if (typeof IntersectionObserver === "undefined") return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return;

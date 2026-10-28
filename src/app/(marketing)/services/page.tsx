@@ -1,8 +1,23 @@
 import { container } from "@/di/container";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
+import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Услуги",
+  description:
+    "Услуги АВТОWAY: аренда авто, автоподбор и проверка перед покупкой, помощь в продаже и другие автомобильные задачи.",
+  alternates: { canonical: "/services" },
+  openGraph: {
+    title: "Услуги | АВТОWAY",
+    description: "Аренда, автоподбор, продажа и другие автомобильные услуги.",
+    url: "/services",
+  },
+};
 
 export default async function ServicesPage() {
   const repo = container.get<ServiceRepository>("ServiceRepository");
@@ -11,11 +26,14 @@ export default async function ServicesPage() {
   return (
     <div className="min-h-screen bg-zinc-950 pt-32 pb-24">
       <div className="mx-auto max-w-5xl px-6">
-        <div className="mb-2 text-xs text-zinc-500">
-          <Link href="/" className="hover:text-white transition">Главная</Link>
-          <span className="mx-1">/</span>
-          <span className="text-zinc-400">Услуги</span>
-        </div>
+        <BreadcrumbSchema items={[{ label: "Главная", href: "/" }, { label: "Услуги" }]} />
+        <PageBreadcrumbs
+          className="mb-3"
+          items={[
+            { label: "Главная", href: "/" },
+            { label: "Услуги" },
+          ]}
+        />
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">Наши услуги</h1>
           <p className="mt-3 text-base text-zinc-400 max-w-xl mx-auto">
@@ -32,8 +50,14 @@ export default async function ServicesPage() {
               <div className="relative h-48 shrink-0 overflow-hidden sm:h-auto sm:w-56 lg:w-72">
                 <div className="absolute inset-0 bg-zinc-900" />
                 {s.photo ? (
-                  <img src={s.photo} alt={s.title}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <Image
+                    src={s.photo}
+                    alt={s.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 224px, 288px"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center">
                     <div className="text-5xl opacity-20" style={{ color: s.color }}>◈</div>

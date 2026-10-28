@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 export default function PhotoGallery({ photos, mainPhoto }: { photos: string[]; mainPhoto?: string }) {
   const all = photos.length > 0 ? photos : [];
@@ -11,10 +12,12 @@ export default function PhotoGallery({ photos, mainPhoto }: { photos: string[]; 
   if (all.length === 0) {
     return (
       <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl bg-zinc-900">
-        <img
+        <Image
           src="/images/placeholder-car.webp"
           alt="Фото автомобиля скоро появится"
-          className="h-full w-full object-cover"
+          fill
+          sizes="(max-width: 1024px) 100vw, 1024px"
+          className="object-cover"
         />
       </div>
     );
@@ -27,10 +30,14 @@ export default function PhotoGallery({ photos, mainPhoto }: { photos: string[]; 
     <div className="space-y-3">
       {/* Main image */}
       <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden rounded-xl bg-zinc-800 sm:aspect-[16/9]">
-        <img
-          src={all[current]}
+        <Image
+          src={all[current] ?? "/images/placeholder-car.webp"}
           alt={`Фото ${current + 1}`}
-          className="h-full w-full object-contain transition-opacity duration-300"
+          fill
+          sizes="(max-width: 1024px) 100vw, 1024px"
+          loading="eager"
+          fetchPriority="high"
+          className="object-contain transition-opacity duration-300"
         />
 
         {all.length > 1 && (
@@ -55,10 +62,10 @@ export default function PhotoGallery({ photos, mainPhoto }: { photos: string[]; 
         <div className="flex gap-2 overflow-x-auto pb-1">
           {all.map((url, i) => (
             <button key={i} onClick={() => setCurrent(i)}
-              className={`h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition ${
+              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition ${
                 i === current ? "border-red-500 opacity-100" : "border-transparent opacity-60 hover:opacity-100"
               }`}>
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <Image src={url} alt="" fill sizes="96px" className="object-cover" />
             </button>
           ))}
         </div>

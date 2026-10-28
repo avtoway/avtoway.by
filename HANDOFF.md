@@ -193,6 +193,16 @@ prisma/schema.prisma      # Схема БД
 - **Изображения**: hero — CSS-панель проверки + маленькое реальное фото эксперта; сгенерированные hero/OG удалены. OG — дефолтный `/opengraph-image.jpg`; эксперт — `/images/avatar.jpg`. MCP `imagegen` отключён (`disabled: true`). Промпты на будущее — `docs/autopodbor-images-prompts.md`.
 - **Юридика**: страница `/privacy` (базовый текст, нужно согласовать с юристом), дисклеймер и цены редактируются в админке.
 
+### 5.12 Адаптивность, SEO и масштабируемость (28.10.2026)
+- **Reveal**: больше не скрывает контент (`opacity: 0` убран). Контент виден без JS и для краулеров; с JS — только сдвиг 14px. Добавлены `js`-класс в `<head>`, `prefers-reduced-motion`, `data-scroll-behavior="smooth"`.
+- **Изображения**: публичные `<img>` переведены на `next/image` (услуги, карточка услуги, аренда, калькулятор, фотогалерея). Админ-превью оставлены `<img>` из-за blob/локальных превью. Аватар в hero и `/about` — eager.
+- **SEO**: динамический `sitemap.ts` (услуги из БД + активные авто, `revalidate=3600`), breadcrumbs UI + `BreadcrumbList` JSON-LD на публичных страницах, canonical/OG для услуг/аренды/калькулятора/карточек, `SITE_URL` в `src/shared/config/site.ts`, hreflang `ru` в root metadata.
+- **Metadata**: `services/rent` и калькулятор получили `layout.tsx` с metadata (страницы клиентские). `privacy` индексируется, canonical `/privacy`.
+- **Видео**: если YouTube API не настроен/нет роликов — секция не рендерится; сообщение про `.env.local` убрано.
+- **Главная**: секция «О проекте» получила фон, градиент, бейдж и более контрастный текст.
+- **Архитектурный план**: `docs/architecture/scalability-crm-seo.md` — ServiceModule, унифицированная CRM (`leads`, `lead_messages`, `lead_status_history`), миграция старых заявок без потери данных, города, блог, интеграции, финансы, SEO-чеклист. Схема БД **не применялась** — это проект на согласование.
+- **Проверки**: typecheck OK, eslint 0 errors (77 warnings), 55 tests, build успешен.
+
 ---
 
 ## 6. Технические решения и паттерны

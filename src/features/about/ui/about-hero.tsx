@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Reveal from "@/shared/ui/reveal";
+import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
 
 export default function AboutHero() {
   return (
@@ -26,6 +27,13 @@ export default function AboutHero() {
         <div className="absolute -bottom-20 -right-20 h-[400px] w-[400px] rounded-full blur-[100px]" style={{ background: "radial-gradient(circle, rgba(59,130,246,0.18), transparent 70%)", animation: "gradient-shift 11s ease-in-out -4s infinite reverse" }} />
       </div>
       <div className="relative mx-auto max-w-4xl px-6">
+        <PageBreadcrumbs
+          className="mb-8"
+          items={[
+            { label: "Главная", href: "/" },
+            { label: "О проекте" },
+          ]}
+        />
         <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
           <div className="shrink-0 animate-float" style={{ animationDuration: "5s" }}>
             <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-lg shadow-black/20 transition-shadow duration-300 hover:border-[#ef4444]/50 hover:shadow-lg hover:shadow-[#ef4444]/10 sm:h-44 sm:w-44">
@@ -33,7 +41,8 @@ export default function AboutHero() {
                 src="/images/avatar.jpg"
                 alt="АВТОWAY"
                 fill
-                priority
+                loading="eager"
+                fetchPriority="high"
                 sizes="(max-width: 640px) 144px, 176px"
                 className="object-cover"
               />

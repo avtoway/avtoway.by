@@ -6,6 +6,8 @@ import { getPriceLabel, getPeriodPrices, formatPrice, type RentPricingTier } fro
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import { telegramHandle, telegramUrl } from "@/shared/lib/social";
 import PhotoGallery from "@/shared/ui/photo-gallery";
+import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
+import { ServiceSchema } from "@/shared/ui/json-ld";
 import type { Metadata } from "next";
 
 interface Props { params: Promise<{ slug: string }> }
@@ -30,8 +32,24 @@ async function getPricingTiers(): Promise<RentPricingTier[]> {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const car = await getCar(slug);
-  if (!car) return { title: "Авто не найдено" };
-  return { title: `${car.name} — Аренда | АВТОWAY`, description: car.description ?? "" };
+  if (!car) return { title: "Авто не найдено", robots: { index: false, follow: false } };
+  const title = `${car.name} — аренда в Минске | АВТОWAY`;
+  const description =
+    car.description ||
+    `${car.name}: аренда в Минске и Беларуси. Характеристики, стоимость за сутки и неделю, условия бронирования.`;
+  const image = car.mainPhoto || car.photos?.split(",")[0] || "/opengraph-image.jpg";
+  return {
+    title: { absolute: title },
+    description,
+    alternates: { canonical: `/services/rent/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/services/rent/${slug}`,
+      type: "website",
+      images: [{ url: image, alt: car.name }],
+    },
+  };
 }
 
 export default async function RentCarDetailPage({ params }: Props) {
@@ -56,17 +74,29 @@ export default async function RentCarDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-zinc-950">
+      <ServiceSchema
+        name={`${car.name} — аренда`}
+        description={car.description ?? `Аренда ${car.name} в Минске и Беларуси.`}
+        url={`/services/rent/${car.slug}`}
+      />
+      <BreadcrumbSchema
+        items={[
+          { label: "Главная", href: "/" },
+          { label: "Услуги", href: "/services" },
+          { label: "Аренда", href: "/services/rent" },
+          { label: car.name },
+        ]}
+      />
       {/* Breadcrumbs + back */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-24 pb-2">
-        <div className="flex items-center gap-2 text-xs text-zinc-500">
-          <Link href="/" className="hover:text-white transition">Главная</Link>
-          <span>/</span>
-          <Link href="/services" className="hover:text-white transition">Услуги</Link>
-          <span>/</span>
-          <Link href="/services/rent" className="hover:text-white transition">Аренда</Link>
-          <span>/</span>
-          <span className="text-zinc-400">{car.name}</span>
-        </div>
+        <PageBreadcrumbs
+          items={[
+            { label: "Главная", href: "/" },
+            { label: "Услуги", href: "/services" },
+            { label: "Аренда", href: "/services/rent" },
+            { label: car.name },
+          ]}
+        />
         <Link href="/services/rent"
           className="mt-3 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition">
           ← Назад к списку

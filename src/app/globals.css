@@ -40,15 +40,29 @@ body {
   animation: gradient-shift 20s ease-in-out infinite;
 }
 
+/*
+ * Прогрессивное улучшение: контент никогда не скрывается.
+ * Без JS он сразу на месте, с JS — только лёгкий сдвиг при появлении.
+ * Это важно для Googlebot и медленных соединений.
+ */
 .animate-reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition: transform 0.7s ease-out;
 }
 
-.animate-reveal.revealed {
-  opacity: 1;
+.js .animate-reveal {
+  transform: translateY(14px);
+}
+
+.js .animate-reveal.revealed {
   transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .animate-reveal,
+  .js .animate-reveal.revealed {
+    transform: none;
+    transition: none;
+  }
 }
 
 @keyframes logo-glow {

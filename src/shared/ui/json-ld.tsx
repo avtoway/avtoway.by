@@ -1,4 +1,5 @@
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import { SITE_URL } from "@/shared/config/site";
 import { telegramUrl } from "@/shared/lib/social";
 
 /** JSON-LD безопасно встраивается в <script>: экранируем `<`, чтобы нельзя было закрыть тег. */
@@ -21,8 +22,8 @@ export async function OrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "АВТОWAY",
-    url: "https://avtoway.by",
-    logo: "https://avtoway.by/images/avatar.webp",
+    url: SITE_URL,
+    logo: `${SITE_URL}/images/avatar.webp`,
     description: "Личный бренд и проекты про автомобили. Честные обзоры, ремонты, лайфхаки и полезные услуги.",
     sameAs,
   };
@@ -47,7 +48,7 @@ export function ServiceSchema({ name, description, url }: ServiceSchemaProps) {
     "@type": "Service",
     name,
     description,
-    url: `https://avtoway.by${url}`,
+    url: `${SITE_URL}${url}`,
     provider: { "@type": "Organization", name: "АВТОWAY" },
   };
 

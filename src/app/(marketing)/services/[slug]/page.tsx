@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Image from "next/image";
 import { container } from "@/di/container";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { Metadata } from "next";
+import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
+import { ServiceSchema } from "@/shared/ui/json-ld";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -16,10 +18,19 @@ async function getService(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const service = await getService(slug);
-  if (!service) return { title: "Услуга не найдена" };
+  if (!service) return { title: "Услуга не найдена", robots: { index: false, follow: false } };
+  const title = `${service.title} — АВТОWAY`;
   return {
-    title: `${service.title} | АВТОWAY`,
+    title: { absolute: title },
     description: service.desc,
+    alternates: { canonical: `/services/${slug}` },
+    openGraph: {
+      title,
+      description: service.desc,
+      url: `/services/${slug}`,
+      type: "website",
+      images: [{ url: service.photo || "/opengraph-image.jpg", alt: service.title }],
+    },
   };
 }
 
@@ -31,20 +42,35 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-zinc-950">
+      <ServiceSchema name={service.title} description={service.desc} url={`/services/${slug}`} />
+      <BreadcrumbSchema
+        items={[
+          { label: "Главная", href: "/" },
+          { label: "Услуги", href: "/services" },
+          { label: service.title },
+        ]}
+      />
       <div className="mx-auto max-w-4xl px-6 pt-24 pb-2">
-        <div className="text-xs text-zinc-500">
-          <Link href="/" className="hover:text-white transition">Главная</Link>
-          <span className="mx-1">/</span>
-          <Link href="/services" className="hover:text-white transition">Услуги</Link>
-          <span className="mx-1">/</span>
-          <span className="text-zinc-400">{service.title}</span>
-        </div>
+        <PageBreadcrumbs
+          items={[
+            { label: "Главная", href: "/" },
+            { label: "Услуги", href: "/services" },
+            { label: service.title },
+          ]}
+        />
       </div>
       <section className="relative flex min-h-[60dvh] items-center overflow-hidden">
         {service.photo && (
           <div className="absolute inset-0">
-            <img src={service.photo} alt={service.title}
-              className="h-full w-full object-cover" />
+            <Image
+              src={service.photo}
+              alt={service.title}
+              fill
+              sizes="100vw"
+              loading="eager"
+              fetchPriority="high"
+              className="object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
           </div>
         )}

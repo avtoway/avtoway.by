@@ -143,6 +143,7 @@ export default function Hero({
                   width={32}
                   height={32}
                   alt="Виктор, эксперт АВТОWAY"
+                  loading="eager"
                   sizes="32px"
                   className="h-8 w-8 rounded-full object-cover"
                 />

@@ -1,6 +1,7 @@
 "use client";
 
 import Reveal from "@/shared/ui/reveal";
+import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
 import { telegramUrl } from "@/shared/lib/social";
 import ContactForm from "./contact-form";
 
@@ -34,6 +35,13 @@ export default function ContactsView({ contact }: { contact: ContactData | null 
       </div>
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+        <PageBreadcrumbs
+          className="mb-10"
+          items={[
+            { label: "Главная", href: "/" },
+            { label: "Контакты" },
+          ]}
+        />
         {/* Hero */}
         <div className="mb-16 text-center">
           <Reveal>

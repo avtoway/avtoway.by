@@ -77,7 +77,7 @@ export default function ServicesCarousel({ items = [] }: { items?: ServiceItem[]
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6">
-        <div className="mb-14 text-center opacity-0 animate-reveal revealed">
+        <div className="mb-14 text-center animate-reveal revealed">
           <h2 className="text-3xl font-bold text-white">
             Наши услуги
           </h2>

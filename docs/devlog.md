@@ -1,5 +1,17 @@
 # Dev Log
 
+## 2026-10-28 — Адаптивность, SEO и масштабируемость
+
+- [x] **Reveal** больше не скрывает контент: без JS и для краулеров блоки видимы, с JS — только лёгкий сдвиг. Убран `opacity: 0`; добавлен `js`-класс и `prefers-reduced-motion`.
+- [x] **next/image** на публичных страницах: услуги, карточка услуги, аренда, калькулятор, фотогалерея. Админ-превью (blob/локальные превью) оставлены `<img>`.
+- [x] **Sitemap** стал динамическим: услуги из БД + активные авто + статические страницы; `revalidate=3600`, `lastModified`.
+- [x] **Breadcrumbs UI + BreadcrumbList JSON-LD** на `/services`, `/services/[slug]`, `/services/rent`, `/services/rent/[slug]`, калькуляторе, `/about`, `/contacts`, `/privacy`, `/partners`.
+- [x] **Metadata/canonical/OG** для `/services`, `/services/rent`, калькулятора, карточек услуг и авто, `/about`, `/contacts`, `/partners`.
+- [x] **Видео**: пустая секция не рендерится, если YouTube API не настроен; убрано сообщение про `.env.local`.
+- [x] **LCP/контраст**: eager для аватара в hero и `/about`; усилен контраст секции «О проекте»; `data-scroll-behavior="smooth"`.
+- [x] **Архитектура**: `docs/architecture/scalability-crm-seo.md` — ServiceModule, единая CRM `leads`, миграция без потери данных, города/блог, интеграции, финансы, SEO-чеклист.
+- [x] Проверки: typecheck OK, eslint 0 errors (77 warnings), 55 tests, build успешен; публичные страницы 200.
+
 ## 2026-10-28 — Админка: исправлен key в журнале аудита
 
 - [x] `filtered.map` в `AdminAuditLogsPage` возвращал некейный `<>`; заменён на `<Fragment key={l.id}>`, лишние ключи у `<tr>` убраны. React warning «Each child in a list» устранён.
