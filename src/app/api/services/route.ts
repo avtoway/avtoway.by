@@ -1,5 +1,6 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
@@ -7,6 +8,8 @@ import { validateOrResponse } from "@/shared/lib/validation";
 import { ConflictError, toApiError } from "@/shared/lib/errors";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceRepository } from "@/entities/service/service.repository";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const serviceRepo = container.get<ServiceRepository>("ServiceRepository");
@@ -44,6 +47,7 @@ export async function POST(request: Request) {
       details: { title: created.title },
     });
 
+    revalidatePath("/", "layout");
     return NextResponse.json({ ok: true, data: created }, { status: 201 });
   } catch (e) { return toApiError(e); }
 }

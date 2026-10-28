@@ -1,9 +1,11 @@
 import { container } from "@/di/container";
 import type { ServiceRepository } from "@/entities/service/service.repository";
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
+import ServicesEmptyState from "@/features/service-page/ui/services-empty-state";
 
 export const revalidate = 300;
 
@@ -22,6 +24,25 @@ export const metadata: Metadata = {
 export default async function ServicesPage() {
   const repo = container.get<ServiceRepository>("ServiceRepository");
   const services = await repo.getActive();
+
+  if (services.length === 0) {
+    const contact = await getPrismaClient().contact.findFirst();
+
+    return (
+      <div className="min-h-screen bg-zinc-950">
+        <BreadcrumbSchema items={[{ label: "Главная", href: "/" }, { label: "Услуги" }]} />
+        <div className="mx-auto max-w-5xl px-6 pt-28">
+          <PageBreadcrumbs
+            items={[
+              { label: "Главная", href: "/" },
+              { label: "Услуги" },
+            ]}
+          />
+        </div>
+        <ServicesEmptyState phone={contact?.phone} youtubeUrl={contact?.youtube} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 pt-32 pb-24">
@@ -84,9 +105,6 @@ export default async function ServicesPage() {
           ))}
         </div>
 
-        {services.length === 0 && (
-          <p className="pt-20 text-center text-zinc-600">Скоро здесь появятся услуги</p>
-        )}
       </div>
     </div>
   );

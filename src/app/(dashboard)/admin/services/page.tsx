@@ -28,13 +28,13 @@ export default function AdminServicesPage() {
 
   async function fetchServices() {
     setLoading(true);
-    const res = await fetch("/api/services").then(r => r.json());
+    const res = await fetch("/api/services", { cache: "no-store" }).then(r => r.json());
     if (res.ok) setServices(res.data);
     setLoading(false);
   }
 
   useEffect(() => {
-    fetch("/api/services").then(r => r.json()).then(json => {
+    fetch("/api/services", { cache: "no-store" }).then(r => r.json()).then(json => {
       if (json.ok) setServices(json.data);
       setLoading(false);
     });
