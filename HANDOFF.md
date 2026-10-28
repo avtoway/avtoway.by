@@ -223,6 +223,7 @@ prisma/schema.prisma      # Схема БД
 - **Карточка аренды**: общий fullscreen-lightbox `shared/ui/photo-lightbox-gallery.tsx`, блок похожих авто.
 - **Админ-форма аренды**: вкладки «Основное / Фото / Цены и аренда / Опции», фото до 40 (drag-and-drop, пачки по 4, порядок/главная), автозаполнение названия/slug, поиск опций, USD-подсказка, клиентская валидация, sticky-футер. Общий `shared/ui/admin/photo-manager.tsx` используется и для продажи.
 - **Такси: допуск водителя**: `RentCar.taxiRequirements` (до 3000 символов) — обязательное поле для типа «Под такси», типовой текст по Правилам № 147, Указу № 32 и Закону № 213-З; публичный блок «Памятка водителю такси», проверка в API, демо-текст у Kia Rio.
+- **Фильтр аренды**: все классы, 4 коробки и 10 видов топлива с count; газ/электро/гибрид сгруппированы, даже при 0 авто видны в списке. Словари `FUEL_GROUPS`/`TRANSMISSION_OPTIONS`, новые `propane`/`methane`/`hybrid`.
 - **Демо-парк**: `scripts/seed-rent.ts` — Hyundai Solaris, Kia Rio (такси), Passat B8, BMW 530i, Mercedes E 200, VW Touran; фото `public/uploads/rent/demo-*.jpg`, условия аренды, цены.
 - **Проверки**: typecheck OK, eslint 0 errors (85 warnings), 68 tests; `/services/rent`, карточки и sitemap 200.
 

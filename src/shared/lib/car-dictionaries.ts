@@ -7,16 +7,35 @@ export const TRANSMISSION_LABEL: Record<string, string> = {
 
 export const FUEL_LABEL: Record<string, string> = {
   gasoline: "Бензин",
-  "gas-propane": "Бензин (газ-пропан)",
-  "gas-methane": "Бензин (метан)",
-  "gas-hybrid": "Бензин (гибрид)",
+  "gas-propane": "Бензин / пропан-бутан",
+  "gas-methane": "Бензин / метан",
+  "gas-hybrid": "Бензин / гибрид",
   diesel: "Дизель",
-  "diesel-hybrid": "Дизель (гибрид)",
+  "diesel-hybrid": "Дизель / гибрид",
   electric: "Электро",
   hybrid: "Гибрид",
-  propane: "Газ",
-  methane: "Метан",
+  propane: "Газ (пропан)",
+  methane: "Газ (метан)",
 };
+
+/** Полный набор коробок передач для фильтра и админки. */
+export const TRANSMISSION_OPTIONS = [
+  { value: "auto", label: "Автомат" },
+  { value: "manual", label: "Механика" },
+  { value: "robot", label: "Робот" },
+  { value: "variator", label: "Вариатор" },
+] as const;
+
+/** Группы топлива: показываем все варианты, даже если сейчас нет авто. */
+export const FUEL_GROUPS = [
+  { label: "Бензин", values: ["gasoline"] },
+  { label: "Дизель", values: ["diesel"] },
+  { label: "Газ", values: ["gas-propane", "gas-methane", "propane", "methane"] },
+  { label: "Гибрид", values: ["gas-hybrid", "diesel-hybrid", "hybrid"] },
+  { label: "Электро", values: ["electric"] },
+] as const;
+
+export const FUEL_OPTIONS = FUEL_GROUPS.flatMap(group => group.values);
 
 export const BODY_TYPE_LABEL: Record<string, string> = {
   sedan: "Седан",

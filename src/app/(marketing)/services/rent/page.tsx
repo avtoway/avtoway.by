@@ -41,13 +41,15 @@ export default async function RentPage({
   const repo = container.get<RentCarRepository>("RentCarRepository");
   const db = getPrismaClient();
 
-  const [cars, types, classes, comfortFeatures, tiers, usdRate] = await Promise.all([
+  const [cars, types, classes, comfortFeatures, tiers, usdRate, transmissions, fuels] = await Promise.all([
     repo.getAll(),
     repo.getTypes(),
     repo.getClasses(),
     db.comfortFeature.findMany({ orderBy: { sortOrder: "asc" } }),
     repo.getPricingTiers(),
     getUsdRate(),
+    db.transmission.findMany({ orderBy: { name: "asc" } }),
+    db.fuel.findMany({ orderBy: { name: "asc" } }),
   ]);
 
   const firstDiscount = tiers
@@ -73,6 +75,8 @@ export default async function RentPage({
         types={types}
         classes={classes}
         comfortFeatures={comfortFeatures}
+        transmissions={transmissions}
+        fuels={fuels}
         discountFrom={firstDiscount?.minDays ?? null}
         usdRate={usdRate}
         initialFilters={parseFilters(params)}

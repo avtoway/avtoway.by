@@ -4,7 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
-import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/shared/lib/car-dictionaries";
+import {
+  FUEL_GROUPS,
+  FUEL_LABEL,
+  FUEL_OPTIONS,
+  TRANSMISSION_LABEL,
+  TRANSMISSION_OPTIONS,
+} from "@/shared/lib/car-dictionaries";
 
 export interface RentCarItem {
   id: string;
@@ -35,6 +41,7 @@ export interface RentCarItem {
 export interface RentTypeItem { id: string; name: string; slug: string; }
 export interface RentClassItem { id: string; name: string; slug: string; }
 export interface RentComfortItem { id: string; name: string; slug: string; }
+export interface RentDictionaryItem { id: string; name: string; slug: string; }
 
 export interface RentFilters {
   type: string;
@@ -153,6 +160,8 @@ export default function RentCatalog({
   types,
   classes,
   comfortFeatures,
+  transmissions,
+  fuels,
   discountFrom,
   usdRate,
   initialFilters,
@@ -161,6 +170,8 @@ export default function RentCatalog({
   types: RentTypeItem[];
   classes: RentClassItem[];
   comfortFeatures: RentComfortItem[];
+  transmissions: RentDictionaryItem[];
+  fuels: RentDictionaryItem[];
   discountFrom: number | null;
   usdRate: number;
   initialFilters: RentFilters;
@@ -176,18 +187,49 @@ export default function RentCatalog({
     filters.transmission, filters.fuel, filters.seats, ...filters.features,
   ].filter(Boolean).length;
 
-  const transmissions = useMemo(() => {
-    const values = new Set(cars.map(car => car.transmission).filter((value): value is string => Boolean(value)));
-    return [...values].sort((a, b) => (TRANSMISSION_LABEL[a] ?? a).localeCompare(TRANSMISSION_LABEL[b] ?? b, "ru"));
-  }, [cars]);
+  const transmissionOptions = useMemo(() => {
+    const labels = new Map(transmissions.map(item => [item.slug, item.name]));
+    const base = TRANSMISSION_OPTIONS.map(item => item.value);
+    const extras = [...new Set(cars.map(car => car.transmission).filter((value): value is string => Boolean(value)))]
+      .filter(value => !base.includes(value as typeof base[number]));
+    return [...base, ...extras].map(value => ({
+      value,
+      label: TRANSMISSION_LABEL[value] ?? labels.get(value) ?? value,
+      count: cars.filter(car => car.transmission === value).length,
+    }));
+  }, [cars, transmissions]);
 
-  const fuels = useMemo(() => {
-    const values = new Set(cars.map(car => car.fuel).filter((value): value is string => Boolean(value)));
-    return [...values].sort((a, b) => (FUEL_LABEL[a] ?? a).localeCompare(FUEL_LABEL[b] ?? b, "ru"));
-  }, [cars]);
+  const fuelGroups = useMemo(() => {
+    const labels = new Map(fuels.map(item => [item.slug, item.name]));
+    const groups: Array<{ label: string; options: Array<{ value: string; label: string; count: number }> }> = FUEL_GROUPS.map(group => ({
+      label: group.label,
+      options: group.values.map(value => ({
+        value,
+        label: FUEL_LABEL[value] ?? labels.get(value) ?? value,
+        count: cars.filter(car => car.fuel === value).length,
+      })),
+    }));
+    const known = new Set<string>(FUEL_OPTIONS);
+    const extras = [...new Set(cars.map(car => car.fuel).filter((value): value is string => Boolean(value)))]
+      .filter(value => !known.has(value));
+    if (extras.length > 0) {
+      groups.push({
+        label: "Другое",
+        options: extras.map(value => ({
+          value,
+          label: FUEL_LABEL[value] ?? labels.get(value) ?? value,
+          count: cars.filter(car => car.fuel === value).length,
+        })),
+      });
+    }
+    return groups;
+  }, [cars, fuels]);
 
-  const usedClasses = useMemo(
-    () => classes.filter(item => cars.some(car => car.class === item.name)),
+  const classOptions = useMemo(
+    () => classes.map(item => ({
+      ...item,
+      count: cars.filter(car => car.class === item.name).length,
+    })),
     [classes, cars],
   );
 
@@ -230,7 +272,7 @@ export default function RentCatalog({
           <span className="text-xs font-medium text-zinc-400">Класс автомобиля</span>
           <select value={filters.class} onChange={event => update({ class: event.target.value })} className="rounded-xl border border-zinc-700 bg-zinc-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-red-500">
             <option value="">Все классы</option>
-            {usedClasses.map(item => <option key={item.id} value={item.name}>{item.name}</option>)}
+            {classOptions.map(item => <option key={item.id} value={item.name}>{item.name} · {item.count}</option>)}
           </select>
         </label>
         <div className="flex flex-col gap-1.5">
@@ -245,17 +287,32 @@ export default function RentCatalog({
           <span className="text-xs font-medium text-zinc-400">Коробка</span>
           <select value={filters.transmission} onChange={event => update({ transmission: event.target.value })} className="rounded-xl border border-zinc-700 bg-zinc-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-red-500">
             <option value="">Любая</option>
-            {transmissions.map(value => <option key={value} value={value}>{TRANSMISSION_LABEL[value] ?? value}</option>)}
+            {transmissionOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label} · {option.count}
+              </option>
+            ))}
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-zinc-400">Топливо</span>
           <select value={filters.fuel} onChange={event => update({ fuel: event.target.value })} className="rounded-xl border border-zinc-700 bg-zinc-950/70 px-3 py-2.5 text-sm text-white outline-none focus:border-red-500">
             <option value="">Любое</option>
-            {fuels.map(value => <option key={value} value={value}>{FUEL_LABEL[value] ?? value}</option>)}
+            {fuelGroups.map(group => (
+              <optgroup key={group.label} label={group.label}>
+                {group.options.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label} · {option.count}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
         </label>
       </div>
+      <p className="-mt-1 text-[11px] leading-relaxed text-zinc-500">
+        Показаны все коробки и виды топлива. Цифра — количество авто в парке; 0 означает, что сейчас нет в наличии, но заявку можно оставить.
+      </p>
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-xs text-zinc-400">
           Мест не менее

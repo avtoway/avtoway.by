@@ -97,16 +97,20 @@ async function main() {
   // Seed fuel types
   const fuels = [
     { slug: "gasoline", name: "Бензин" },
-    { slug: "gas-propane", name: "Бензин (пропан-бутан)" },
-    { slug: "gas-methane", name: "Бензин (метан)" },
-    { slug: "gas-hybrid", name: "Бензин (гибрид)" },
+    { slug: "gas-propane", name: "Бензин / пропан-бутан" },
+    { slug: "gas-methane", name: "Бензин / метан" },
+    { slug: "gas-hybrid", name: "Бензин / гибрид" },
     { slug: "diesel", name: "Дизель" },
-    { slug: "diesel-hybrid", name: "Дизель (гибрид)" },
+    { slug: "diesel-hybrid", name: "Дизель / гибрид" },
     { slug: "electric", name: "Электро" },
+    { slug: "propane", name: "Газ (пропан)" },
+    { slug: "methane", name: "Газ (метан)" },
+    { slug: "hybrid", name: "Гибрид" },
   ];
   for (const f of fuels) {
     const exists = await prisma.fuel.findUnique({ where: { slug: f.slug } });
     if (!exists) await prisma.fuel.create({ data: f });
+    else if (exists.name !== f.name) await prisma.fuel.update({ where: { id: exists.id }, data: { name: f.name } });
   }
 
   // Seed transmission types
