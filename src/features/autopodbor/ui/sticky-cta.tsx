@@ -59,10 +59,11 @@ export default function StickyCta({ phone, telegram }: { phone?: string; telegra
         <a
           href="#lead"
           onClick={() => trackEvent("sticky_cta_click", { action: "lead" })}
-          className="flex flex-col items-center gap-1 py-3 text-[11px] text-zinc-400"
+          className="flex flex-col items-center justify-center gap-0.5 bg-primary/10 py-2.5 text-[11px] font-medium text-white"
         >
-          <AutoIcon name="document" className="h-5 w-5 text-green-400" />
-          Заявка
+          <AutoIcon name="document" className="h-5 w-5 text-primary" />
+          <span>Консультация</span>
+          <span className="text-[9px] font-normal text-white/60">бесплатно</span>
         </a>
       </div>
     </div>

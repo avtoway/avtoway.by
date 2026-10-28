@@ -25,7 +25,7 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
         heroImageAlt: null,
         priceFrom: 150,
         ctaPrimaryLabel: "Подобрать авто",
-        ctaSecondaryLabel: "Тарифы",
+        ctaSecondaryLabel: "Позвонить",
         phone: contact?.phone ?? null,
         telegram: contact?.telegram ?? null,
         whatsapp: contact?.whatsapp ?? null,
@@ -57,7 +57,7 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
 
   /* sections */
   const sections: { key: string; title: string | null; subtitle: string | null; description?: string }[] = [
-    { key: "quiz", title: "Подберём формат", subtitle: "4 вопроса — и вы увидите подходящий тариф." },
+    { key: "quiz", title: "С чего начать?", subtitle: "Выберите задачу — остальное уточним при звонке." },
     { key: "risks", title: "Что скрывает объявление", subtitle: "Проверяем до сделки, а не после." },
     { key: "tariffs", title: "Тарифы", subtitle: "Цена и состав — до начала работы." },
     { key: "process", title: "Как проходит подбор", subtitle: "Пять шагов от заявки до ключей." },
@@ -95,21 +95,21 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
   const tariffs = [
     {
       slug: "single-check", groupName: "rb", title: "Разовый осмотр", price: 150, priceFrom: true,
-      duration: "2–3 часа", icon: "eye", ctaLabel: "Заказать осмотр",
+      duration: "2–3 часа", icon: "eye", ctaLabel: "Оставить заявку",
       description: "Проверим авто, которое вы уже нашли.",
       includes: nl(["Кузов и ЛКП", "Двигатель и электроника", "Пробег и документы", "Отчёт с фото"]),
       sortOrder: 1,
     },
     {
       slug: "day-expert", groupName: "rb", title: "Эксперт на день", price: 550, priceFrom: false,
-      duration: "8 часов", icon: "clock", ctaLabel: "Записаться",
+      duration: "8 часов", icon: "clock", ctaLabel: "Оставить заявку",
       description: "Посмотрим несколько вариантов за день.",
       includes: nl(["Маршрут по вариантам", "Осмотры без ограничений", "Сравнение авто", "Помощь в торге"]),
       sortOrder: 2,
     },
     {
       slug: "turnkey", groupName: "rb", title: "Подбор под ключ", price: 1200, priceFrom: true,
-      duration: "до результата", icon: "key", ctaLabel: "Подобрать авто",
+      duration: "до результата", icon: "key", ctaLabel: "Оставить заявку",
       badge: "Чаще всего выбирают", isPopular: true,
       description: "Найдём, проверим и сопроводим сделку.",
       includes: nl(["Поиск и отсев", "Выезды и диагностика", "Юридическая проверка", "Торг и сделка"]),
@@ -117,21 +117,21 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
     },
     {
       slug: "vin-report", groupName: "extra", title: "VIN-отчёт", price: 29, priceFrom: false,
-      duration: "1 минута", icon: "document", ctaLabel: "Заказать отчёт",
+      duration: "1 минута", icon: "document", ctaLabel: "Оставить заявку",
       description: "История авто по базам.",
       includes: nl(["Залоги и ограничения", "ДТП и пробег", "Регистрации"]),
       sortOrder: 5,
     },
     {
       slug: "new-car", groupName: "extra", title: "Приёмка нового авто", price: 150, priceFrom: false,
-      duration: "1–2 часа", icon: "check", ctaLabel: "Заказать приёмку",
+      duration: "1–2 часа", icon: "check", ctaLabel: "Оставить заявку",
       description: "Проверим автомобиль при выдаче.",
       includes: nl(["Кузов и ЛКП", "Комплектность", "Документы"]),
       sortOrder: 6,
     },
     {
       slug: "deal-support", groupName: "extra", title: "Сопровождение сделки", price: 200, priceFrom: false,
-      duration: "день покупки", icon: "scale", ctaLabel: "Обсудить сделку",
+      duration: "день покупки", icon: "scale", ctaLabel: "Оставить заявку",
       description: "Проверим документы и передачу денег.",
       includes: nl(["Договор", "Проверка документов", "ГАИ"]),
       sortOrder: 7,
@@ -199,7 +199,6 @@ export async function seedAutoPodbor(prisma: PrismaClient): Promise<void> {
 
     { type: "trust", title: "Договор", description: "", icon: "document" },
     { type: "trust", title: "24 параметра", description: "", icon: "shield" },
-    { type: "trust", title: "Отчёт за 30 минут", description: "", icon: "clock" },
     { type: "trust", title: "Гарантия в договоре", description: "", icon: "check" },
   ];
   if (await prisma.autoPodborFeature.count() === 0) {

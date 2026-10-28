@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Reveal from "@/shared/ui/reveal";
 
 export default function AboutHero() {
@@ -28,10 +29,14 @@ export default function AboutHero() {
         <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
           <div className="shrink-0 animate-float" style={{ animationDuration: "5s" }}>
             <div className="relative h-36 w-36 overflow-hidden rounded-2xl border border-zinc-700 shadow-lg shadow-black/20 transition-shadow duration-300 hover:border-[#ef4444]/50 hover:shadow-lg hover:shadow-[#ef4444]/10 sm:h-44 sm:w-44">
-              <picture>
-                <source srcSet="/images/avatar.webp" type="image/webp" />
-                <img src="/images/avatar.jpg" alt="АВТОWAY" className="h-full w-full object-cover" />
-              </picture>
+              <Image
+                src="/images/avatar.jpg"
+                alt="АВТОWAY"
+                fill
+                priority
+                sizes="(max-width: 640px) 144px, 176px"
+                className="object-cover"
+              />
               <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
             </div>
           </div>

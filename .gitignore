@@ -36,6 +36,9 @@ prisma/migrations/*/migration_lock.toml
 # snapshot backups (local copies, not needed in repo)
 snapshots/
 
+# QA screenshots / audit artifacts (local)
+/screenshots/
+
 # uploaded files
 /public/uploads/
 

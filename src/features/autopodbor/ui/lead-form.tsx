@@ -145,7 +145,7 @@ export default function LeadForm({
   const tel = phoneHref(phone);
 
   return (
-    <section id="lead" className="scroll-mt-24 py-20 pb-28 sm:py-24 lg:py-28">
+    <section id="lead" className="scroll-mt-24 py-16 pb-28 sm:py-20">
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading {...heading} />
 
@@ -205,44 +205,52 @@ export default function LeadForm({
                     <input className={input} value={form.phone} onChange={set("phone")} maxLength={20} inputMode="tel" autoComplete="tel" aria-invalid={!!errors.phone} placeholder="+375 (__) ___-__-__" />
                     {errors.phone && <span className="text-xs text-red-400">{errors.phone}</span>}
                   </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Город</span>
-                    <select className={input} value={form.city} onChange={set("city")}>
-                      <option value="">Выберите город</option>
-                      {cities.map(city => <option key={city.id} value={city.name}>{city.name}</option>)}
-                      <option value="Другой">Другой</option>
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Бюджет до, $</span>
-                    <input className={input} value={form.budgetTo} onChange={set("budgetTo")} inputMode="numeric" maxLength={7} placeholder="20 000" />
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Марка</span>
-                    <input className={input} value={form.brand} onChange={set("brand")} maxLength={60} placeholder="Volkswagen" />
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs text-zinc-500">Модель</span>
-                    <input className={input} value={form.model} onChange={set("model")} maxLength={60} placeholder="Passat B8" />
-                  </label>
-
-                  <label className="flex flex-col gap-1.5 sm:col-span-2">
-                    <span className="text-xs text-zinc-500">Услуга</span>
-                    <select className={input} value={serviceSlug} onChange={event => setServiceSlug(event.target.value)}>
-                      <option value="">Подберите за меня</option>
-                      {tariffs.map(tariff => <option key={tariff.slug} value={tariff.slug}>{tariff.title}</option>)}
-                    </select>
-                  </label>
                 </div>
 
                 <label className="mt-3 flex flex-col gap-1.5">
-                  <span className="text-xs text-zinc-500">Комментарий</span>
-                  <textarea className={`${input} min-h-24 resize-y`} value={form.comment} onChange={set("comment")} maxLength={1000} placeholder="Что важно учесть: пробег, коробка, сроки…" />
+                  <span className="text-xs text-zinc-500">Услуга</span>
+                  <select className={input} value={serviceSlug} onChange={event => setServiceSlug(event.target.value)}>
+                    <option value="">Подберите за меня</option>
+                    {tariffs.map(tariff => <option key={tariff.slug} value={tariff.slug}>{tariff.title}</option>)}
+                  </select>
                 </label>
+
+                <details className="group mt-3 rounded-xl border border-zinc-800 bg-zinc-950/40">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-zinc-400 transition hover:text-white [&::-webkit-details-marker]:hidden">
+                    <span>Дополнительно — город, бюджет, авто, комментарий</span>
+                    <span className="text-lg leading-none text-zinc-500 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <div className="grid gap-3 border-t border-zinc-800/70 p-4 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-xs text-zinc-500">Город</span>
+                      <select className={input} value={form.city} onChange={set("city")}>
+                        <option value="">Выберите город</option>
+                        {cities.map(city => <option key={city.id} value={city.name}>{city.name}</option>)}
+                        <option value="Другой">Другой</option>
+                      </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-xs text-zinc-500">Бюджет до, $</span>
+                      <input className={input} value={form.budgetTo} onChange={set("budgetTo")} inputMode="numeric" maxLength={7} placeholder="20 000" />
+                    </label>
+
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-xs text-zinc-500">Марка</span>
+                      <input className={input} value={form.brand} onChange={set("brand")} maxLength={60} placeholder="Volkswagen" />
+                    </label>
+
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-xs text-zinc-500">Модель</span>
+                      <input className={input} value={form.model} onChange={set("model")} maxLength={60} placeholder="Passat B8" />
+                    </label>
+
+                    <label className="flex flex-col gap-1.5 sm:col-span-2">
+                      <span className="text-xs text-zinc-500">Комментарий</span>
+                      <textarea className={`${input} min-h-20 resize-y`} value={form.comment} onChange={set("comment")} maxLength={1000} placeholder="Что важно учесть: пробег, коробка, сроки…" />
+                    </label>
+                  </div>
+                </details>
 
                 {/* honeypot */}
                 <div className="hidden" aria-hidden="true">
@@ -252,39 +260,37 @@ export default function LeadForm({
                   </label>
                 </div>
 
-                <label className="mt-4 flex items-start gap-2.5 text-xs text-zinc-400">
-                  <input
-                    type="checkbox"
-                    checked={form.consent}
-                    onChange={set("consent")}
-                    className="mt-0.5 h-4 w-4 shrink-0 accent-red-600"
-                    aria-invalid={!!errors.consent}
-                  />
-                  <span>
-                    Согласен на обработку персональных данных и с{" "}
-                    <Link href="/privacy" className="text-blue-400 hover:text-blue-300">политикой конфиденциальности</Link>
-                  </span>
-                </label>
-                {errors.consent && <p className="mt-1 text-xs text-red-400">{errors.consent}</p>}
-
                 {serverError && (
                   <p role="alert" className="mt-3 rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-300">
                     {serverError}
                   </p>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={status === "sending"}
-                  className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary text-sm font-medium text-white shadow-lg shadow-primary/20 transition hover:bg-primary-dark disabled:opacity-60"
-                >
-                  {status === "sending" ? "Отправляем…" : "Получить подборку"}
-                  {status !== "sending" && <AutoIcon name="arrow-right" className="h-4 w-4" />}
-                </button>
+                <div className="mt-4 flex flex-col gap-3 border-t border-zinc-800/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <label className="flex max-w-md items-start gap-2.5 text-xs text-zinc-400">
+                    <input
+                      type="checkbox"
+                      checked={form.consent}
+                      onChange={set("consent")}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-red-600"
+                      aria-invalid={!!errors.consent}
+                    />
+                    <span>
+                      Согласен на обработку персональных данных и с{" "}
+                      <Link href="/privacy" className="text-blue-400 hover:text-blue-300">политикой конфиденциальности</Link>
+                    </span>
+                  </label>
 
-                <p className="mt-3 text-center text-[11px] text-zinc-600">
-                  Ответим в течение 15 минут. Данные не передаём третьим лицам.
-                </p>
+                  <button
+                    type="submit"
+                    disabled={status === "sending"}
+                    className="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-white shadow-lg shadow-primary/20 transition hover:bg-primary-dark disabled:opacity-60 sm:w-auto"
+                  >
+                    {status === "sending" ? "Отправляем…" : "Оставить заявку"}
+                    {status !== "sending" && <AutoIcon name="arrow-right" className="h-4 w-4" />}
+                  </button>
+                </div>
+                {errors.consent && <p className="mt-1 text-xs text-red-400">{errors.consent}</p>}
               </form>
             )}
           </div>

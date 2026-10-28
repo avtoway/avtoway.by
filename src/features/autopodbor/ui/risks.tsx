@@ -2,6 +2,7 @@ import type { AutoPodborFeature } from "@/entities/autopodbor/autopodbor.types";
 import type { SectionHeadingData } from "../lib/defaults";
 import SectionHeading from "./section-heading";
 import AutoIcon from "./icon";
+import ServiceCta from "./service-cta";
 
 export default function Risks({ heading, items }: { heading: SectionHeadingData; items: AutoPodborFeature[] }) {
   if (items.length === 0) return null;
@@ -31,13 +32,12 @@ export default function Risks({ heading, items }: { heading: SectionHeadingData;
           <p className="text-center text-sm font-medium text-zinc-200 sm:text-left">
             Не рискуйте деньгами. Проверьте авто до сделки.
           </p>
-          <a
-            href="#lead"
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-white transition hover:bg-primary-dark"
-          >
-            Проверить авто
-            <AutoIcon name="arrow-right" className="h-4 w-4" />
-          </a>
+          <ServiceCta
+            slug="single-check"
+            label="Проверить авто до покупки"
+            variant="primary"
+            className="shrink-0"
+          />
         </div>
       </div>
     </section>

@@ -9,8 +9,8 @@ export interface SectionHeadingData {
 /** Резервные заголовки, если в БД пусто. */
 export const DEFAULT_HEADINGS: Record<string, SectionHeadingData> = {
   quiz: {
-    title: "Подберём формат",
-    subtitle: "4 вопроса — и вы увидите подходящий тариф.",
+    title: "С чего начать?",
+    subtitle: "Выберите задачу — остальное уточним при звонке.",
   },
   risks: {
     title: "Что скрывает объявление",

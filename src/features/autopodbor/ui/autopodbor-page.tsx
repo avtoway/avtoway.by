@@ -11,6 +11,7 @@ import Expert from "./expert";
 import Reviews from "./reviews";
 import Faq from "./faq";
 import LeadForm from "./lead-form";
+import SectionCta from "./section-cta";
 import StickyCta from "./sticky-cta";
 
 export default function AutopodborPage({ data }: { data: AutoPodborPublicData }) {
@@ -26,13 +27,7 @@ export default function AutopodborPage({ data }: { data: AutoPodborPublicData })
       <Hero settings={settings} tariffs={tariffs} trust={trust} />
 
       {isSectionActive(sections, "quiz") && (
-        <Quiz
-          heading={sectionHeading(sections, "quiz")}
-          tariffs={tariffs}
-          cities={cities}
-          phone={settings.phone}
-          telegram={settings.telegram}
-        />
+        <Quiz heading={sectionHeading(sections, "quiz")} tariffs={tariffs} />
       )}
 
       {isSectionActive(sections, "risks") && <Risks heading={sectionHeading(sections, "risks")} items={risks} />}
@@ -55,6 +50,8 @@ export default function AutopodborPage({ data }: { data: AutoPodborPublicData })
         />
       )}
 
+      <SectionCta label="Хочу такой отчёт" slug="single-check" hint="Нужен такой же отчёт по вашему авто?" />
+
       {isSectionActive(sections, "guarantees") && (
         <Guarantees
           heading={sectionHeading(sections, "guarantees")}
@@ -63,6 +60,8 @@ export default function AutopodborPage({ data }: { data: AutoPodborPublicData })
           settings={settings}
         />
       )}
+
+      <SectionCta label="Получить консультацию" hint="Остались вопросы по гарантии?" />
 
       {isSectionActive(sections, "expert") && (
         <Expert heading={sectionHeading(sections, "expert")} settings={settings} />
