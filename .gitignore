@@ -39,6 +39,9 @@ snapshots/
 # QA screenshots / audit artifacts (local)
 /screenshots/
 
+# рабочая папка для черновиков (разборы видео, тестовые генерации)
+/temp/
+
 # uploaded files
 /public/uploads/
 # demo photos for the sale catalog (seed data)
