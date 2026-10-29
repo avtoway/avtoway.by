@@ -55,7 +55,7 @@ export default function PublicPartnerCard({ partner }: { partner: Partner }) {
       <div className="flex flex-1 flex-col p-6">
         <h2 className="text-xl font-bold text-white transition-colors group-hover:text-red-400">{partner.name}</h2>
         {partner.description && (
-          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-zinc-500">{partner.description}</p>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-500">{partner.description}</p>
         )}
 
         {(partner.phone || partner.email || partner.address) && (
