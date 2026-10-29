@@ -502,6 +502,7 @@ export default async function MovingLandingPage() {
 
           <LandingLeadForm
             topic="Грузоперевозки"
+            serviceSlug="moving"
             title="Рассчитать переезд"
             description="Оставьте контакты — уточним адреса, объём и время, затем назовём стоимость."
             commentPlaceholder="Адреса, этажи, лифт, объём вещей, дата переезда"

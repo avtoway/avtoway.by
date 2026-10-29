@@ -9,13 +9,30 @@ function toContactRequest(r: any): ContactRequest {
     phone: r.phone ?? undefined,
     email: r.email ?? undefined,
     message: r.message,
+    source: r.source ?? "site",
+    serviceSlug: r.serviceSlug ?? undefined,
+    pageUrl: r.pageUrl ?? undefined,
+    utmSource: r.utmSource ?? undefined,
+    utmMedium: r.utmMedium ?? undefined,
+    utmCampaign: r.utmCampaign ?? undefined,
     status: r.status,
     createdAt: r.createdAt?.toISOString?.() ?? r.createdAt,
   };
 }
 
 export class PrismaContactRequestRepository implements ContactRepository {
-  async create(data: { name: string; phone?: string; email?: string; message: string }): Promise<ContactRequest> {
+  async create(data: {
+    name: string;
+    phone?: string;
+    email?: string;
+    message: string;
+    source?: string;
+    serviceSlug?: string;
+    pageUrl?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+  }): Promise<ContactRequest> {
     const db = getPrismaClient();
     const record = await db.contactRequest.create({
       data: {
@@ -23,6 +40,12 @@ export class PrismaContactRequestRepository implements ContactRepository {
         phone: data.phone ?? null,
         email: data.email ?? null,
         message: data.message,
+        source: data.source || "site",
+        serviceSlug: data.serviceSlug || null,
+        pageUrl: data.pageUrl || null,
+        utmSource: data.utmSource || null,
+        utmMedium: data.utmMedium || null,
+        utmCampaign: data.utmCampaign || null,
       },
     });
     return toContactRequest(record);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import LandingIcon from "@/features/service-landings/ui/icon";
+import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 
 const input =
   "w-full rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500";
@@ -40,6 +41,9 @@ export default function VacancyApplyForm({
           phone: phone.trim() || undefined,
           email: email.trim() || undefined,
           message: `Отклик на вакансию «${vacancyTitle}».${message.trim() ? ` ${message.trim()}` : ""}`,
+          source: "vacancy",
+          serviceSlug: "vacancies",
+          ...getLeadAttribution(),
         }),
       });
       const json = await res.json();

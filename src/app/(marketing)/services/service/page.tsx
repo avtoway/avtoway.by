@@ -336,6 +336,7 @@ export default async function AutoServiceLandingPage() {
 
           <LandingLeadForm
             topic="Автосервис"
+            serviceSlug="service"
             title="Записаться на сервис"
             description="Оставьте телефон — уточним задачу и предложим удобное время."
             commentPlaceholder="Марка, модель, что случилось или какие работы нужны"

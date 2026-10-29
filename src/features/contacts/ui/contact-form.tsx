@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -23,7 +24,15 @@ export default function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), email: email.trim(), message: message.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          message: message.trim(),
+          source: "contacts",
+          serviceSlug: "contacts",
+          ...getLeadAttribution(),
+        }),
       });
       const json = await res.json();
       if (json.ok) {

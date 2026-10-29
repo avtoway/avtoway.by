@@ -363,6 +363,7 @@ export default async function ImportLandingPage() {
 
           <LandingLeadForm
             topic="Автопригон"
+            serviceSlug="import"
             title="Получить расчёт пригона"
             description="Оставьте телефон — уточним задачу и вернёмся с ориентиром по бюджету."
             commentPlaceholder="Ссылка на авто или лот, бюджет, страна, сроки"

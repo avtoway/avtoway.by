@@ -4,6 +4,12 @@ export interface ContactRequest {
   phone?: string;
   email?: string;
   message: string;
+  source: string;
+  serviceSlug?: string;
+  pageUrl?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
   status: string;
   createdAt: string;
 }

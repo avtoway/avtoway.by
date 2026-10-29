@@ -307,6 +307,7 @@ export default async function EvacuationLandingPage() {
 
           <LandingLeadForm
             topic="Эвакуатор"
+            serviceSlug="truck"
             title="Вызвать эвакуатор"
             description="Оставьте телефон — перезвоним, уточним адрес и назовём стоимость."
             commentPlaceholder="Адрес, автомобиль, что случилось и куда везти"

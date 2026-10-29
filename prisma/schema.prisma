@@ -197,16 +197,24 @@ model Contact {
 }
 
 model ContactRequest {
-  id        String   @id @default(uuid())
-  name      String
-  phone     String?
-  email     String?
-  message   String
-  status    String   @default("new")
-  createdAt DateTime @default(now()) @map("created_at")
+  id          String   @id @default(uuid())
+  name        String
+  phone       String?
+  email       String?
+  message     String
+  source      String   @default("site")
+  serviceSlug String?  @map("service_slug")
+  pageUrl     String?  @map("page_url")
+  utmSource   String?  @map("utm_source")
+  utmMedium   String?  @map("utm_medium")
+  utmCampaign String?  @map("utm_campaign")
+  status      String   @default("new")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@index([status])
   @@index([createdAt])
+  @@index([source])
+  @@index([serviceSlug])
   @@map("contact_requests")
 }
 

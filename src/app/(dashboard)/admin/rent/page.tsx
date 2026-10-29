@@ -4,11 +4,14 @@ import { useEffect, useState, useCallback } from "react";
 import AdminModal from "@/shared/ui/admin-modal";
 import RentCarForm from "@/features/admin/rent/ui/rent-car-form";
 import RentCarHistoryPanel from "@/features/admin/rent/ui/rent-car-history-panel";
+import RentRequestsPanel from "@/features/admin/rent/ui/rent-requests-panel";
 import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { getPriceLabel } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import { validateTaxiRequirements } from "@/shared/lib/taxi-requirements";
+
+type Tab = "cars" | "requests";
 
 interface RentType { id: string; name: string; slug: string; sortOrder: number; }
 
@@ -33,6 +36,7 @@ const EMPTY_FORM = {
 };
 
 export default function AdminRentPage() {
+  const [tab, setTab] = useState<Tab>("cars");
   const [cars, setCars] = useState<RentCar[]>([]);
   const [types, setTypes] = useState<RentType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,19 +165,44 @@ export default function AdminRentPage() {
           <h1 className="text-2xl font-bold">Аренда</h1>
           <p className="mt-0.5 text-sm text-slate-500">Управление автомобилями</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => setTypeModal(true)}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">
-            + Тип аренды
-          </button>
-          <button onClick={openCreate}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
-            + Добавить авто
-          </button>
-        </div>
+        {tab === "cars" && (
+          <div className="flex gap-2">
+            <button onClick={() => setTypeModal(true)}
+              className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">
+              + Тип аренды
+            </button>
+            <button onClick={openCreate}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+              + Добавить авто
+            </button>
+          </div>
+        )}
       </div>
 
-      {loading ? <p className="text-slate-500">Загрузка...</p> : cars.length === 0 ? (
+      <div className="mb-6 flex gap-1 overflow-x-auto border-b border-slate-800">
+        <button
+          type="button"
+          onClick={() => setTab("cars")}
+          className={`-mb-px shrink-0 border-b-2 px-4 py-2 text-sm transition ${
+            tab === "cars" ? "border-red-500 text-white" : "border-transparent text-slate-400 hover:text-white"
+          }`}
+        >
+          Автомобили
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("requests")}
+          className={`-mb-px shrink-0 border-b-2 px-4 py-2 text-sm transition ${
+            tab === "requests" ? "border-red-500 text-white" : "border-transparent text-slate-400 hover:text-white"
+          }`}
+        >
+          Заявки
+        </button>
+      </div>
+
+      {tab === "requests" ? (
+        <RentRequestsPanel />
+      ) : loading ? <p className="text-slate-500">Загрузка...</p> : cars.length === 0 ? (
         <p className="pt-10 text-center text-sm text-slate-600">Нет автомобилей. Добавьте первый.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">

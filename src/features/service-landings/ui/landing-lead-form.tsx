@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import LandingIcon from "./icon";
+import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 
 const BUTTONS: Record<string, string> = {
   red: "bg-primary hover:bg-primary-dark hover:shadow-primary/20",
@@ -19,6 +20,7 @@ export default function LandingLeadForm({
   submitLabel = "Отправить заявку",
   accent = "red",
   phone,
+  serviceSlug,
 }: {
   topic: string;
   title?: string;
@@ -27,6 +29,7 @@ export default function LandingLeadForm({
   submitLabel?: string;
   accent?: "red" | "blue" | "amber" | "emerald";
   phone?: string | null;
+  serviceSlug?: string;
 }) {
   const [name, setName] = useState("");
   const [phoneValue, setPhoneValue] = useState("");
@@ -46,6 +49,7 @@ export default function LandingLeadForm({
     setError("");
     try {
       const message = `Заявка: ${topic}.${comment.trim() ? ` ${comment.trim()}` : ""}`;
+      const attribution = getLeadAttribution();
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,6 +57,9 @@ export default function LandingLeadForm({
           name: name.trim(),
           phone: phoneValue.trim(),
           message,
+          source: "service_landing",
+          serviceSlug,
+          ...attribution,
         }),
       });
       const json = await res.json();
