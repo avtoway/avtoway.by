@@ -129,11 +129,6 @@ export default function LandingHero({
                 ))}
               </div>
             </div>
-
-            <div className="pointer-events-none absolute -bottom-4 -left-4 hidden rounded-2xl border border-zinc-700/70 bg-zinc-950/90 px-4 py-3 shadow-xl shadow-black/30 backdrop-blur-md sm:block">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-600">Связь</p>
-              <p className="mt-1 text-sm font-semibold text-white">{phone ?? "Оставьте заявку"}</p>
-            </div>
           </div>
         </div>
       </div>

@@ -41,7 +41,7 @@ export function LandingSection({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className={`relative mx-auto max-w-6xl scroll-mt-24 px-6 py-16 sm:py-20 ${className}`}>
+    <section id={id} className={`relative mx-auto max-w-6xl scroll-mt-24 px-6 py-14 sm:py-16 ${className}`}>
       {children}
     </section>
   );
@@ -314,7 +314,9 @@ export function DirectionCard({
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:bg-zinc-900/70">
       <div className={`pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-3xl ${tone.glow}`} />
-      <span className="text-2xl" aria-hidden="true">{flag}</span>
+      <span className={`inline-flex h-9 min-w-9 items-center justify-center rounded-xl border px-2 text-[11px] font-bold tracking-wider ${tone.badge}`} aria-hidden="true">
+        {flag}
+      </span>
       <h3 className="mt-3 text-base font-semibold text-white">{country}</h3>
       <p className="mt-2 text-sm leading-relaxed text-zinc-500">{text}</p>
       <p className={`mt-4 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-medium ${tone.badge}`}>{meta}</p>

@@ -92,7 +92,9 @@ export default async function AutoServiceLandingPage() {
         badge="Автосервис АВТОWAY"
         title={
           <>
-            Ремонт <span className="text-primary">без сюрпризов</span> — с диагнозом до работ
+            Ремонт <span className="text-primary">без сюрпризов</span>{" "}
+            <br className="hidden sm:block" />
+            Сначала диагноз — потом работы
           </>
         }
         subtitle="Диагностика, ТО и ремонт легковых автомобилей. Показываем дефектовку, согласуем смету и не делаем лишнего. Работаем с европейскими, азиатскими и американскими марками."

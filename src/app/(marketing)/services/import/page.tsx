@@ -93,7 +93,7 @@ export default async function ImportLandingPage() {
         badge="Автопригон под ключ"
         title={
           <>
-            Авто из-за границы <span className="text-primary">без лотереи и сюрпризов</span>
+            Авто из-за границы <span className="text-primary">без лотереи</span>
           </>
         }
         subtitle="Подбираем, проверяем, покупаем и доставляем автомобили из Европы, Кореи, Китая и США. Считаем полную стоимость до покупки: авто + логистика + таможня + оформление."
