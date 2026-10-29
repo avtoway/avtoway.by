@@ -25,6 +25,8 @@ export const WORK_FORMATS = ["office", "hybrid", "remote"] as const;
 
 export const SALARY_PERIODS = ["month", "hour", "shift", "project"] as const;
 
+export const SALARY_TYPES = ["fixed", "piecework", "negotiable"] as const;
+
 export const VacancySchema = z.object({
   slug: z
     .string()
@@ -42,6 +44,8 @@ export const VacancySchema = z.object({
   salaryTo: optionalNumber,
   salaryCurrency: z.string().max(10).optional().or(z.literal("")),
   salaryPeriod: z.enum(SALARY_PERIODS).optional(),
+  salaryType: z.enum(SALARY_TYPES).optional(),
+  salaryNote: optionalText(200),
   shortDescription: z
     .string()
     .min(1, "Короткое описание обязательно")

@@ -40,14 +40,7 @@ export function salaryPeriodLabel(value?: string): string {
   return (value && SALARY_PERIOD_LABELS[value]) || "";
 }
 
-export function formatSalary(vacancy: Pick<Vacancy, "salaryFrom" | "salaryTo" | "salaryCurrency" | "salaryPeriod">): string {
-  const from = vacancy.salaryFrom;
-  const to = vacancy.salaryTo;
-  const currency = vacancy.salaryCurrency || "BYN";
-  const period = salaryPeriodLabel(vacancy.salaryPeriod);
-
-  if (!from && !to) return "Оплата по результатам собеседования";
-
+function formatRange(from: number | undefined, to: number | undefined, currency: string, period: string): string {
   if (from && to) {
     return `${numberFormatter.format(from)}–${numberFormatter.format(to)} ${currency}${period ? ` ${period}` : ""}`;
   }
@@ -55,6 +48,24 @@ export function formatSalary(vacancy: Pick<Vacancy, "salaryFrom" | "salaryTo" | 
     return `от ${numberFormatter.format(from)} ${currency}${period ? ` ${period}` : ""}`;
   }
   return `до ${numberFormatter.format(to ?? 0)} ${currency}${period ? ` ${period}` : ""}`;
+}
+
+export function formatSalary(vacancy: Pick<Vacancy, "salaryFrom" | "salaryTo" | "salaryCurrency" | "salaryPeriod" | "salaryType">): string {
+  const from = vacancy.salaryFrom;
+  const to = vacancy.salaryTo;
+  const currency = vacancy.salaryCurrency || "BYN";
+  const period = salaryPeriodLabel(vacancy.salaryPeriod);
+  const type = vacancy.salaryType ?? "fixed";
+
+  if (type === "negotiable") return "Оплата по договорённости";
+
+  if (type === "piecework") {
+    return from || to ? `Сдельная — ${formatRange(from, to, currency, period)}` : "Сдельная оплата";
+  }
+
+  if (!from && !to) return "Оплата по результатам собеседования";
+
+  return formatRange(from, to, currency, period);
 }
 
 export function parseLines(value?: string): string[] {

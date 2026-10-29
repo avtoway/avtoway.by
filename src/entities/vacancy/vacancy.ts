@@ -12,6 +12,8 @@ export interface Vacancy {
   salaryTo?: number;
   salaryCurrency: string;
   salaryPeriod: string;
+  salaryType: string;
+  salaryNote?: string;
   shortDescription: string;
   description?: string;
   responsibilities?: string;

@@ -52,6 +52,8 @@ export async function POST(request: Request) {
       salaryTo: parsed.data.salaryTo ?? undefined,
       salaryCurrency: parsed.data.salaryCurrency || "BYN",
       salaryPeriod: parsed.data.salaryPeriod ?? "month",
+      salaryType: parsed.data.salaryType ?? "fixed",
+      salaryNote: parsed.data.salaryNote || undefined,
       shortDescription: parsed.data.shortDescription,
       description: parsed.data.description || undefined,
       responsibilities: parsed.data.responsibilities || undefined,

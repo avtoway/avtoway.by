@@ -187,49 +187,82 @@ export default function VacancyForm({
         </div>
       </Section>
 
-      <Section title="Зарплата" description="Можно указать вилку, только «от» или только «до». Если оставить пустым — на сайте будет «по результатам собеседования».">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <label className={labelClass}>
-            <span className={labelText}>От</span>
-            <input
-              type="number"
-              min={0}
-              value={form.salaryFrom ?? ""}
-              onChange={(event) => onChange("salaryFrom", event.target.value === "" ? null : Number(event.target.value))}
-              placeholder="2500"
-              className={inputClass}
-            />
-            <FieldError error={errors?.salaryFrom} />
-          </label>
-          <label className={labelClass}>
-            <span className={labelText}>До</span>
-            <input
-              type="number"
-              min={0}
-              value={form.salaryTo ?? ""}
-              onChange={(event) => onChange("salaryTo", event.target.value === "" ? null : Number(event.target.value))}
-              placeholder="4000"
-              className={inputClass}
-            />
-            <FieldError error={errors?.salaryTo} />
-          </label>
-          <TextInput
-            label="Валюта"
-            value={form.salaryCurrency}
-            onChange={(value) => onChange("salaryCurrency", value)}
-            placeholder="BYN"
-          />
+      <Section
+        title="Зарплата"
+        description="Выберите тип оплаты. Для фиксированной можно указать вилку, для сдельной или договорной — комментарий. Если сумма не указана, на сайте будет «по результатам собеседования»."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
           <Select
-            label="Период"
-            value={form.salaryPeriod}
-            onChange={(value) => onChange("salaryPeriod", value)}
+            label="Тип оплаты"
+            value={form.salaryType ?? "fixed"}
+            onChange={(value) => onChange("salaryType", value)}
             options={[
-              { value: "month", label: "В месяц" },
-              { value: "hour", label: "В час" },
-              { value: "shift", label: "За смену" },
-              { value: "project", label: "За проект" },
+              { value: "fixed", label: "Фиксированная / почасовая" },
+              { value: "piecework", label: "Сдельная" },
+              { value: "negotiable", label: "Договорная" },
             ]}
           />
+
+          {(form.salaryType ?? "fixed") === "fixed" && (
+            <>
+              <label className={labelClass}>
+                <span className={labelText}>Сумма от</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.salaryFrom ?? ""}
+                  onChange={(event) => onChange("salaryFrom", event.target.value === "" ? null : Number(event.target.value))}
+                  placeholder="2500"
+                  className={inputClass}
+                />
+                <FieldError error={errors?.salaryFrom} />
+              </label>
+              <label className={labelClass}>
+                <span className={labelText}>Сумма до</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.salaryTo ?? ""}
+                  onChange={(event) => onChange("salaryTo", event.target.value === "" ? null : Number(event.target.value))}
+                  placeholder="4000"
+                  className={inputClass}
+                />
+                <FieldError error={errors?.salaryTo} />
+              </label>
+              <TextInput
+                label="Валюта"
+                value={form.salaryCurrency}
+                onChange={(value) => onChange("salaryCurrency", value)}
+                placeholder="BYN"
+              />
+              <Select
+                label="Период"
+                value={form.salaryPeriod}
+                onChange={(value) => onChange("salaryPeriod", value)}
+                options={[
+                  { value: "month", label: "В месяц" },
+                  { value: "hour", label: "В час" },
+                  { value: "shift", label: "За смену" },
+                  { value: "project", label: "За проект" },
+                ]}
+              />
+            </>
+          )}
+
+          <div className="sm:col-span-2">
+            <TextInput
+              label="Комментарий по оплате"
+              value={form.salaryNote ?? ""}
+              onChange={(value) => onChange("salaryNote", value)}
+              placeholder={
+                (form.salaryType ?? "fixed") === "piecework"
+                  ? "Например: оплата за рейс/переезд по расценкам"
+                  : (form.salaryType ?? "fixed") === "negotiable"
+                    ? "Например: оклад + % от сделок, обсуждаем на собеседовании"
+                    : "Например: оклад + премия по итогам месяца"
+              }
+            />
+          </div>
         </div>
       </Section>
 

@@ -70,6 +70,7 @@ interface JobPostingSchemaProps {
   salaryTo?: number;
   salaryCurrency?: string;
   salaryPeriod?: string;
+  salaryType?: string;
   url: string;
 }
 
@@ -83,6 +84,7 @@ export function JobPostingSchema({
   salaryTo,
   salaryCurrency = "BYN",
   salaryPeriod = "month",
+  salaryType = "fixed",
   url,
 }: JobPostingSchemaProps) {
   const employmentMap: Record<string, string> = {
@@ -98,7 +100,7 @@ export function JobPostingSchema({
   };
 
   const salary =
-    salaryFrom || salaryTo
+    salaryType === "fixed" && (salaryFrom || salaryTo)
       ? {
           "@type": "MonetaryAmount",
           currency: salaryCurrency,

@@ -141,6 +141,8 @@ model Vacancy {
   salaryTo         Int?     @map("salary_to")
   salaryCurrency   String   @default("BYN") @map("salary_currency")
   salaryPeriod     String   @default("month") @map("salary_period")
+  salaryType       String   @default("fixed") @map("salary_type")
+  salaryNote       String?  @map("salary_note")
   shortDescription String   @map("short_description")
   description      String?
   responsibilities String?

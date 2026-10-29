@@ -126,6 +126,7 @@ export default async function VacancyPage({ params }: Props) {
         salaryTo={vacancy.salaryTo}
         salaryCurrency={vacancy.salaryCurrency}
         salaryPeriod={vacancy.salaryPeriod}
+        salaryType={vacancy.salaryType}
         url={`/vacancies/${vacancy.slug}`}
       />
       <BreadcrumbSchema
@@ -195,6 +196,9 @@ export default async function VacancyPage({ params }: Props) {
               <div>
                 <p className="text-[10px] uppercase tracking-[0.16em] text-zinc-600">Оплата</p>
                 <p className="mt-1 text-2xl font-bold text-amber-300">{formatSalary(vacancy)}</p>
+                {vacancy.salaryNote && (
+                  <p className="mt-1 max-w-md text-xs leading-relaxed text-zinc-500">{vacancy.salaryNote}</p>
+                )}
                 {vacancy.schedule && <p className="mt-1 text-xs text-zinc-500">{vacancy.schedule}</p>}
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -283,6 +287,9 @@ export default async function VacancyPage({ params }: Props) {
                   <span className="text-zinc-500">Оплата</span>
                   <span className="text-right font-medium text-amber-300">{formatSalary(vacancy)}</span>
                 </div>
+                {vacancy.salaryNote && (
+                  <p className="text-[11px] leading-snug text-zinc-500">{vacancy.salaryNote}</p>
+                )}
               </div>
 
               <div className="mt-6 border-t border-zinc-800/70 pt-5">
