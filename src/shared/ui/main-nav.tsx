@@ -90,6 +90,7 @@ export default function MainNav({ services: initialServices }: { services: NavSe
                 <Link
                   href="/services"
                   aria-haspopup={hasServices ? "true" : undefined}
+                  onClick={(event) => event.currentTarget.blur()}
                   className={`group/link relative flex cursor-pointer items-center gap-1 rounded-full px-4 py-2 no-underline transition-all duration-300 ${
                     active ? "text-white" : "text-zinc-400 hover:text-white"
                   }`}
@@ -108,6 +109,7 @@ export default function MainNav({ services: initialServices }: { services: NavSe
                           <Link
                             key={service.slug}
                             href={service.href}
+                            onClick={(event) => event.currentTarget.blur()}
                             className={`group/item flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
                               pathname === service.href
                                 ? "bg-zinc-800 text-white"
@@ -123,6 +125,7 @@ export default function MainNav({ services: initialServices }: { services: NavSe
                       </div>
                       <Link
                         href="/services"
+                        onClick={(event) => event.currentTarget.blur()}
                         className="mt-1 flex items-center justify-between rounded-lg border-t border-zinc-800/80 px-3 py-2.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
                       >
                         Все услуги
