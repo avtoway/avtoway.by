@@ -17,9 +17,9 @@ async function main() {
   ];
 
   const perms: Record<string, string[]> = {
-    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "audit.view", "rent.manage", "sell.manage", "contacts.manage", "email.manage", "autopodbor.manage", "autopodbor.requests", "autopodbor.view"],
-    "Редактор": ["services.manage", "partners.manage", "rent.manage", "sell.manage", "contacts.manage", "autopodbor.manage", "autopodbor.requests"],
-    "Наблюдатель": ["services.view", "partners.view", "autopodbor.view"],
+    "Администратор": ["users.manage", "users.roles", "services.manage", "partners.manage", "vacancies.manage", "audit.view", "rent.manage", "sell.manage", "contacts.manage", "email.manage", "autopodbor.manage", "autopodbor.requests", "autopodbor.view"],
+    "Редактор": ["services.manage", "partners.manage", "vacancies.manage", "rent.manage", "sell.manage", "contacts.manage", "autopodbor.manage", "autopodbor.requests"],
+    "Наблюдатель": ["services.view", "partners.view", "vacancies.view", "autopodbor.view"],
   };
 
   for (const r of roleDefs) {

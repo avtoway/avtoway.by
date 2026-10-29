@@ -12,6 +12,8 @@ export const PERMISSION_OPTIONS: SelectOption[] = [
   { value: "services.view", label: "Просмотр услуг" },
   { value: "partners.manage", label: "Управление партнёрами" },
   { value: "partners.view", label: "Просмотр партнёров" },
+  { value: "vacancies.manage", label: "Управление вакансиями" },
+  { value: "vacancies.view", label: "Просмотр вакансий" },
   { value: "audit.view", label: "Просмотр аудита" },
   { value: "rent.manage", label: "Управление арендой" },
   { value: "sell.manage", label: "Управление продажами" },

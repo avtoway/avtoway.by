@@ -63,6 +63,7 @@ export async function GET() {
       ],
     },
     { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
+    { label: "Вакансии", icon: "briefcase", href: "/admin/vacancies", perm: "vacancies." },
     { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined },
     { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
     { label: "Заявки", icon: "document-text", href: "/admin/requests", perm: "contacts.manage" },

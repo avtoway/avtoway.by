@@ -16,6 +16,7 @@ const STATIC_ENTRIES: Entry[] = [
   { url: `${SITE_URL}/services/rent/calculator`, priority: 0.7, changeFrequency: "monthly" },
   { url: `${SITE_URL}/contacts`, priority: 0.6, changeFrequency: "monthly" },
   { url: `${SITE_URL}/partners`, priority: 0.5, changeFrequency: "monthly" },
+  { url: `${SITE_URL}/vacancies`, priority: 0.6, changeFrequency: "weekly" },
   { url: `${SITE_URL}/privacy`, priority: 0.3, changeFrequency: "yearly" },
 ];
 
@@ -24,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const db = getPrismaClient();
-    const [services, cars, saleCars] = await Promise.all([
+    const [services, cars, saleCars, vacancies] = await Promise.all([
       db.service.findMany({
         where: { isActive: true },
         select: { slug: true, updatedAt: true },
@@ -35,6 +36,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
       db.saleCar.findMany({
         where: { isActive: true, status: { not: "draft" } },
+        select: { slug: true, updatedAt: true },
+      }),
+      db.vacancy.findMany({
+        where: { isActive: true, publishedAt: { lte: new Date() } },
         select: { slug: true, updatedAt: true },
       }),
     ]);
@@ -67,6 +72,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url,
         lastModified: car.updatedAt,
         priority: 0.7,
+        changeFrequency: "weekly",
+      });
+    }
+
+    for (const vacancy of vacancies) {
+      const url = `${SITE_URL}/vacancies/${vacancy.slug}`;
+      entries.set(url, {
+        url,
+        lastModified: vacancy.updatedAt,
+        priority: 0.6,
         changeFrequency: "weekly",
       });
     }

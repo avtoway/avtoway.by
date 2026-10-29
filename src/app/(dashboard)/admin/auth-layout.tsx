@@ -32,6 +32,7 @@ const TITLE_OVERRIDE: Record<string, string> = {
   "/admin/users": "Сотрудники",
   "/admin/roles": "Роли",
   "/admin/partners": "Партнёры",
+  "/admin/vacancies": "Вакансии",
   "/admin/audit-logs": "Аудит",
   "/admin/rent": "Аренда",
   "/admin/sell": "Продажа авто",
