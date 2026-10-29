@@ -11,6 +11,7 @@ export default defineConfig({
       AUTH_SECRET: "test-secret",
       ENCRYPTION_KEY: "test-encryption-key",
     },
+    exclude: ["**/node_modules/**", ".next/**", "tests/e2e/**", "mcp/**"],
     reporters: [
       "default",
       "allure-vitest/reporter",

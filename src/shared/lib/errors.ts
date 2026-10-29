@@ -40,10 +40,27 @@ export class ConflictError extends AppError {
   }
 }
 
+function logServerError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error("[api]", error);
+  void import("@/infrastructure/persistence/prisma.client")
+    .then(({ getPrismaClient }) => getPrismaClient().systemEvent.create({
+      data: {
+        level: "error",
+        source: "api",
+        message: message.slice(0, 2000),
+        details: error instanceof Error ? error.stack?.slice(0, 10000) : undefined,
+      },
+    }))
+    .catch(() => { /* журнал не должен ломать ответ */ });
+}
+
 export function toApiError(error: unknown): NextResponse {
   if (error instanceof AppError) {
+    if (error.statusCode >= 500) logServerError(error);
     return NextResponse.json({ ok: false, error: error.message }, { status: error.statusCode });
   }
   const message = error instanceof Error ? error.message : "Внутренняя ошибка сервера";
+  logServerError(error);
   return NextResponse.json({ ok: false, error: message }, { status: 500 });
 }

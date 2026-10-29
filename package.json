@@ -8,19 +8,24 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
     "test:report": "vitest run && npx allure generate ./allure-results -o ./allure-report --clean && npx allure open ./allure-report",
     "typecheck": "tsc --noEmit",
     "db:up": "docker compose up -d",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "tsx scripts/seed.ts",
+    "db:seed": "tsx scripts/seed.ts && tsx scripts/seed-landings.ts",
+    "db:seed:landings": "tsx scripts/seed-landings.ts",
+    "db:backup": "tsx scripts/backup-db.ts",
+    "db:backup:check": "tsx scripts/backup-db.ts check",
+    "monitor:check": "tsx scripts/uptime-check.ts",
     "yt:analyze": "node scripts/youtube-storyboard.mjs",
     "images:build": "node scripts/images-build.mjs",
     "images:apply": "node scripts/images-build.mjs --apply",
     "release": "npm run build"
   },
   "prisma": {
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts && tsx scripts/seed-landings.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
@@ -38,6 +43,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

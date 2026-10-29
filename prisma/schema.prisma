@@ -137,7 +137,7 @@ model Vacancy {
   slug             String   @unique
   title            String
   department       String?
-  location         String   @default("Минск")
+  location         String   @default("РњРёРЅСЃРє")
   employmentType   String   @default("full_time") @map("employment_type")
   workFormat       String?  @map("work_format")
   experience       String?
@@ -446,7 +446,7 @@ model RentCarHistory {
 }
 
 /**
- * ─── Автоподбор (/services/inspection) ───
+ * в”Ђв”Ђв”Ђ РђРІС‚РѕРїРѕРґР±РѕСЂ (/services/inspection) в”Ђв”Ђв”Ђ
  */
 
 model AutoPodborSettings {
@@ -459,8 +459,8 @@ model AutoPodborSettings {
   heroImage         String?  @map("hero_image")
   heroImageAlt      String?  @map("hero_image_alt")
   priceFrom         Int?     @map("price_from")
-  ctaPrimaryLabel   String   @default("Подобрать авто") @map("cta_primary_label")
-  ctaSecondaryLabel String   @default("Смотреть тарифы") @map("cta_secondary_label")
+  ctaPrimaryLabel   String   @default("РџРѕРґРѕР±СЂР°С‚СЊ Р°РІС‚Рѕ") @map("cta_primary_label")
+  ctaSecondaryLabel String   @default("РЎРјРѕС‚СЂРµС‚СЊ С‚Р°СЂРёС„С‹") @map("cta_secondary_label")
   phone             String?
   telegram          String?
   whatsapp          String?
@@ -522,7 +522,7 @@ model AutoPodborTariff {
   badge       String?
   icon        String   @default("check")
   image       String?
-  ctaLabel    String   @default("Оставить заявку") @map("cta_label")
+  ctaLabel    String   @default("РћСЃС‚Р°РІРёС‚СЊ Р·Р°СЏРІРєСѓ") @map("cta_label")
   isPopular   Boolean  @default(false) @map("is_popular")
   isActive    Boolean  @default(true) @map("is_active")
   sortOrder   Int      @default(0) @map("sort_order")
@@ -710,7 +710,7 @@ model AutoPodborLead {
 }
 
 /**
- * ─── Продажа авто (/services/sell) ───
+ * в”Ђв”Ђв”Ђ РџСЂРѕРґР°Р¶Р° Р°РІС‚Рѕ (/services/sell) в”Ђв”Ђв”Ђ
  */
 
 model SaleCar {
@@ -770,7 +770,7 @@ model SaleCar {
   photos      String?
   videoUrl    String? @map("video_url")
 
-  city         String  @default("Минск")
+  city         String  @default("РњРёРЅСЃРє")
   contactName  String? @map("contact_name")
   contactPhone String? @map("contact_phone")
 
@@ -811,4 +811,87 @@ model SaleRequest {
   @@index([status, createdAt])
   @@index([carId])
   @@map("sale_requests")
+}
+
+/// Редактируемый контент лендингов услуг. content — JSON с hero, секциями, FAQ, CTA и формой.
+model ServiceLanding {
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  seoTitle       String   @map("seo_title")
+  seoDescription String   @map("seo_description")
+  ogTitle        String?  @map("og_title")
+  ogDescription  String?  @map("og_description")
+  content        String
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("service_landings")
+}
+
+/// CRM-метаданные поверх заявок из разных таблиц (contact/rent/sale/autopodbor).
+model LeadMeta {
+  id              String    @id @default(uuid())
+  source          String
+  leadId          String    @map("lead_id")
+  assignedToId    String?   @map("assigned_to_id")
+  rejectionReason String?   @map("rejection_reason")
+  nextContactAt   DateTime? @map("next_contact_at")
+  internalNote    String?   @map("internal_note")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@unique([source, leadId])
+  @@index([assignedToId])
+  @@index([nextContactAt])
+  @@map("lead_meta")
+}
+
+/// История комментариев и внутренних заметок по заявке.
+model LeadNote {
+  id        String   @id @default(uuid())
+  source    String
+  leadId    String   @map("lead_id")
+  userId    String?  @map("user_id")
+  author    String?
+  text      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([source, leadId, createdAt])
+  @@index([createdAt])
+  @@map("lead_notes")
+}
+
+/// Задачи и напоминания по заявке/клиенту.
+model LeadTask {
+  id           String    @id @default(uuid())
+  source       String
+  leadId       String?   @map("lead_id")
+  clientPhone  String?   @map("client_phone")
+  title        String
+  dueAt        DateTime? @map("due_at")
+  status       String    @default("open")
+  assignedToId String?   @map("assigned_to_id")
+  createdById  String?   @map("created_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  @@index([status, dueAt])
+  @@index([source, leadId])
+  @@index([clientPhone])
+  @@map("lead_tasks")
+}
+
+/// События мониторинга: ошибки, сбои здоровья, предупреждения.
+model SystemEvent {
+  id        String   @id @default(uuid())
+  level     String   @default("error")
+  source    String
+  message   String
+  details   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([level, createdAt])
+  @@index([source, createdAt])
+  @@map("system_events")
 }

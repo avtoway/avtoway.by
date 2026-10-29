@@ -77,5 +77,12 @@ next-env.d.ts
 /allure-report/
 /allure-results/
 
+# Playwright
+/test-results/
+/playwright-report/
+
 # Local SQLite database
 /data/
+
+# Local database backups
+/backups/

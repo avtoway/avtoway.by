@@ -13,7 +13,11 @@ import { PrismaVacancyRepository } from "@/infrastructure/persistence/vacancy.pr
 import { PrismaContactRequestRepository } from "@/infrastructure/persistence/contact-request.prisma.repository";
 import { PrismaAutoPodborRepository } from "@/infrastructure/persistence/autopodbor.prisma.repository";
 import { PrismaSaleCarRepository } from "@/infrastructure/persistence/sale-car.prisma.repository";
+import { PrismaServiceLandingRepository } from "@/infrastructure/persistence/service-landing.prisma.repository";
+import { PrismaCrmRepository } from "@/infrastructure/persistence/crm.prisma.repository";
 import type { ServiceRepository } from "@/entities/service/service.repository";
+import type { ServiceLandingRepository } from "@/entities/service-landing/service-landing.repository";
+import type { CrmRepository } from "@/entities/crm/crm.repository";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 import type { VacancyRepository } from "@/entities/vacancy/vacancy.repository";
 import type { ContactRepository } from "@/entities/contact/contact.repository";
@@ -29,6 +33,8 @@ import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
 
 function configureContainer() {
   container.register<ServiceRepository>("ServiceRepository", new PrismaServiceRepository());
+  container.register<ServiceLandingRepository>("ServiceLandingRepository", new PrismaServiceLandingRepository());
+  container.register<CrmRepository>("CrmRepository", new PrismaCrmRepository());
   container.register<PartnerRepository>("PartnerRepository", new PrismaPartnerRepository());
   container.register<VacancyRepository>("VacancyRepository", new PrismaVacancyRepository());
   container.register<VideoSource>("VideoSource", new YouTubeVideoSource(

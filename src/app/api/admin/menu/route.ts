@@ -58,6 +58,7 @@ export async function GET() {
       perm: "services.",
       children: [
         { label: "Все услуги", icon: "settings", href: "/admin/services", perm: "services.manage" },
+        { label: "Контент лендингов", icon: "document-text", href: "/admin/landings", perm: "services.manage" },
         ...serviceChildren,
         { label: "Продажа авто", icon: "dollar", href: "/admin/sell", perm: "sell.manage", badge: newSaleRequests || undefined },
       ],
@@ -67,10 +68,13 @@ export async function GET() {
     { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined },
     { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
     { label: "Заявки", icon: "document-text", href: "/admin/requests", perm: "contacts.manage" },
+    { label: "Клиенты", icon: "users", href: "/admin/clients", perm: "contacts.manage" },
+    { label: "Задачи", icon: "document-text", href: "/admin/tasks", perm: "contacts.manage" },
     { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
     { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles" },
     { label: "Аудит", icon: "document-text", href: "/admin/audit-logs", perm: "audit.view" },
+    { label: "Мониторинг", icon: "settings", href: "/admin/monitoring", perm: "audit.view" },
   ];
 
   // Filter by permissions recursively

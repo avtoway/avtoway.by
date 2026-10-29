@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import { reportClientError } from "@/shared/lib/client-monitoring";
+
 export default function MarketingError({
   error,
   reset,
@@ -7,6 +10,10 @@ export default function MarketingError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    reportClientError(error, `site:${window.location.pathname}`, error.digest);
+  }, [error]);
+
   return (
     <section className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
       <h2 className="text-3xl font-bold text-white">Упс! Что-то пошло не так</h2>

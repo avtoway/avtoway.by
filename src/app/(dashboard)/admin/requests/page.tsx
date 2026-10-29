@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
+import LeadCrmPanel from "@/features/admin/crm/ui/lead-crm-panel";
 
 type LeadSource = "contact" | "rent" | "sale" | "autopodbor";
 
@@ -182,6 +183,7 @@ export default function AdminRequestsPage() {
   const [sourceFilter, setSourceFilter] = useState<LeadSource | "all">("all");
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [crmLead, setCrmLead] = useState<UnifiedLead | null>(null);
   const { toast } = useToast();
   const { confirm, dialog } = useConfirm();
 
@@ -436,6 +438,13 @@ export default function AdminRequestsPage() {
                   <span className="text-xs text-slate-600">{formatDate(lead.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCrmLead(lead)}
+                    className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 transition hover:border-red-500 hover:text-white"
+                  >
+                    CRM
+                  </button>
                   <select
                     value={lead.status}
                     onChange={(event) => void updateStatus(lead, event.target.value)}
@@ -477,16 +486,33 @@ export default function AdminRequestsPage() {
                 )}
               </div>
 
-              {lead.href && (
-                <div className="mt-4 flex justify-end border-t border-slate-800/70 pt-3">
+              <div className="mt-4 flex flex-wrap justify-end gap-4 border-t border-slate-800/70 pt-3">
+                {lead.phone && (
+                  <Link
+                    href={`/admin/clients?phone=${encodeURIComponent(lead.phone)}`}
+                    className="text-xs font-medium text-slate-400 transition hover:text-white"
+                  >
+                    Карточка клиента
+                  </Link>
+                )}
+                {lead.href && (
                   <Link href={lead.href} className="text-xs font-medium text-red-300 transition hover:text-red-200">
                     Открыть в модуле →
                   </Link>
-                </div>
-              )}
+                )}
+              </div>
             </article>
           ))}
         </div>
+      )}
+      {crmLead && (
+        <LeadCrmPanel
+          source={crmLead.source}
+          leadId={crmLead.id}
+          leadName={crmLead.name}
+          phone={crmLead.phone}
+          onClose={() => setCrmLead(null)}
+        />
       )}
       {dialog}
     </div>
