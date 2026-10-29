@@ -105,24 +105,29 @@ model Service {
 }
 
 model Partner {
-  id            String   @id @default(uuid())
-  name          String
-  photo         String?
-  photos        String?
-  description   String?
-  phone         String?
-  email         String?
-  address       String?
-  contactPerson String?  @map("contact_person")
-  website       String?
-  instagram     String?
-  telegram      String?
-  vk            String?
-  youtube       String?
-  isActive      Boolean  @default(true) @map("is_active")
-  sortOrder     Int      @default(0) @map("sort_order")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  slug             String?  @unique
+  name             String
+  photo            String?
+  photos           String?
+  shortDescription String?  @map("short_description")
+  description      String?
+  services         String?
+  advantages       String?
+  workingHours     String?  @map("working_hours")
+  phone            String?
+  email            String?
+  address          String?
+  contactPerson    String?  @map("contact_person")
+  website          String?
+  instagram        String?
+  telegram         String?
+  vk               String?
+  youtube          String?
+  isActive         Boolean  @default(true) @map("is_active")
+  sortOrder        Int      @default(0) @map("sort_order")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("partners")
 }

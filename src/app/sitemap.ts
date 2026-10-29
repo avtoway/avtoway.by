@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const db = getPrismaClient();
-    const [services, cars, saleCars, vacancies] = await Promise.all([
+    const [services, cars, saleCars, vacancies, partners] = await Promise.all([
       db.service.findMany({
         where: { isActive: true },
         select: { slug: true, updatedAt: true },
@@ -40,6 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
       db.vacancy.findMany({
         where: { isActive: true, publishedAt: { lte: new Date() } },
+        select: { slug: true, updatedAt: true },
+      }),
+      db.partner.findMany({
+        where: { isActive: true, slug: { not: null } },
         select: { slug: true, updatedAt: true },
       }),
     ]);
@@ -83,6 +87,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: vacancy.updatedAt,
         priority: 0.6,
         changeFrequency: "weekly",
+      });
+    }
+
+    for (const partner of partners) {
+      if (!partner.slug) continue;
+      const url = `${SITE_URL}/partners/${partner.slug}`;
+      entries.set(url, {
+        url,
+        lastModified: partner.updatedAt,
+        priority: 0.6,
+        changeFrequency: "monthly",
       });
     }
   } catch {

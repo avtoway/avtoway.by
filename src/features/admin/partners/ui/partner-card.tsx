@@ -41,7 +41,9 @@ export default function PartnerCard({
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold text-white">{partner.name}</h3>
-          {partner.description && <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">{partner.description}</p>}
+          {(partner.shortDescription || partner.description) && (
+            <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">{partner.shortDescription || partner.description}</p>
+          )}
         </div>
       </div>
 

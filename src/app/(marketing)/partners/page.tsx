@@ -104,7 +104,7 @@ export default async function PartnersPage() {
                 Стать партнёром →
               </Link>
             </div>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-5">
               {partners.map((partner) => (
                 <PublicPartnerCard key={partner.id} partner={partner} />
               ))}

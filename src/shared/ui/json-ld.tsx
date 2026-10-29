@@ -60,6 +60,59 @@ export function ServiceSchema({ name, description, url }: ServiceSchemaProps) {
   );
 }
 
+interface PartnerSchemaProps {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  phone?: string;
+  address?: string;
+  workingHours?: string;
+  sameAs?: string[];
+}
+
+export function LocalBusinessSchema({
+  name,
+  description,
+  url,
+  image,
+  phone,
+  address,
+  workingHours,
+  sameAs = [],
+}: PartnerSchemaProps) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name,
+    description,
+    url: `${SITE_URL}${url}`,
+    ...(image
+      ? { image: image.startsWith("http") ? image : `${SITE_URL}${image}` }
+      : {}),
+    ...(phone ? { telephone: phone } : {}),
+    ...(address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: address,
+            addressLocality: "Минск",
+            addressCountry: "BY",
+          },
+        }
+      : {}),
+    ...(workingHours ? { openingHours: workingHours } : {}),
+    ...(sameAs.length ? { sameAs } : {}),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: serialize(schema) }}
+    />
+  );
+}
+
 interface JobPostingSchemaProps {
   title: string;
   description: string;

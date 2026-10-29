@@ -18,19 +18,59 @@ export default function PartnerForm({
     <div className="flex flex-col gap-5">
       <UploadZone label="Загрузить основное фото" currentPreview={form.photo} onUpload={url => onChange("photo", url)} />
 
-      <div className="grid grid-cols-2 gap-4">
-        <label className="flex flex-col gap-1 col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-slate-400">Slug *</span>
+          <input value={form.slug ?? ""} onChange={e => onChange("slug", e.target.value)}
+            placeholder="minsktuning"
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.slug ? "border-red-500" : "border-slate-700"}`} />
+          <FieldError error={errors?.slug} />
+        </label>
+        <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-slate-400">Название *</span>
           <input value={form.name} onChange={e => onChange("name", e.target.value)}
             className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.name ? "border-red-500" : "border-slate-700"}`} />
           <FieldError error={errors?.name} />
         </label>
-        <label className="flex flex-col gap-1 col-span-2">
-          <span className="text-xs font-medium text-slate-400">Описание</span>
-          <textarea value={form.description} onChange={e => onChange("description", e.target.value)} rows={3}
+        <label className="flex flex-col gap-1 sm:col-span-2">
+          <span className="text-xs font-medium text-slate-400">Короткое описание для карточки *</span>
+          <textarea value={form.shortDescription ?? ""} onChange={e => onChange("shortDescription", e.target.value)} rows={2}
+            placeholder="Очень кратко: чем занимается партнёр и чем полезен клиентам"
+            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.shortDescription ? "border-red-500" : "border-slate-700"}`} />
+          <FieldError error={errors?.shortDescription} />
+        </label>
+        <label className="flex flex-col gap-1 sm:col-span-2">
+          <span className="text-xs font-medium text-slate-400">Полное описание</span>
+          <textarea value={form.description ?? ""} onChange={e => onChange("description", e.target.value)} rows={6}
+            placeholder="Расскажите о партнёре, опыте, подходе и проектах"
             className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+          <FieldError error={errors?.description} />
         </label>
       </div>
+
+      <fieldset className="rounded-lg border border-slate-800 p-4">
+        <legend className="text-xs font-medium text-slate-400 px-1">Страница партнёра</legend>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 sm:col-span-2">
+            <span className="text-xs font-medium text-slate-400">Услуги — каждый пункт с новой строки</span>
+            <textarea value={form.services ?? ""} onChange={e => onChange("services", e.target.value)} rows={5}
+              placeholder={"Изготовление обвесов\nРестайлинг\nАэрография"}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+          </label>
+          <label className="flex flex-col gap-1 sm:col-span-2">
+            <span className="text-xs font-medium text-slate-400">Преимущества — каждый пункт с новой строки</span>
+            <textarea value={form.advantages ?? ""} onChange={e => onChange("advantages", e.target.value)} rows={4}
+              placeholder={"Собственное производство\nРабота с нестандартными проектами\nОпыт с 2016 года"}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+          </label>
+          <label className="flex flex-col gap-1 sm:col-span-2">
+            <span className="text-xs font-medium text-slate-400">График работы</span>
+            <input value={form.workingHours ?? ""} onChange={e => onChange("workingHours", e.target.value)}
+              placeholder="Пн–Сб, по предварительной записи"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset className="rounded-lg border border-slate-800 p-4">
         <legend className="text-xs font-medium text-slate-400 px-1">Контакты</legend>

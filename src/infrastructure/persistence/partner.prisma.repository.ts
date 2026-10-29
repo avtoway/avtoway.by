@@ -16,10 +16,15 @@ function parsePhotos(value: string | string[] | null | undefined): string[] | un
 function toPartner(r: any): Partner {
   return {
     id: r.id,
+    slug: r.slug ?? undefined,
     name: r.name,
     photo: r.photo ?? undefined,
     photos: parsePhotos(r.photos),
+    shortDescription: r.shortDescription ?? undefined,
     description: r.description ?? undefined,
+    services: r.services ?? undefined,
+    advantages: r.advantages ?? undefined,
+    workingHours: r.workingHours ?? undefined,
     phone: r.phone ?? undefined,
     email: r.email ?? undefined,
     address: r.address ?? undefined,
@@ -64,6 +69,18 @@ export class PrismaPartnerRepository implements PartnerRepository {
       take: 6,
     });
     return records.map(toPartner);
+  }
+
+  async getById(id: string): Promise<Partner | null> {
+    const db = getPrismaClient();
+    const record = await db.partner.findUnique({ where: { id } });
+    return record ? toPartner(record) : null;
+  }
+
+  async getBySlug(slug: string): Promise<Partner | null> {
+    const db = getPrismaClient();
+    const record = await db.partner.findUnique({ where: { slug } });
+    return record ? toPartner(record) : null;
   }
 
   async create(data: Omit<Partner, "id">): Promise<Partner> {

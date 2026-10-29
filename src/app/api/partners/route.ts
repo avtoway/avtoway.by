@@ -5,7 +5,7 @@ import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
-import { toApiError } from "@/shared/lib/errors";
+import { ConflictError, toApiError } from "@/shared/lib/errors";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 
@@ -26,11 +26,19 @@ export async function POST(request: Request) {
     if (!("validated" in parsed)) return parsed;
 
     const partnerRepo = container.get<PartnerRepository>("PartnerRepository");
+    const existing = await partnerRepo.getBySlug(parsed.data.slug);
+    if (existing) throw new ConflictError("Партнёр с таким slug уже существует");
+
     const partner = await partnerRepo.create({
+      slug: parsed.data.slug,
       name: parsed.data.name,
       photo: parsed.data.photo || undefined,
       photos: parsed.data.photos?.length ? parsed.data.photos : undefined,
+      shortDescription: parsed.data.shortDescription,
       description: parsed.data.description || undefined,
+      services: parsed.data.services || undefined,
+      advantages: parsed.data.advantages || undefined,
+      workingHours: parsed.data.workingHours || undefined,
       phone: parsed.data.phone || undefined,
       email: parsed.data.email || undefined,
       address: parsed.data.address || undefined,
@@ -50,6 +58,8 @@ export async function POST(request: Request) {
     });
 
     revalidatePath("/partners");
+    revalidatePath(`/partners/${partner.slug}`);
+    revalidatePath("/sitemap.xml");
     return NextResponse.json({ ok: true, data: partner }, { status: 201 });
   } catch (e) { return toApiError(e); }
 }

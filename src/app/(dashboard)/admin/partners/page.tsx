@@ -11,7 +11,8 @@ import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { Partner } from "@/features/admin/partners/types";
 
 const EMPTY: Partner = {
-  id: "", name: "", photo: "", photos: [], description: "",
+  id: "", slug: "", name: "", photo: "", photos: [], shortDescription: "", description: "",
+  services: "", advantages: "", workingHours: "",
   phone: "", email: "", address: "", contactPerson: "",
   website: "", instagram: "", telegram: "", vk: "", youtube: "",
   isActive: true, sortOrder: 0,
@@ -47,8 +48,10 @@ export default function AdminPartnersPage() {
   function openCreate() { resetForm({ ...EMPTY }); setEditing(null); setModalOpen(true); }
 
   function openEdit(p: Partner) {
-    resetForm({ ...p, photo: p.photo ?? "", photos: p.photos ?? [],
-      description: p.description ?? "", phone: p.phone ?? "", email: p.email ?? "",
+    resetForm({ ...p, slug: p.slug ?? "", photo: p.photo ?? "", photos: p.photos ?? [],
+      shortDescription: p.shortDescription ?? "", description: p.description ?? "",
+      services: p.services ?? "", advantages: p.advantages ?? "", workingHours: p.workingHours ?? "",
+      phone: p.phone ?? "", email: p.email ?? "",
       address: p.address ?? "", contactPerson: p.contactPerson ?? "", website: p.website ?? "",
       instagram: p.instagram ?? "", telegram: p.telegram ?? "", vk: p.vk ?? "", youtube: p.youtube ?? "" });
     setEditing(p);

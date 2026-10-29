@@ -1,6 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Partner } from "@/entities/partner/partner";
-import { telegramUrl } from "@/shared/lib/social";
 
 function initials(name: string): string {
   return name
@@ -11,32 +11,31 @@ function initials(name: string): string {
     .join("");
 }
 
-function websiteLabel(value: string): string {
-  try {
-    return new URL(value.startsWith("http") ? value : `https://${value}`).hostname.replace(/^www\./, "");
-  } catch {
-    return value;
-  }
-}
-
-function normalizeWebsite(value: string): string {
-  return value.startsWith("http") ? value : `https://${value}`;
+function parseLines(value?: string): string[] {
+  if (!value) return [];
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 export default function PublicPartnerCard({ partner }: { partner: Partner }) {
   const photo = partner.photo ?? partner.photos?.[0];
-  const telegram = telegramUrl(partner.telegram);
-  const website = partner.website ? normalizeWebsite(partner.website) : null;
+  const description = partner.shortDescription || partner.description;
+  const services = parseLines(partner.services).slice(0, 3);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/40 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:bg-zinc-900/70">
-      <div className="relative aspect-[16/10] overflow-hidden bg-zinc-900">
+    <Link
+      href={partner.slug ? `/partners/${partner.slug}` : "/partners"}
+      className="group flex flex-col overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/40 transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:bg-zinc-900/70 sm:flex-row"
+    >
+      <div className="relative h-56 shrink-0 overflow-hidden bg-zinc-900 sm:h-auto sm:w-[40%] sm:self-stretch">
         {photo ? (
           <Image
             src={photo}
             alt={partner.name}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, 40vw"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
@@ -44,89 +43,55 @@ export default function PublicPartnerCard({ partner }: { partner: Partner }) {
             <span className="text-4xl font-black tracking-wider text-white/20">{initials(partner.name)}</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/10 to-transparent" />
-        {partner.contactPerson && (
-          <span className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/45 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur-sm">
-            {partner.contactPerson}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-zinc-950/30" />
+        {partner.address && (
+          <span className="absolute bottom-3 left-3 max-w-[85%] truncate rounded-full border border-white/10 bg-black/45 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur-sm">
+            {partner.address}
           </span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-6">
-        <h2 className="text-xl font-bold text-white transition-colors group-hover:text-red-400">{partner.name}</h2>
-        {partner.description && (
-          <p className="mt-2 text-sm leading-relaxed text-zinc-500">{partner.description}</p>
+      <div className="flex flex-1 flex-col p-6 sm:p-7">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+          <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-red-300">
+            Партнёр АВТОWAY
+          </span>
+          {partner.workingHours && (
+            <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-2.5 py-1 normal-case tracking-normal text-zinc-400">
+              {partner.workingHours}
+            </span>
+          )}
+        </div>
+
+        <h2 className="mt-4 text-2xl font-bold tracking-tight text-white transition-colors group-hover:text-red-300">
+          {partner.name}
+        </h2>
+
+        {description && (
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500">
+            {description}
+          </p>
         )}
 
-        {(partner.phone || partner.email || partner.address) && (
-          <div className="mt-4 space-y-1.5 text-xs text-zinc-500">
-            {partner.phone && (
-              <a href={`tel:${partner.phone.replace(/[^\d+]/g, "")}`} className="block transition hover:text-white">
-                {partner.phone}
-              </a>
-            )}
-            {partner.email && (
-              <a href={`mailto:${partner.email}`} className="block truncate transition hover:text-white">
-                {partner.email}
-              </a>
-            )}
-            {partner.address && <p>{partner.address}</p>}
+        {services.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {services.map((service) => (
+              <span key={service} className="rounded-full border border-zinc-800 bg-zinc-950/60 px-2.5 py-1 text-[10px] text-zinc-500">
+                {service}
+              </span>
+            ))}
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap gap-2 pt-5">
-          {website && (
-            <a
-              href={website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-zinc-700 bg-zinc-950/60 px-3 py-1.5 text-[11px] font-medium text-zinc-400 transition hover:border-zinc-500 hover:text-white"
-            >
-              {websiteLabel(website)} ↗
-            </a>
-          )}
-          {telegram && (
-            <a
-              href={telegram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1.5 text-[11px] font-medium text-sky-300 transition hover:border-sky-500/40"
-            >
-              Telegram
-            </a>
-          )}
-          {partner.instagram && (
-            <a
-              href={partner.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-pink-500/20 bg-pink-500/10 px-3 py-1.5 text-[11px] font-medium text-pink-300 transition hover:border-pink-500/40"
-            >
-              Instagram
-            </a>
-          )}
-          {partner.vk && (
-            <a
-              href={partner.vk}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-[11px] font-medium text-blue-300 transition hover:border-blue-500/40"
-            >
-              VK
-            </a>
-          )}
-          {partner.youtube && (
-            <a
-              href={partner.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-[11px] font-medium text-red-300 transition hover:border-red-500/40"
-            >
-              YouTube
-            </a>
-          )}
+        <div className="mt-auto flex items-center justify-between gap-4 border-t border-zinc-800/70 pt-5">
+          <span className="text-sm font-medium text-zinc-400 transition-colors group-hover:text-white">
+            Подробнее о партнёре
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-700 text-zinc-500 transition-all group-hover:border-red-500/40 group-hover:text-red-300">
+            →
+          </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
