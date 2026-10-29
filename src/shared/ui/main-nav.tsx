@@ -33,6 +33,7 @@ function Chevron({ open = false }: { open?: boolean }) {
 export default function MainNav({ services: initialServices }: { services: NavService[] }) {
   const pathname = usePathname();
   const [services, setServices] = useState<NavService[]>(initialServices);
+  const [desktopServicesOpen, setDesktopServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 
@@ -86,11 +87,31 @@ export default function MainNav({ services: initialServices }: { services: NavSe
             const hasServices = services.length > 0;
 
             return (
-              <span key={item.href} className="group relative">
+              <span
+                key={item.href}
+                className="group relative"
+                onMouseEnter={() => {
+                  if (hasServices) setDesktopServicesOpen(true);
+                }}
+                onMouseLeave={() => setDesktopServicesOpen(false)}
+                onFocusCapture={() => {
+                  if (hasServices) setDesktopServicesOpen(true);
+                }}
+                onBlurCapture={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                    setDesktopServicesOpen(false);
+                  }
+                }}
+              >
                 <Link
                   href="/services"
                   aria-haspopup={hasServices ? "true" : undefined}
-                  onClick={(event) => event.currentTarget.blur()}
+                  aria-expanded={hasServices ? desktopServicesOpen : undefined}
+                  aria-controls={hasServices ? "desktop-services" : undefined}
+                  onClick={(event) => {
+                    event.currentTarget.blur();
+                    setDesktopServicesOpen(false);
+                  }}
                   className={`group/link relative flex cursor-pointer items-center gap-1 rounded-full px-4 py-2 no-underline transition-all duration-300 ${
                     active ? "text-white" : "text-zinc-400 hover:text-white"
                   }`}
@@ -102,14 +123,22 @@ export default function MainNav({ services: initialServices }: { services: NavSe
                 </Link>
 
                 {hasServices && (
-                  <div className="invisible absolute left-1/2 top-full z-50 w-64 -translate-x-1/2 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  <div
+                    id="desktop-services"
+                    className={`absolute left-1/2 top-full z-50 w-64 -translate-x-1/2 pt-2 transition-all duration-200 ${
+                      desktopServicesOpen ? "visible opacity-100" : "invisible opacity-0"
+                    }`}
+                  >
                     <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950/95 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
                       <div className="max-h-[min(60vh,360px)] overflow-y-auto">
                         {services.map((service) => (
                           <Link
                             key={service.slug}
                             href={service.href}
-                            onClick={(event) => event.currentTarget.blur()}
+                            onClick={(event) => {
+                              event.currentTarget.blur();
+                              setDesktopServicesOpen(false);
+                            }}
                             className={`group/item flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
                               pathname === service.href
                                 ? "bg-zinc-800 text-white"
@@ -125,7 +154,10 @@ export default function MainNav({ services: initialServices }: { services: NavSe
                       </div>
                       <Link
                         href="/services"
-                        onClick={(event) => event.currentTarget.blur()}
+                        onClick={(event) => {
+                          event.currentTarget.blur();
+                          setDesktopServicesOpen(false);
+                        }}
                         className="mt-1 flex items-center justify-between rounded-lg border-t border-zinc-800/80 px-3 py-2.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-900 hover:text-white"
                       >
                         Все услуги
