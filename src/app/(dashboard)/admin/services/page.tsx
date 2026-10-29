@@ -9,7 +9,7 @@ import { useConfirm } from "@/shared/ui/confirm-dialog";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceFormData } from "@/features/admin/services/ui/service-form";
 
-const ICON_MAP: Record<string, string> = { youtube: "▶", car: "🚗", "check-circle": "✓", dollar: "$" };
+const ICON_MAP: Record<string, string> = { youtube: "▶", car: "🚗", "check-circle": "✓", dollar: "$", boxes: "📦" };
 
 const INITIAL_SERVICE: ServiceFormData = { slug: "", title: "", desc: "", href: "", color: "#ef4444", iconName: "car", isActive: true, sortOrder: 0 };
 

@@ -276,9 +276,10 @@ async function main() {
     { slug: "rent", title: "Аренда", description: "Аренда под ваши задачи. По дням, неделям и месяцам.", icon: "car", color: "#3b82f6", isActive: true, sortOrder: 1 },
     { slug: "sell", title: "Продажа авто", description: "Продам ваше авто быстро, дорого, без головной боли.", icon: "dollar", color: "#f59e0b", isActive: true, sortOrder: 2 },
     { slug: "inspection", title: "Автоподбор", description: "Проверю авто от и до. Диагностика, документы, торг — полное сопровождение.", icon: "check-circle", color: "#10b981", isActive: true, sortOrder: 3 },
-    { slug: "truck", title: "Эвакуатор", description: "Быстрая и надёжная эвакуация авто. Круглосуточно.", icon: "car", color: "#ef4444", isActive: false, sortOrder: 4 },
-    { slug: "import", title: "Автопригон", description: "Пригон авто из США, Китая, Европы и Кореи. Под ключ.", icon: "car", color: "#8b5cf6", isActive: false, sortOrder: 5 },
-    { slug: "service", title: "Автосервис", description: "Ремонт и обслуживание автомобилей любой сложности.", icon: "car", color: "#f97316", isActive: false, sortOrder: 6 },
+    { slug: "truck", title: "Эвакуатор", description: "Быстрая и надёжная эвакуация авто. Круглосуточно.", icon: "car", color: "#ef4444", isActive: true, sortOrder: 4 },
+    { slug: "import", title: "Автопригон", description: "Пригон авто из США, Китая, Европы и Кореи. Под ключ.", icon: "car", color: "#8b5cf6", isActive: true, sortOrder: 5 },
+    { slug: "service", title: "Автосервис", description: "Ремонт и обслуживание автомобилей любой сложности.", icon: "car", color: "#f97316", isActive: true, sortOrder: 6 },
+    { slug: "moving", title: "Грузоперевозки", description: "Квартирные и офисные переезды, грузовое такси, перевозка мебели и оборудования. Минск и Беларусь, для физлиц и юрлиц.", icon: "boxes", color: "#f59e0b", isActive: true, sortOrder: 7 },
   ];
   for (const s of services) {
     const existing = await prisma.service.findUnique({ where: { slug: s.slug } });

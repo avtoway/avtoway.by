@@ -3,7 +3,7 @@
 import FieldError from "@/shared/ui/field-error";
 import UploadZone from "@/shared/ui/admin/upload-zone";
 
-const ICONS = ["youtube", "car", "check-circle", "dollar"];
+const ICONS = ["youtube", "car", "check-circle", "dollar", "boxes"];
 
 export interface ServiceFormData {
   slug: string;

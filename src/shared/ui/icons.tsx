@@ -54,6 +54,16 @@ export function IconDollar({ className = "size-6" }: { className?: string }) {
   );
 }
 
+export function IconBoxes({ className = "size-6" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+      <path d="M3 7.5L12 3l9 4.5-9 4.5-9-4.5z" />
+      <path d="M3 7.5V16l9 4.5 9-4.5V7.5" />
+      <path d="M12 12v8.5" />
+    </svg>
+  );
+}
+
 export function IconInstagram({ className = "size-5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>

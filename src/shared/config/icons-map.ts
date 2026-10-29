@@ -3,6 +3,7 @@ import {
   IconCar,
   IconCheckCircle,
   IconDollar,
+  IconBoxes,
 } from "@/shared/ui/icons";
 import type { ComponentType } from "react";
 
@@ -11,6 +12,7 @@ export const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   car: IconCar,
   "check-circle": IconCheckCircle,
   dollar: IconDollar,
+  boxes: IconBoxes,
 } as const;
 
 export function getServiceIcon(iconName: string): ComponentType<{ className?: string }> {

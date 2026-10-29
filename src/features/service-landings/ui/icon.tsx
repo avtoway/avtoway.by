@@ -19,6 +19,20 @@ const paths: Record<string, React.ReactNode> = {
       <path d="M14.7 6.3l3-3 3 3-3 3" />
     </>
   ),
+  boxes: (
+    <>
+      <path d="M3 7.5L12 3l9 4.5-9 4.5-9-4.5z" />
+      <path d="M3 7.5V16l9 4.5 9-4.5V7.5" />
+      <path d="M12 12v8.5" />
+    </>
+  ),
+  home: (
+    <>
+      <path d="M3.5 10.5L12 3l8.5 7.5" />
+      <path d="M5.5 9.5V21h13V9.5" />
+      <path d="M9.5 21v-6h5v6" />
+    </>
+  ),
   clock: (
     <>
       <circle cx="12" cy="12" r="9" />

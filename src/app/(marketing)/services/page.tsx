@@ -15,6 +15,7 @@ const SERVICE_ICON: Record<string, string> = {
   truck: "truck",
   import: "globe",
   service: "wrench",
+  moving: "boxes",
 };
 
 export const revalidate = 300;
@@ -22,11 +23,11 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Услуги",
   description:
-    "Услуги АВТОWAY: аренда авто, автоподбор и проверка перед покупкой, помощь в продаже и другие автомобильные задачи.",
+    "Услуги АВТОWAY: аренда авто, автоподбор, эвакуатор, автопригон, автосервис, продажа авто и грузоперевозки по Минску и Беларуси.",
   alternates: { canonical: "/services" },
   openGraph: {
     title: "Услуги | АВТОWAY",
-    description: "Аренда, автоподбор, продажа и другие автомобильные услуги.",
+    description: "Аренда, автоподбор, эвакуатор, автопригон, автосервис и грузоперевозки.",
     url: "/services",
   },
 };
@@ -68,7 +69,7 @@ export default async function ServicesPage() {
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">Наши услуги</h1>
           <p className="mt-3 text-base text-zinc-400 max-w-xl mx-auto">
-            Полный спектр услуг. От аренды до полного выкупа.
+            Аренда, автоподбор, эвакуатор, автопригон, автосервис и грузоперевозки.
           </p>
         </div>
 
