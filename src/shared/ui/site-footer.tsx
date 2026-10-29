@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { telegramUrl } from "@/shared/lib/social";
 
@@ -13,7 +14,7 @@ export default async function SiteFooter() {
   if (contact?.vk) socialLinks.push({ label: "VK Видео", href: contact.vk });
 
   return (
-    <footer className="border-t border-zinc-800/50 bg-zinc-950/80">
+    <footer id="site-footer" className="border-t border-zinc-800/50 bg-zinc-950/80">
       <div className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
           <div>
@@ -26,26 +27,40 @@ export default async function SiteFooter() {
             </p>
           </div>
 
-          {socialLinks.length > 0 && (
-            <div className="shrink-0">
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                Мы в сети
-              </h4>
-              <div className="flex flex-wrap gap-2.5">
-                {socialLinks.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 text-xs font-medium text-zinc-500 shadow-inner shadow-black/10 transition-all hover:-translate-y-0.5 hover:border-zinc-600 hover:text-zinc-300"
-                  >
-                    {s.label}
-                  </a>
-                ))}
+          <div className="flex shrink-0 flex-col items-start gap-5 sm:items-end">
+            {socialLinks.length > 0 && (
+              <div>
+                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Мы в сети
+                </h4>
+                <div className="flex flex-wrap gap-2.5">
+                  {socialLinks.map((s) => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-9 items-center rounded-full border border-zinc-800 bg-zinc-900/50 px-4 text-xs font-medium text-zinc-500 shadow-inner shadow-black/10 transition-all hover:-translate-y-0.5 hover:border-zinc-600 hover:text-zinc-300"
+                    >
+                      {s.label}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            <Link
+              href="/vacancies"
+              className="group inline-flex items-center gap-2.5 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 shadow-lg shadow-red-950/20 transition-all hover:-translate-y-0.5 hover:border-red-400/50 hover:bg-red-500/15 hover:text-white"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-50" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-400" />
+              </span>
+              Открытые вакансии
+              <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </div>
 
