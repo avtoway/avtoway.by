@@ -136,10 +136,10 @@ export function Steps({
 
   return (
     <div className={`relative mt-10 grid gap-4 ${grid}`}>
-      <div className={`pointer-events-none absolute ${line} top-7 hidden h-px bg-gradient-to-r ${tone.line} via-zinc-800 to-transparent lg:block`} />
+      <div className={`pointer-events-none absolute ${line} top-7 z-0 hidden h-px bg-gradient-to-r ${tone.line} via-zinc-800 to-transparent lg:block`} />
       {items.map((item, index) => (
-        <Reveal key={item.title} delay={index * 70}>
-          <div className="relative h-full rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5">
+        <Reveal key={item.title} delay={index * 70} className="relative z-10 h-full">
+          <div className="relative h-full rounded-2xl border border-zinc-800/80 bg-zinc-900 p-5">
             <div className="flex items-center gap-3">
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${tone.icon}`}>
                 {String(index + 1).padStart(2, "0")}
