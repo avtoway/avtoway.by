@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import LandingIcon from "@/features/service-landings/ui/icon";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import { trackLead } from "@/shared/lib/analytics";
 
 const input =
   "w-full rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500";
@@ -53,6 +54,7 @@ export default function VacancyApplyForm({
         return;
       }
       setStatus("sent");
+      trackLead("vacancy", { vacancy: vacancyTitle });
       setMessage("");
     } catch {
       setStatus("error");

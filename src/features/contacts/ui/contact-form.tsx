@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import { trackLead } from "@/shared/lib/analytics";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -37,6 +38,7 @@ export default function ContactForm() {
       const json = await res.json();
       if (json.ok) {
         setStatus("sent");
+        trackLead("contacts");
         setName(""); setPhone(""); setEmail(""); setMessage("");
       } else {
         setStatus("error");

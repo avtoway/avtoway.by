@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import LandingIcon from "./icon";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import { trackLead } from "@/shared/lib/analytics";
 
 const BUTTONS: Record<string, string> = {
   red: "bg-primary hover:bg-primary-dark hover:shadow-primary/20",
@@ -69,6 +70,7 @@ export default function LandingLeadForm({
         return;
       }
       setStatus("sent");
+      trackLead("service_landing", { service_slug: serviceSlug, topic });
       setComment("");
     } catch {
       setStatus("error");

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { calculateRentPrice, getPeriodPrices, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
+import { trackLead } from "@/shared/lib/analytics";
 
 interface Car {
   id: string; name: string; slug: string; brand?: string; model?: string;
@@ -153,8 +154,10 @@ export default function RentCalculatorPage() {
     try {
       const res = await fetch("/api/rent/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const j = await res.json().catch(() => ({}));
-      if (j.ok) setSubmitted(true);
-      else setSubmitError(j.error ?? "Не удалось отправить заявку. Попробуйте позже или позвоните нам.");
+      if (j.ok) {
+        setSubmitted(true);
+        trackLead("rent", { car: selectedCar?.name, days, total });
+      } else setSubmitError(j.error ?? "Не удалось отправить заявку. Попробуйте позже или позвоните нам.");
     } catch {
       setSubmitError("Нет связи с сервером. Попробуйте позже или позвоните нам.");
     } finally {

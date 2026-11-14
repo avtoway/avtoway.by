@@ -28,7 +28,7 @@ export function proxy(request: NextRequest) {
     (pathname === "/api/rent/requests" || pathname === "/api/contact" || isAutoPodborLead || isSaleRequest);
   if (isPublicWrite && !checkRateLimit(
     `public:${pathname}:${clientIp(request)}`,
-    isAutoPodborLead ? 5 : 10,
+    isAutoPodborLead ? 5 : pathname === "/api/contact" ? 30 : 10,
     10 * 60 * 1000,
   )) {
     return NextResponse.json(
@@ -56,7 +56,10 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
-    if (pathname.startsWith("/admin/services") && !perms.some(p => p.startsWith("services."))) {
+    if (
+      (pathname.startsWith("/admin/services") || pathname.startsWith("/admin/landings")) &&
+      !perms.some(p => p.startsWith("services."))
+    ) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
@@ -83,7 +86,19 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
-    if (pathname.startsWith("/admin/requests") && !perms.includes("contacts.manage")) {
+    if (
+      (pathname.startsWith("/admin/requests") ||
+        pathname.startsWith("/admin/clients") ||
+        pathname.startsWith("/admin/tasks")) &&
+      !perms.includes("contacts.manage")
+    ) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (
+      (pathname.startsWith("/admin/analytics") || pathname.startsWith("/admin/monitoring")) &&
+      !perms.includes("audit.view")
+    ) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 

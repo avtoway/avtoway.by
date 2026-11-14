@@ -70,6 +70,7 @@ export async function GET() {
     { label: "Заявки", icon: "document-text", href: "/admin/requests", perm: "contacts.manage" },
     { label: "Клиенты", icon: "users", href: "/admin/clients", perm: "contacts.manage" },
     { label: "Задачи", icon: "document-text", href: "/admin/tasks", perm: "contacts.manage" },
+    { label: "Аналитика", icon: "chart", href: "/admin/analytics", perm: "audit.view" },
     { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
     { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles" },
