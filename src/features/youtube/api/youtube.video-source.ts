@@ -16,40 +16,51 @@ export class YouTubeVideoSource implements VideoSource {
   async getChannelVideos(maxResults = VIDEO_CONFIG.MAX_VIDEOS): Promise<Video[]> {
     const uploadsPlaylistId = `UU${this.channelId.slice(2)}`;
 
-    const playlistResult = await fetchPlaylistItems(
-      this.apiKey,
-      uploadsPlaylistId,
-      // Берём с запасом: часть свежих роликов — Shorts, их отфильтруем.
-      Math.min(50, maxResults * 3),
-    );
+    try {
+      const playlistResult = await fetchPlaylistItems(
+        this.apiKey,
+        uploadsPlaylistId,
+        // Берём с запасом: часть свежих роликов — Shorts, их отфильтруем.
+        Math.min(50, maxResults * 3),
+      );
 
-    if (!playlistResult.ok) {
-      logger.error("YouTube API error", playlistResult.error.message);
+      if (!playlistResult.ok) {
+        logger.warn("YouTube API unavailable — video section skipped", {
+          error: playlistResult.error.message,
+        });
+        return [];
+      }
+
+      const items = playlistResult.data.filter(
+        (item) => item.snippet?.resourceId?.videoId,
+      );
+      if (items.length === 0) return [];
+
+      const videoIds = items.map((item) => item.snippet.resourceId.videoId).join(",");
+
+      const detailsResult = await fetchVideoDetails(this.apiKey, videoIds);
+      if (!detailsResult.ok) {
+        logger.warn("YouTube video details unavailable — video section skipped", {
+          error: detailsResult.error.message,
+        });
+        return [];
+      }
+
+      const durationMap = buildDurationMap(detailsResult.data);
+
+      const activeIds = new Set(
+        [...durationMap.entries()]
+          .filter(([, duration]) => excludeShorts(duration))
+          .map(([id]) => id),
+      );
+
+      return mapPlaylistItems(items, activeIds).slice(0, maxResults);
+    } catch (error) {
+      logger.warn("YouTube API failed — video section skipped", {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return [];
     }
-
-    const items = playlistResult.data.filter(
-      (item) => item.snippet?.resourceId?.videoId,
-    );
-    if (items.length === 0) return [];
-
-    const videoIds = items.map((item) => item.snippet.resourceId.videoId).join(",");
-
-    const detailsResult = await fetchVideoDetails(this.apiKey, videoIds);
-    if (!detailsResult.ok) {
-      logger.error("YouTube API error (details)", detailsResult.error.message);
-      return [];
-    }
-
-    const durationMap = buildDurationMap(detailsResult.data);
-
-    const activeIds = new Set(
-      [...durationMap.entries()]
-        .filter(([, duration]) => excludeShorts(duration))
-        .map(([id]) => id),
-    );
-
-    return mapPlaylistItems(items, activeIds).slice(0, maxResults);
   }
 
   getChannelUrl(): string {
