@@ -240,11 +240,11 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-4 lg:grid-cols-2">
               <label>
                 <span className={label}>Google Search Console</span>
-                <input value={settings.googleVerification} onChange={event => setSettings({ ...settings, googleVerification: event.target.value })} placeholder="HTML-тег или verification-код" className={input} />
+                <input value={settings.googleVerification} onChange={event => setSettings({ ...settings, googleVerification: event.target.value })} placeholder="Только значение content из meta-тега" className={input} />
               </label>
               <label>
                 <span className={label}>Яндекс.Вебмастер</span>
-                <input value={settings.yandexVerification} onChange={event => setSettings({ ...settings, yandexVerification: event.target.value })} placeholder="yandex-verification код" className={input} />
+                <input value={settings.yandexVerification} onChange={event => setSettings({ ...settings, yandexVerification: event.target.value })} placeholder="Только значение content из meta-тега" className={input} />
               </label>
             </div>
             <div className="mt-4 flex flex-wrap gap-3 text-xs">
