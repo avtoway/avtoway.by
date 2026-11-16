@@ -101,21 +101,24 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     let cancelled = false;
     (async () => {
       try {
-        const me = await fetch("/api/auth/me");
+        // Параллельно: пользователь + меню, чтобы не делать два последовательных запроса.
+        const [me, menuRes] = await Promise.all([
+          fetch("/api/auth/me", { cache: "no-store" }),
+          fetch("/api/admin/menu", { cache: "no-store" }),
+        ]);
         const meJson = await me.json();
-        if (!meJson.ok) { if (!cancelled) router.push("/admin/login"); return; }
-        if (!cancelled) setUser(meJson.data);
-        const menuRes = await fetch("/api/admin/menu");
+        if (!meJson.ok) { if (!cancelled) router.replace("/admin/login"); return; }
         const menuJson = await menuRes.json();
-        if (menuJson.ok && !cancelled) setMenu(menuJson.menu);
-      } catch { if (!cancelled) router.push("/admin/login"); } finally { if (!cancelled) setLoaded(true); }
+        if (cancelled) return;
+        setUser(meJson.data);
+        if (menuJson.ok) setMenu(menuJson.menu);
+      } catch { if (!cancelled) router.replace("/admin/login"); } finally { if (!cancelled) setLoaded(true); }
     })();
     return () => { cancelled = true; };
   }, [pathname, router]);
 
   // Clear stale user data on login page
   if (pathname === "/admin/login") {
-    if (user) setUser(null);
     return <>{children}</>;
   }
 
@@ -128,9 +131,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   }
 
   async function handleLogout() {
-    document.cookie = "admin_token=; path=/; max-age=0";
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Даже если сеть недоступна — уводим на страницу входа.
+    }
     setUser(null);
-    router.push("/admin/login");
+    router.replace("/admin/login");
+    router.refresh();
   }
 
   const pageTitle = resolvePageTitle(pathname, menu);

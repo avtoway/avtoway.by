@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { checkRateLimit } from "@/shared/lib/rate-limiter";
-import { verifyToken } from "@/lib/auth.server";
+import { verifyToken } from "@/lib/auth-token";
 
 function clientIp(request: NextRequest): string {
   // На VPS за nginx сюда приходит реальный IP; при прямом доступе заголовок можно подделать
@@ -12,13 +12,6 @@ function clientIp(request: NextRequest): string {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  if (pathname.startsWith("/admin/login") && request.method === "POST") {
-    const ip = clientIp(request);
-    if (!checkRateLimit(`login:${ip}`)) {
-      return NextResponse.json({ ok: false, error: "Too many attempts. Try again later." }, { status: 429 });
-    }
-  }
 
   // Публичные формы: защита от спама/флуда (лиды автоподбора — 5/10 мин, остальные — 10/10 мин)
   const isAutoPodborLead = pathname === "/api/autopodbor/leads";
@@ -86,11 +79,18 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
+    // Заявки/клиенты/задачи: доступ даёт любое право на работу с заявками,
+    // а серверный API сам отфильтрует источники по правам.
+    const canSeeLeads =
+      perms.includes("contacts.manage") ||
+      perms.includes("rent.manage") ||
+      perms.includes("sell.manage") ||
+      perms.some(permission => permission.startsWith("autopodbor."));
     if (
       (pathname.startsWith("/admin/requests") ||
         pathname.startsWith("/admin/clients") ||
         pathname.startsWith("/admin/tasks")) &&
-      !perms.includes("contacts.manage")
+      !canSeeLeads
     ) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }

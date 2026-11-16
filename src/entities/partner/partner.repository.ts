@@ -2,6 +2,7 @@ import type { Partner } from "./partner";
 
 export interface PartnerRepository {
   getAll(): Promise<Partner[]>;
+  getActive(): Promise<Partner[]>;
   getFeatured(): Promise<Partner[]>;
   getById(id: string): Promise<Partner | null>;
   getBySlug(slug: string): Promise<Partner | null>;

@@ -5,15 +5,19 @@ import { getAuthUser, hasPermission } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { ForbiddenError, ConflictError, toApiError } from "@/shared/lib/errors";
+import { SUPERUSER_LEVEL } from "@/lib/authz.server";
 import { RoleSchema } from "@/entities/role/role.schema";
 import type { RoleRepository } from "@/entities/role/role.repository";
 
 export async function GET() {
-  const user = await getAuthUser();
-  if (!hasPermission(user, "users.roles")) throw new ForbiddenError();
-  const repo = container.get<RoleRepository>("RoleRepository");
-  const roles = await repo.getAll();
-  return NextResponse.json({ ok: true, data: roles });
+  try {
+    const user = await getAuthUser();
+    if (!hasPermission(user, "users.roles")) throw new ForbiddenError();
+    const repo = container.get<RoleRepository>("RoleRepository");
+    return NextResponse.json({ ok: true, data: await repo.getAll() });
+  } catch (e) {
+    return toApiError(e);
+  }
 }
 
 export async function POST(request: Request) {
@@ -24,6 +28,11 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const parsed = validateOrResponse(RoleSchema, body);
     if (!("validated" in parsed)) return parsed;
+
+    // Нельзя создать роль не ниже своей (кроме администратора).
+    if ((user!.level ?? 0) < SUPERUSER_LEVEL && parsed.data.level >= (user!.level ?? 0)) {
+      throw new ForbiddenError("Нельзя создать роль с уровнем не ниже своего");
+    }
 
     const repo = container.get<RoleRepository>("RoleRepository");
     const existing = (await repo.getAll()).find(r => r.name === parsed.data.name);

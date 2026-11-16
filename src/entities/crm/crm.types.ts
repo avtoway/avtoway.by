@@ -48,6 +48,11 @@ export interface CrmLead {
   status: string;
   createdAt: string;
   serviceLabel?: string;
+  /** Человекочитаемый подтип (например, «Лендинг услуги» для contact). */
+  sourceLabel?: string;
+  pageUrl?: string;
+  /** UTM-метки одной строкой через « / ». */
+  utm?: string;
   href?: string;
 }
 

@@ -4,14 +4,14 @@ describe("Auth utilities", () => {
   describe("hasPermission", () => {
     it("should return true when user has the permission", async () => {
       const { hasPermission } = await import("@/lib/auth.server");
-      const user = { id: "1", login: "admin", name: "Admin", role: "Администратор", permissions: ["users.manage", "audit.view"] };
+      const user = { id: "1", login: "admin", name: "Admin", role: "Администратор", level: 100, permissions: ["users.manage", "audit.view"] };
       expect(hasPermission(user, "users.manage")).toBe(true);
       expect(hasPermission(user, "audit.view")).toBe(true);
     });
 
     it("should return false when user lacks the permission", async () => {
       const { hasPermission } = await import("@/lib/auth.server");
-      const user = { id: "1", login: "viewer", name: "Viewer", role: "Наблюдатель", permissions: ["services.view"] };
+      const user = { id: "1", login: "viewer", name: "Viewer", role: "Наблюдатель", level: 10, permissions: ["services.view"] };
       expect(hasPermission(user, "users.manage")).toBe(false);
     });
 
@@ -33,7 +33,7 @@ describe("Auth utilities", () => {
   describe("signTokenFromUser", () => {
     it("should produce a valid token that can be verified", async () => {
       const { signTokenFromUser, verifyToken } = await import("@/lib/auth.server");
-      const user = { id: "1", login: "admin", name: "Admin", role: "Администратор", permissions: ["users.manage"] };
+      const user = { id: "1", login: "admin", name: "Admin", role: "Администратор", level: 100, permissions: ["users.manage"] };
       const token = await signTokenFromUser(user as any);
       expect(token).toContain(".");
       const decoded = verifyToken(token);

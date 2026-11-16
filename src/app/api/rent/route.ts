@@ -2,9 +2,12 @@ import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
+import { validateOrResponse } from "@/shared/lib/validation";
 import { toApiError } from "@/shared/lib/errors";
 import { normalizeTaxiRequirements, validateTaxiRequirements } from "@/shared/lib/taxi-requirements";
+import { rentCarInputSchema } from "@/entities/rent/rent.schema";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
+import type { RentCar as RentCarEntity } from "@/entities/rent/rent-car.types";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -33,14 +36,23 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     await requireAuth("rent.manage");
-    const body = await request.json().catch(() => ({}));
+
+    const parsed = validateOrResponse(rentCarInputSchema, await request.json().catch(() => ({})));
+    if (!("validated" in parsed)) return parsed;
+
+    const { conditions, ...data } = parsed.data;
     const repo = container.get<RentCarRepository>("RentCarRepository");
+
     const types = await repo.getTypes();
-    const rentType = types.find(type => type.id === body.rentTypeId);
-    const taxiError = validateTaxiRequirements(body.taxiRequirements, rentType?.slug === "taxi");
+    const rentType = types.find(type => type.id === data.rentTypeId);
+    const taxiError = validateTaxiRequirements(data.taxiRequirements, rentType?.slug === "taxi");
     if (taxiError) return NextResponse.json({ ok: false, error: taxiError }, { status: 400 });
-    body.taxiRequirements = normalizeTaxiRequirements(body.taxiRequirements) || null;
-    const { conditions, ...carData } = body;
+
+    const carData = {
+      ...data,
+      taxiRequirements: normalizeTaxiRequirements(data.taxiRequirements) || null,
+    } as unknown as Omit<RentCarEntity, "id" | "rentType">;
+
     const car = await repo.create(carData);
     if (Array.isArray(conditions)) await repo.setCarConditions(car.id, conditions);
     return NextResponse.json({ ok: true, data: car }, { status: 201 });

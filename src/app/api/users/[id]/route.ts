@@ -6,6 +6,7 @@ import { getAuthUser, hasPermission } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError, toApiError } from "@/shared/lib/errors";
+import { assertCanAssignRoles, assertCanManageUser } from "@/lib/authz.server";
 import { ProfileUpdateSchema } from "@/entities/user/user.schema";
 import type { UserRepository } from "@/entities/user/user.repository";
 
@@ -37,12 +38,16 @@ export async function PUT(
     if (!currentUser) throw new AuthError();
 
     const { id } = await params;
-    if (id !== currentUser.id && !hasPermission(currentUser, "users.manage")) throw new ForbiddenError();
+    const isSelf = id === currentUser.id;
+    if (!isSelf && !hasPermission(currentUser, "users.manage")) throw new ForbiddenError();
     const canAssignRoles = hasPermission(currentUser, "users.roles");
 
     const repo = container.get<UserRepository>("UserRepository");
     const existing = await repo.getById(id);
     if (!existing) throw new NotFoundError("Пользователь не найден");
+
+    // Нельзя редактировать сотрудника с ролью не ниже своей.
+    if (!isSelf) await assertCanManageUser(currentUser, existing.roles.map(role => role.id));
 
     const body = await request.json().catch(() => ({}));
     const parsed = validateOrResponse(ProfileUpdateSchema, body);
@@ -51,10 +56,14 @@ export async function PUT(
     let hashedPassword: string | undefined;
     if (typeof body.newPassword === "string" && body.newPassword.length > 0) {
       if (body.newPassword.length < 6) throw new ValidationError("Минимум 6 символов");
-      const auth = await repo.getByLogin(existing.login);
-      if (!auth || !body.oldPassword || !await bcrypt.compare(body.oldPassword as string, auth.password)) {
-        throw new ForbiddenError("Неверный текущий пароль");
+      if (isSelf) {
+        // Свой пароль меняем только с подтверждением текущего.
+        const auth = await repo.getByLogin(existing.login);
+        if (!auth || !body.oldPassword || !await bcrypt.compare(body.oldPassword as string, auth.password)) {
+          throw new ForbiddenError("Неверный текущий пароль");
+        }
       }
+      // Сброс пароля сотрудника администратором выполняется без старого пароля.
       hashedPassword = await bcrypt.hash(body.newPassword as string, 10);
     }
 
@@ -72,11 +81,12 @@ export async function PUT(
 
     if (Array.isArray(body.roleIds)) {
       if (!canAssignRoles) throw new ForbiddenError("Нет прав для назначения ролей");
+      if (!isSelf) await assertCanAssignRoles(currentUser, body.roleIds as string[]);
       await repo.assignRoles(id, body.roleIds as string[]);
     }
 
     await createAuditLog({
-      userId: currentUser!.id, action: "UPDATE", entity: "User", entityId: id,
+      userId: currentUser.id, action: "UPDATE", entity: "User", entityId: id,
       details: { changes: Object.keys(body) },
     });
 
@@ -97,10 +107,17 @@ export async function DELETE(
     if (id === currentUser!.id) throw new ValidationError("Нельзя удалить себя");
 
     const repo = container.get<UserRepository>("UserRepository");
+    const existing = await repo.getById(id);
+    if (!existing) throw new NotFoundError("Пользователь не найден");
+
+    // Нельзя удалить сотрудника с ролью не ниже своей.
+    await assertCanManageUser(currentUser!, existing.roles.map(role => role.id));
+
     await repo.delete(id);
 
     await createAuditLog({
-      userId: currentUser!.id, action: "DELETE", entity: "User", entityId: id, details: {},
+      userId: currentUser!.id, action: "DELETE", entity: "User", entityId: id,
+      details: { login: existing.login },
     });
 
     return NextResponse.json({ ok: true, data: { deleted: id } });

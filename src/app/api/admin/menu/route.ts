@@ -5,12 +5,18 @@ import { getAuthUser } from "@/lib/auth.server";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repository";
 import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
+import { ANY_LEAD_ACCESS_PERMISSIONS } from "@/entities/crm/crm.access";
+
+/** Заявки/клиенты/задачи доступны при любом праве на работу с лидами. */
+const LEAD_ACCESS_PERMS = ANY_LEAD_ACCESS_PERMISSIONS;
 
 interface MenuItem {
   label: string;
   icon: string;
   href?: string;
   perm?: string;
+  /** Доступ, если есть хотя бы одно из прав. */
+  anyPerm?: string[];
   badge?: number;
   children?: MenuItem[];
 }
@@ -67,9 +73,9 @@ export async function GET() {
     { label: "Вакансии", icon: "briefcase", href: "/admin/vacancies", perm: "vacancies." },
     { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined },
     { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
-    { label: "Заявки", icon: "document-text", href: "/admin/requests", perm: "contacts.manage" },
-    { label: "Клиенты", icon: "users", href: "/admin/clients", perm: "contacts.manage" },
-    { label: "Задачи", icon: "document-text", href: "/admin/tasks", perm: "contacts.manage" },
+    { label: "Заявки", icon: "document-text", href: "/admin/requests", anyPerm: LEAD_ACCESS_PERMS },
+    { label: "Клиенты", icon: "users", href: "/admin/clients", anyPerm: LEAD_ACCESS_PERMS },
+    { label: "Задачи", icon: "document-text", href: "/admin/tasks", anyPerm: LEAD_ACCESS_PERMS },
     { label: "Аналитика", icon: "chart", href: "/admin/analytics", perm: "audit.view" },
     { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
@@ -82,6 +88,7 @@ export async function GET() {
   function filterItems(items: MenuItem[]): MenuItem[] {
     return items
       .filter(item => !item.perm || hasPerm(item.perm))
+      .filter(item => !item.anyPerm || item.anyPerm.some(permission => perms.includes(permission)))
       .map(item => ({
         ...item,
         children: item.children ? filterItems(item.children) : undefined,

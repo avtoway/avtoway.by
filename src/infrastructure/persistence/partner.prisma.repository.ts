@@ -61,6 +61,15 @@ export class PrismaPartnerRepository implements PartnerRepository {
     return records.map(toPartner);
   }
 
+  async getActive(): Promise<Partner[]> {
+    const db = getPrismaClient();
+    const records = await db.partner.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+    });
+    return records.map(toPartner);
+  }
+
   async getFeatured(): Promise<Partner[]> {
     const db = getPrismaClient();
     const records = await db.partner.findMany({

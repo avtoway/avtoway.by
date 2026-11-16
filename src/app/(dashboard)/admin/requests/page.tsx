@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useToast } from "@/shared/lib/toast-context";
 import { useConfirm } from "@/shared/ui/confirm-dialog";
 import LeadCrmPanel from "@/features/admin/crm/ui/lead-crm-panel";
+import type { CrmLead } from "@/entities/crm/crm.types";
 
 type LeadSource = "contact" | "rent" | "sale" | "autopodbor";
 
@@ -25,68 +26,6 @@ interface UnifiedLead {
   utm?: string;
 }
 
-interface ContactRequest {
-  id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-  message: string;
-  source?: string;
-  serviceSlug?: string;
-  pageUrl?: string;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  status: string;
-  createdAt: string;
-}
-
-interface RentRequest {
-  id: string;
-  car?: { name: string; slug: string };
-  name: string;
-  phone?: string;
-  email?: string;
-  startDate?: string;
-  endDate?: string;
-  days?: number;
-  total?: number;
-  status: string;
-  message?: string;
-  createdAt: string;
-}
-
-interface SaleRequest {
-  id: string;
-  type: string;
-  car?: { title: string };
-  clientName: string;
-  clientPhone: string;
-  carInfo?: string;
-  offerPrice?: number;
-  comment?: string;
-  status: string;
-  createdAt: string;
-}
-
-interface AutoPodborLead {
-  id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-  serviceTitle?: string;
-  brand?: string;
-  model?: string;
-  city?: string;
-  comment?: string;
-  pageUrl?: string;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  status: string;
-  createdAt: string;
-}
-
 const SOURCE_LABELS: Record<LeadSource, string> = {
   contact: "Общая форма",
   rent: "Аренда",
@@ -99,25 +38,6 @@ const SOURCE_STYLE: Record<LeadSource, string> = {
   rent: "border-blue-500/20 bg-blue-500/10 text-blue-300",
   sale: "border-amber-500/20 bg-amber-500/10 text-amber-300",
   autopodbor: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
-};
-
-const SERVICE_LABELS: Record<string, string> = {
-  truck: "Эвакуатор",
-  import: "Автопригон",
-  service: "Автосервис",
-  moving: "Грузоперевозки",
-  rent: "Аренда",
-  sell: "Продажа",
-  inspection: "Автоподбор",
-  vacancies: "Вакансии",
-  contacts: "Контакты",
-};
-
-const CONTACT_SOURCE_LABELS: Record<string, string> = {
-  service_landing: "Лендинг услуги",
-  contacts: "Контакты",
-  vacancy: "Вакансия",
-  site: "Сайт",
 };
 
 const STATUS_OPTIONS: Record<LeadSource, Array<{ value: string; label: string }>> = {
@@ -189,106 +109,39 @@ export default function AdminRequestsPage() {
 
   async function load() {
     setLoading(true);
-
-    const results = await Promise.allSettled([
-      fetch("/api/contact-requests", { cache: "no-store" }).then((response) => response.json()),
-      fetch("/api/rent/requests", { cache: "no-store" }).then((response) => response.json()),
-      fetch("/api/sell/requests", { cache: "no-store" }).then((response) => response.json()),
-      fetch("/api/autopodbor/leads?limit=100", { cache: "no-store" }).then((response) => response.json()),
-    ]);
-
-    const next: UnifiedLead[] = [];
-
-    const contactResult = results[0];
-    if (contactResult.status === "fulfilled" && contactResult.value.ok) {
-      for (const item of contactResult.value.data as ContactRequest[]) {
-        next.push({
-          key: `contact-${item.id}`,
-          id: item.id,
-          source: "contact",
-          sourceLabel: CONTACT_SOURCE_LABELS[item.source ?? "site"] ?? SOURCE_LABELS.contact,
-          serviceLabel: item.serviceSlug ? (SERVICE_LABELS[item.serviceSlug] ?? item.serviceSlug) : undefined,
-          name: item.name,
-          phone: item.phone,
-          email: item.email,
-          summary: item.message,
-          status: item.status,
-          createdAt: item.createdAt,
-          pageUrl: item.pageUrl,
-          utm: [item.utmSource, item.utmMedium, item.utmCampaign].filter(Boolean).join(" / ") || undefined,
-        });
+    try {
+      // Единый источник: сервер сам решает, какие источники доступны пользователю по правам.
+      const response = await fetch("/api/crm/leads", { cache: "no-store" });
+      const json = await response.json();
+      if (!json.ok) {
+        toast(json.error ?? "Не удалось загрузить заявки", "error");
+        return;
       }
-    }
 
-    const rentResult = results[1];
-    if (rentResult.status === "fulfilled" && rentResult.value.ok) {
-      for (const item of rentResult.value.data as RentRequest[]) {
-        next.push({
-          key: `rent-${item.id}`,
-          id: item.id,
-          source: "rent",
-          sourceLabel: SOURCE_LABELS.rent,
-          serviceLabel: item.car?.name,
-          name: item.name,
-          phone: item.phone,
-          email: item.email,
-          summary: item.message ?? [
-            item.car?.name,
-            item.days ? `${item.days} дн.` : null,
-            item.total ? `${item.total} BYN` : null,
-          ].filter(Boolean).join(" · "),
-          status: item.status,
-          createdAt: item.createdAt,
-          href: "/admin/rent",
-        });
-      }
-    }
+      const next: UnifiedLead[] = (json.data as CrmLead[]).map((lead) => ({
+        key: `${lead.source}-${lead.id}`,
+        id: lead.id,
+        source: lead.source,
+        sourceLabel: lead.sourceLabel ?? SOURCE_LABELS[lead.source],
+        serviceLabel: lead.serviceLabel,
+        name: lead.name,
+        phone: lead.phone,
+        email: lead.email,
+        summary: lead.summary,
+        status: lead.status,
+        createdAt: lead.createdAt,
+        href: lead.href,
+        pageUrl: lead.pageUrl,
+        utm: lead.utm,
+      }));
 
-    const saleResult = results[2];
-    if (saleResult.status === "fulfilled" && saleResult.value.ok) {
-      for (const item of saleResult.value.data as SaleRequest[]) {
-        next.push({
-          key: `sale-${item.id}`,
-          id: item.id,
-          source: "sale",
-          sourceLabel: SOURCE_LABELS.sale,
-          serviceLabel: item.car?.title ?? item.carInfo,
-          name: item.clientName,
-          phone: item.clientPhone,
-          summary: [item.type, item.car?.title ?? item.carInfo, item.comment].filter(Boolean).join(" · "),
-          status: item.status,
-          createdAt: item.createdAt,
-          href: "/admin/sell",
-        });
-      }
+      next.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setItems(next);
+    } catch {
+      toast("Ошибка загрузки заявок", "error");
+    } finally {
+      setLoading(false);
     }
-
-    const autoResult = results[3];
-    if (autoResult.status === "fulfilled" && autoResult.value.ok) {
-      const autoData = autoResult.value.data as { items?: AutoPodborLead[] };
-      for (const item of autoData.items ?? []) {
-        next.push({
-          key: `autopodbor-${item.id}`,
-          id: item.id,
-          source: "autopodbor",
-          sourceLabel: SOURCE_LABELS.autopodbor,
-          serviceLabel: item.serviceTitle,
-          name: item.name,
-          phone: item.phone,
-          email: item.email,
-          summary: [item.brand, item.model, item.city, item.comment].filter(Boolean).join(" · "),
-          status: item.status,
-          createdAt: item.createdAt,
-          href: "/admin/inspection",
-          pageUrl: item.pageUrl,
-          utm: [item.utmSource, item.utmMedium, item.utmCampaign].filter(Boolean).join(" / ") || undefined,
-        });
-      }
-    }
-
-    next.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    setItems(next);
-    setLoading(false);
   }
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-on-mount

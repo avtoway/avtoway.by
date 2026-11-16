@@ -2,7 +2,7 @@ import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { container } from "@/di/container";
-import { requireAuth } from "@/lib/auth.server";
+import { getAuthUser, hasPermission, requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { ConflictError, toApiError } from "@/shared/lib/errors";
@@ -13,7 +13,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const serviceRepo = container.get<ServiceRepository>("ServiceRepository");
-  const services = await serviceRepo.getAll();
+  // Полный список (включая скрытые услуги) — только сотрудникам с доступом к услугам.
+  const user = await getAuthUser();
+  const canManage = hasPermission(user, "services.manage") || hasPermission(user, "services.view");
+  const services = canManage ? await serviceRepo.getAll() : await serviceRepo.getActive();
   return NextResponse.json({ ok: true, data: services });
 }
 

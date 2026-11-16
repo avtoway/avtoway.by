@@ -1,5 +1,6 @@
 import { getPrismaClient } from "./prisma.client";
 import type { CrmRepository, LeadTaskFilters } from "@/entities/crm/crm.repository";
+import { LEAD_SOURCES_ORDER } from "@/entities/crm/crm.access";
 import type {
   CrmAssignee,
   CrmClient,
@@ -84,6 +85,18 @@ function toTask(row: any, leads?: Map<string, CrmLead>): LeadTask {
   };
 }
 
+const CONTACT_SOURCE_LABELS: Record<string, string> = {
+  service_landing: "Лендинг услуги",
+  contacts: "Контакты",
+  vacancy: "Вакансия",
+  site: "Сайт",
+};
+
+function utmOf(row: { utmSource?: string | null; utmMedium?: string | null; utmCampaign?: string | null }): string | undefined {
+  const value = [row.utmSource, row.utmMedium, row.utmCampaign].filter(Boolean).join(" / ");
+  return value || undefined;
+}
+
 function mapContact(row: any): CrmLead {
   return {
     source: "contact",
@@ -95,6 +108,9 @@ function mapContact(row: any): CrmLead {
     status: row.status,
     createdAt: iso(row.createdAt) ?? "",
     serviceLabel: serviceLabel(row.serviceSlug),
+    sourceLabel: CONTACT_SOURCE_LABELS[row.source ?? "site"] ?? CONTACT_SOURCE_LABELS.site,
+    pageUrl: row.pageUrl ?? undefined,
+    utm: utmOf(row),
   };
 }
 
@@ -142,26 +158,37 @@ function mapAuto(row: any): CrmLead {
     status: row.status,
     createdAt: iso(row.createdAt) ?? "",
     serviceLabel: row.serviceTitle ?? "Автоподбор",
+    pageUrl: row.pageUrl ?? undefined,
+    utm: utmOf(row),
     href: "/admin/inspection",
   };
 }
 
 export class PrismaCrmRepository implements CrmRepository {
-  private async getAllLeads(): Promise<CrmLead[]> {
+  async getLeads(sources?: LeadSource[]): Promise<CrmLead[]> {
     const db = getPrismaClient();
+    const allowed = new Set<LeadSource>(sources ?? LEAD_SOURCES_ORDER);
     const [contacts, rents, sales, autos] = await Promise.all([
-      db.contactRequest.findMany({ orderBy: { createdAt: "desc" }, take: 1000 }),
-      db.rentRequest.findMany({
-        include: { car: { select: { name: true, slug: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 1000,
-      }),
-      db.saleRequest.findMany({
-        include: { car: { select: { title: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 1000,
-      }),
-      db.autoPodborLead.findMany({ orderBy: { createdAt: "desc" }, take: 1000 }),
+      allowed.has("contact")
+        ? db.contactRequest.findMany({ orderBy: { createdAt: "desc" }, take: 1000 })
+        : Promise.resolve([]),
+      allowed.has("rent")
+        ? db.rentRequest.findMany({
+            include: { car: { select: { name: true, slug: true } } },
+            orderBy: { createdAt: "desc" },
+            take: 1000,
+          })
+        : Promise.resolve([]),
+      allowed.has("sale")
+        ? db.saleRequest.findMany({
+            include: { car: { select: { title: true } } },
+            orderBy: { createdAt: "desc" },
+            take: 1000,
+          })
+        : Promise.resolve([]),
+      allowed.has("autopodbor")
+        ? db.autoPodborLead.findMany({ orderBy: { createdAt: "desc" }, take: 1000 })
+        : Promise.resolve([]),
     ]);
 
     return [
@@ -221,10 +248,12 @@ export class PrismaCrmRepository implements CrmRepository {
     return toNote(row);
   }
 
-  async getTasks(filters: LeadTaskFilters = {}): Promise<LeadTask[]> {
+  async getTasks(filters: LeadTaskFilters = {}, sources?: LeadSource[]): Promise<LeadTask[]> {
     const db = getPrismaClient();
-    const rows = await db.leadTask.findMany({ orderBy: { createdAt: "desc" }, take: 1000 });
-    const leads = new Map((await this.getAllLeads()).map(lead => [`${lead.source}:${lead.id}`, lead]));
+    const allowed = new Set<LeadSource>(sources ?? LEAD_SOURCES_ORDER);
+    const rows = (await db.leadTask.findMany({ orderBy: { createdAt: "desc" }, take: 1000 }))
+      .filter(row => allowed.has(row.source as LeadSource));
+    const leads = new Map((await this.getLeads(sources)).map(lead => [`${lead.source}:${lead.id}`, lead]));
 
     return rows
       .map(row => toTask(row, leads))
@@ -285,8 +314,8 @@ export class PrismaCrmRepository implements CrmRepository {
     await getPrismaClient().leadTask.delete({ where: { id } });
   }
 
-  async getClients(search?: string): Promise<CrmClientSummary[]> {
-    const leads = await this.getAllLeads();
+  async getClients(search?: string, sources?: LeadSource[]): Promise<CrmClientSummary[]> {
+    const leads = await this.getLeads(sources);
     const map = new Map<string, CrmClientSummary>();
 
     for (const lead of leads) {
@@ -322,10 +351,10 @@ export class PrismaCrmRepository implements CrmRepository {
     );
   }
 
-  async getClient(phone: string): Promise<CrmClient | null> {
+  async getClient(phone: string, sources?: LeadSource[]): Promise<CrmClient | null> {
     const normalized = normalizePhone(phone);
     if (!normalized) return null;
-    const leads = (await this.getAllLeads()).filter(lead => normalizePhone(lead.phone) === normalized);
+    const leads = (await this.getLeads(sources)).filter(lead => normalizePhone(lead.phone) === normalized);
     if (leads.length === 0) return null;
     const first = leads[0]!;
     return {

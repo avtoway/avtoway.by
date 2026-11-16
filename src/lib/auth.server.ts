@@ -1,11 +1,12 @@
 import "@/di/composition-root";
 import { cookies } from "next/headers";
-import { createHash } from "node:crypto";
 import { container } from "@/di/container";
 import { AuthError, ForbiddenError } from "@/shared/lib/errors";
 import type { UserRepository } from "@/entities/user/user.repository";
+import { signToken, verifyToken } from "@/lib/auth-token";
 
-const SECRET = process.env.AUTH_SECRET ?? "dev-secret";
+export { verifyToken };
+export type { TokenPayload } from "@/lib/auth-token";
 
 export interface AuthUser {
   id: string;
@@ -13,6 +14,8 @@ export interface AuthUser {
   name: string;
   photo?: string;
   role: string;
+  /** Уровень старшей роли пользователя (100 — администратор). */
+  level: number;
   permissions: string[];
 }
 
@@ -27,7 +30,7 @@ export async function verifyLogin(login: string, password: string, bcrypt: { com
 async function loadUser(id: string, name: string, login?: string, _photo?: string): Promise<AuthUser> {
   const repo = container.get<UserRepository>("UserRepository");
   const user = await repo.getById(id);
-  if (!user) return { id, login: login ?? "", name, role: "Viewer", permissions: [] };
+  if (!user) return { id, login: login ?? "", name, role: "Viewer", level: 0, permissions: [] };
 
   // Fetch roles once (avoids N+1) and pick the highest-level role as "top".
   const roleRepo = container.get<import("@/entities/role/role.repository").RoleRepository>("RoleRepository");
@@ -53,30 +56,18 @@ async function loadUser(id: string, name: string, login?: string, _photo?: strin
     name: user.name,
     photo: user.photo,
     role: topRole,
+    level: topLevel >= 0 ? topLevel : 0,
     permissions: [...perms],
   };
 }
 
 export async function signTokenFromUser(user: AuthUser): Promise<string> {
-  const payload = Buffer.from(JSON.stringify({
-    id: user.id, name: user.name, role: user.role, permissions: user.permissions,
-  })).toString("base64");
-  const sig = createHash("sha256").update(payload + SECRET).digest("hex").slice(0, 16);
-  return `${payload}.${sig}`;
-}
-
-export function verifyToken(token: string): AuthUser | null {
-  const dot = token.lastIndexOf(".");
-  if (dot === -1) return null;
-  const payload = token.slice(0, dot);
-  const sig = token.slice(dot + 1);
-  const expectedSig = createHash("sha256").update(payload + SECRET).digest("hex").slice(0, 16);
-  if (sig !== expectedSig) return null;
-  try {
-    return JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
-  } catch {
-    return null;
-  }
+  return signToken({
+    id: user.id,
+    name: user.name,
+    role: user.role,
+    permissions: user.permissions,
+  });
 }
 
 export async function getAuthUser(): Promise<AuthUser | null> {

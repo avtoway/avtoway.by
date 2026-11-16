@@ -2,7 +2,7 @@ import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { container } from "@/di/container";
-import { requireAuth } from "@/lib/auth.server";
+import { getAuthUser, hasPermission, requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { ConflictError, toApiError } from "@/shared/lib/errors";
@@ -13,7 +13,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const partnerRepo = container.get<PartnerRepository>("PartnerRepository");
-  const partners = await partnerRepo.getAll();
+  // Скрытых партнёров видят только сотрудники с доступом к партнёрам.
+  const user = await getAuthUser();
+  const canManage = hasPermission(user, "partners.manage") || hasPermission(user, "partners.view");
+  const partners = canManage ? await partnerRepo.getAll() : await partnerRepo.getActive();
   return NextResponse.json({ ok: true, data: partners });
 }
 
