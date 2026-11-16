@@ -149,6 +149,14 @@ export default function RentRequestsPanel() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex justify-end gap-1">
+                      <a
+                        href={`/contract/${item.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded px-2.5 py-1 text-xs text-slate-400 hover:bg-slate-800 hover:text-white"
+                      >
+                        Договор
+                      </a>
                       {item.car?.slug && (
                         <a
                           href={`/services/rent/${item.car.slug}`}

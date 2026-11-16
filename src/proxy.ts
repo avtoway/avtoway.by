@@ -50,7 +50,9 @@ export function proxy(request: NextRequest) {
     }
 
     if (
-      (pathname.startsWith("/admin/services") || pathname.startsWith("/admin/landings")) &&
+      (pathname.startsWith("/admin/services") ||
+        pathname.startsWith("/admin/landings") ||
+        pathname.startsWith("/admin/blog")) &&
       !perms.some(p => p.startsWith("services."))
     ) {
       return NextResponse.redirect(new URL("/admin", request.url));

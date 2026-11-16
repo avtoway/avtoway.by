@@ -25,6 +25,13 @@ export default async function SiteFooter() {
               Личный бренд и проекты про автомобили. Честные обзоры,
               ремонты, лайфхаки и полезные услуги.
             </p>
+            <nav className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-500">
+              <Link href="/services" className="transition hover:text-zinc-300">Услуги</Link>
+              <Link href="/works" className="transition hover:text-zinc-300">Наши работы</Link>
+              <Link href="/blog" className="transition hover:text-zinc-300">Блог</Link>
+              <Link href="/partners" className="transition hover:text-zinc-300">Партнёры</Link>
+              <Link href="/privacy" className="transition hover:text-zinc-300">Политика</Link>
+            </nav>
           </div>
 
           <div className="flex shrink-0 flex-col items-start gap-5 sm:items-end">

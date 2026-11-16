@@ -65,6 +65,7 @@ export async function GET() {
       children: [
         { label: "Все услуги", icon: "settings", href: "/admin/services", perm: "services.manage" },
         { label: "Контент лендингов", icon: "document-text", href: "/admin/landings", perm: "services.manage" },
+        { label: "Блог", icon: "document-text", href: "/admin/blog", perm: "services.manage" },
         ...serviceChildren,
         { label: "Продажа авто", icon: "dollar", href: "/admin/sell", perm: "sell.manage", badge: newSaleRequests || undefined },
       ],

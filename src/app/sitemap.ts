@@ -14,6 +14,8 @@ const STATIC_ENTRIES: Entry[] = [
   { url: `${SITE_URL}/services/sell`, priority: 0.9, changeFrequency: "weekly" },
   { url: `${SITE_URL}/services/rent`, priority: 0.9, changeFrequency: "weekly" },
   { url: `${SITE_URL}/services/rent/calculator`, priority: 0.7, changeFrequency: "monthly" },
+  { url: `${SITE_URL}/works`, priority: 0.7, changeFrequency: "weekly" },
+  { url: `${SITE_URL}/blog`, priority: 0.7, changeFrequency: "weekly" },
   { url: `${SITE_URL}/contacts`, priority: 0.6, changeFrequency: "monthly" },
   { url: `${SITE_URL}/partners`, priority: 0.5, changeFrequency: "monthly" },
   { url: `${SITE_URL}/vacancies`, priority: 0.6, changeFrequency: "weekly" },
@@ -25,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const db = getPrismaClient();
-    const [services, cars, saleCars, vacancies, partners] = await Promise.all([
+    const [services, cars, saleCars, vacancies, partners, works, posts] = await Promise.all([
       db.service.findMany({
         where: { isActive: true },
         select: { slug: true, updatedAt: true },
@@ -44,6 +46,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
       db.partner.findMany({
         where: { isActive: true, slug: { not: null } },
+        select: { slug: true, updatedAt: true },
+      }),
+      db.autoPodborCase.findMany({
+        where: { isActive: true },
+        select: { slug: true, updatedAt: true },
+      }),
+      db.blogPost.findMany({
+        where: { isPublished: true, publishedAt: { lte: new Date() } },
         select: { slug: true, updatedAt: true },
       }),
     ]);
@@ -96,6 +106,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.set(url, {
         url,
         lastModified: partner.updatedAt,
+        priority: 0.6,
+        changeFrequency: "monthly",
+      });
+    }
+
+    for (const work of works) {
+      const url = `${SITE_URL}/works/${work.slug}`;
+      entries.set(url, {
+        url,
+        lastModified: work.updatedAt,
+        priority: 0.6,
+        changeFrequency: "monthly",
+      });
+    }
+
+    for (const post of posts) {
+      const url = `${SITE_URL}/blog/${post.slug}`;
+      entries.set(url, {
+        url,
+        lastModified: post.updatedAt,
         priority: 0.6,
         changeFrequency: "monthly",
       });

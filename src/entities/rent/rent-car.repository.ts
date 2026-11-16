@@ -44,6 +44,7 @@ export interface RentCarRepository {
   // Rental requests (calculator leads)
   createRentRequest(data: Omit<RentRequest, "id" | "createdAt" | "status">): Promise<RentRequest>;
   getRentRequests(): Promise<RentRequest[]>;
+  getRentRequestById(id: string): Promise<RentRequest | null>;
   updateRentRequestStatus(id: string, status: string): Promise<RentRequest>;
   deleteRentRequest(id: string): Promise<void>;
 }

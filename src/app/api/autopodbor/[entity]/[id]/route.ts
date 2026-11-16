@@ -40,6 +40,10 @@ export async function PUT(
 
     await createAuditLog({ userId: user.id, action: "UPDATE", entity: def.entity, entityId: id, details: body });
     revalidatePath("/services/inspection");
+    if (entity === "cases") {
+      revalidatePath("/works");
+      revalidatePath("/sitemap.xml");
+    }
 
     return NextResponse.json({ ok: true, data: updated });
   } catch (e) { return apiError(e); }
@@ -58,6 +62,10 @@ export async function DELETE(
     await def.remove(repo(), id);
     await createAuditLog({ userId: user.id, action: "DELETE", entity: def.entity, entityId: id });
     revalidatePath("/services/inspection");
+    if (entity === "cases") {
+      revalidatePath("/works");
+      revalidatePath("/sitemap.xml");
+    }
 
     return NextResponse.json({ ok: true, data: { deleted: id } });
   } catch (e) { return apiError(e); }

@@ -392,6 +392,14 @@ export class PrismaRentCarRepository implements RentCarRepository {
     return rows.map(toRentRequest);
   }
 
+  async getRentRequestById(id: string): Promise<RentRequest | null> {
+    const row = await this.db.rentRequest.findUnique({
+      where: { id },
+      include: { car: true },
+    });
+    return row ? toRentRequest(row) : null;
+  }
+
   async updateRentRequestStatus(id: string, status: string): Promise<RentRequest> {
     const row = await this.db.rentRequest.update({
       where: { id },

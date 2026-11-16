@@ -61,6 +61,10 @@ export async function POST(
       details: body,
     });
     revalidatePath("/services/inspection");
+    if (entity === "cases") {
+      revalidatePath("/works");
+      revalidatePath("/sitemap.xml");
+    }
 
     return NextResponse.json({ ok: true, data: created }, { status: 201 });
   } catch (e) { return apiError(e); }
