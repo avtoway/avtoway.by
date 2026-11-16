@@ -4,6 +4,7 @@ import { container } from "@/di/container";
 import type { ContactInfoRepository } from "@/entities/contact/contact-info.repository";
 import HeroSection from "@/features/home/ui/hero-section";
 import TaskSection from "@/features/home/ui/task-section";
+import ExpressCheck from "@/features/autopodbor/ui/express-check";
 import AboutSection from "@/features/home/ui/about-section";
 import HomeStickyCta from "@/features/home/ui/home-sticky-cta";
 import VideoSectionWrapper from "@/features/home/ui/video-section-wrapper";
@@ -28,6 +29,7 @@ export default async function MarketingHome() {
     <>
       <HeroSection />
       <TaskSection />
+      <ExpressCheck />
       <AboutSection />
       <Suspense fallback={<VideoSectionSkeleton />}>
         <VideoSectionWrapper />

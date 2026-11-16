@@ -88,6 +88,7 @@ const CONTACT_SOURCE_LABELS: Record<string, string> = {
   service_landing: "Лендинг услуги",
   contacts: "Контакты",
   vacancy: "Вакансия",
+  express_check: "Экспресс-проверка",
   site: "Сайт",
 };
 

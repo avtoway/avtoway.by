@@ -1,5 +1,6 @@
 import { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { FaqSchema, ServiceSchema } from "@/shared/ui/json-ld";
+import CrossSell from "@/shared/ui/cross-sell";
 import LandingHero from "./landing-hero";
 import LandingLeadForm from "./landing-lead-form";
 import LandingIcon from "./icon";
@@ -255,6 +256,7 @@ export default function LandingPageView({
         </div>
       </LandingSection>
 
+      <CrossSell exclude={slug} />
       <StickyCta phone={phone} formLabel={content.stickyLabel} />
     </div>
   );

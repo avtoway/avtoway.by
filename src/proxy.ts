@@ -18,7 +18,7 @@ export function proxy(request: NextRequest) {
   const isSaleRequest = pathname === "/api/sell/requests";
   const isPublicWrite =
     request.method === "POST" &&
-    (pathname === "/api/rent/requests" || pathname === "/api/contact" || isAutoPodborLead || isSaleRequest);
+    (pathname === "/api/rent/requests" || pathname === "/api/contact" || pathname === "/api/express-check" || isAutoPodborLead || isSaleRequest);
   if (isPublicWrite && !checkRateLimit(
     `public:${pathname}:${clientIp(request)}`,
     isAutoPodborLead ? 5 : pathname === "/api/contact" ? 30 : 10,
@@ -120,4 +120,4 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/autopodbor/leads/:path*", "/api/sell/requests/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/express-check", "/api/autopodbor/leads/:path*", "/api/sell/requests/:path*"] };

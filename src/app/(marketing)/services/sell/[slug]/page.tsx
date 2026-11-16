@@ -20,6 +20,7 @@ import {
 } from "@/shared/lib/car-dictionaries";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import PhotoLightboxGallery from "@/shared/ui/photo-lightbox-gallery";
+import CrossSell from "@/shared/ui/cross-sell";
 import SaleContactCard from "@/features/sell/ui/sale-contact-card";
 import SaleCard from "@/features/sell/ui/sale-card";
 import SaleStructuredData from "@/features/sell/ui/sale-structured-data";
@@ -275,6 +276,8 @@ export default async function SaleCarPage({ params }: Props) {
           </aside>
         </div>
       </div>
+
+      <CrossSell exclude="sell" />
     </div>
   );
 }
