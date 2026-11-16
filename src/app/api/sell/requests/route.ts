@@ -4,6 +4,7 @@ import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { toApiError, NotFoundError } from "@/shared/lib/errors";
 import { saleRequestSchema } from "@/entities/sell/sale-car.schema";
+import { notifyNewLead } from "@/shared/lib/telegram.server";
 import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
 
 function repo() {
@@ -60,6 +61,16 @@ export async function POST(request: Request) {
       utmSource: input.utmSource || undefined,
       utmMedium: input.utmMedium || undefined,
       utmCampaign: input.utmCampaign || undefined,
+    });
+
+    notifyNewLead({
+      source: `Продажа авто: ${input.type}`,
+      service: input.carInfo || undefined,
+      name: created.clientName,
+      phone: created.clientPhone,
+      message: created.comment,
+      pageUrl: created.pageUrl,
+      utm: [created.utmSource, created.utmMedium, created.utmCampaign].filter(Boolean).join(" / ") || undefined,
     });
 
     return NextResponse.json({ ok: true, data: { id: created.id } }, { status: 201 });

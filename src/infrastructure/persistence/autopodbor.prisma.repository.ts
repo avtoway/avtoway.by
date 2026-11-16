@@ -19,6 +19,7 @@ import type {
   LeadFilters,
   LeadListResult,
 } from "@/entities/autopodbor/autopodbor.types";
+import { normalizePhone } from "@/shared/lib/phone";
 
 /* ─── mappers ─── */
 
@@ -615,6 +616,7 @@ export class PrismaAutoPodborRepository implements AutoPodborRepository {
       data: {
         name: data.name,
         phone: data.phone,
+        normalizedPhone: normalizePhone(data.phone) || null,
         email: data.email,
         messenger: data.messenger,
         city: data.city,

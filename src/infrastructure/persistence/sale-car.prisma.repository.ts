@@ -8,6 +8,7 @@ import type {
   SaleRequest,
   SaleRequestInput,
 } from "@/entities/sell/sale-car.types";
+import { normalizePhone } from "@/shared/lib/phone";
 
 function parseStrings(value: string | null | undefined): string[] {
   if (!value) return [];
@@ -405,6 +406,7 @@ export class PrismaSaleCarRepository implements SaleCarRepository {
         carId: data.carId || null,
         clientName: data.clientName,
         clientPhone: data.clientPhone,
+        normalizedPhone: normalizePhone(data.clientPhone) || null,
         carInfo: data.carInfo || null,
         offerPrice: data.offerPrice ?? null,
         comment: data.comment || null,

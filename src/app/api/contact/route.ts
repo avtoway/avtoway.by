@@ -2,6 +2,7 @@ import "@/di/composition-root";
 import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { toApiError, ValidationError } from "@/shared/lib/errors";
+import { notifyNewLead } from "@/shared/lib/telegram.server";
 import type { ContactRepository } from "@/entities/contact/contact.repository";
 
 export async function POST(request: Request) {
@@ -37,6 +38,17 @@ export async function POST(request: Request) {
       utmSource: body.utmSource?.trim().slice(0, 200) || undefined,
       utmMedium: body.utmMedium?.trim().slice(0, 200) || undefined,
       utmCampaign: body.utmCampaign?.trim().slice(0, 200) || undefined,
+    });
+
+    notifyNewLead({
+      source: created.source === "site" ? "Общая форма" : `Форма: ${created.source}`,
+      service: created.serviceSlug,
+      name: created.name,
+      phone: created.phone,
+      email: created.email,
+      message: created.message,
+      pageUrl: created.pageUrl,
+      utm: [created.utmSource, created.utmMedium, created.utmCampaign].filter(Boolean).join(" / ") || undefined,
     });
 
     return NextResponse.json({ ok: true, data: { id: created.id } }, { status: 201 });

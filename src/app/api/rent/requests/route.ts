@@ -4,6 +4,7 @@ import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { daysBetween, firstValidationError, quoteRent, rentRequestSchema } from "@/shared/lib/rent-request";
+import { notifyNewLead } from "@/shared/lib/telegram.server";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 
 export async function GET() {
@@ -69,6 +70,16 @@ export async function POST(request: Request) {
       message:
         `Заявка из калькулятора: ${car.name}, ${days} дн. (${input.startDate} — ${input.endDate}), ` +
         `итог ${quote.total} BYN, залог ${quote.deposit || "по согласованию"} BYN.`,
+    });
+
+    notifyNewLead({
+      source: "Аренда (калькулятор)",
+      service: `${car.name}, ${days} дн. (${input.startDate} — ${input.endDate}), ${quote.total} BYN`,
+      name: created.name,
+      phone: created.phone,
+      email: created.email,
+      pageUrl: created.pageUrl,
+      utm: [created.utmSource, created.utmMedium, created.utmCampaign].filter(Boolean).join(" / ") || undefined,
     });
 
     return NextResponse.json({ ok: true, data: created }, { status: 201 });

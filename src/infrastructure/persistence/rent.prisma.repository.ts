@@ -1,6 +1,7 @@
 import { getPrismaClient } from "./prisma.client";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 import type { RentCar, RentType, CarClass, RentExtra, RentCondition, RentPricingTier, CarConditionInput, RentRequest } from "@/entities/rent/rent-car.types";
+import { normalizePhone } from "@/shared/lib/phone";
 import { randomUUID } from "node:crypto";
 
 function toRentCar(row: any): RentCar {
@@ -363,6 +364,7 @@ export class PrismaRentCarRepository implements RentCarRepository {
         carId: data.carId ?? null,
         name: data.name,
         phone: data.phone ?? null,
+        normalizedPhone: normalizePhone(data.phone) || null,
         email: data.email ?? null,
         startDate: data.startDate ?? null,
         endDate: data.endDate ?? null,

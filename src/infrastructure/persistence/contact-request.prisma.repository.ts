@@ -1,6 +1,7 @@
 import { getPrismaClient } from "./prisma.client";
 import type { ContactRepository } from "@/entities/contact/contact.repository";
 import type { ContactRequest, ContactRequestStatus } from "@/entities/contact/contact";
+import { normalizePhone } from "@/shared/lib/phone";
 
 function toContactRequest(r: any): ContactRequest {
   return {
@@ -38,6 +39,7 @@ export class PrismaContactRequestRepository implements ContactRepository {
       data: {
         name: data.name,
         phone: data.phone ?? null,
+        normalizedPhone: normalizePhone(data.phone) || null,
         email: data.email ?? null,
         message: data.message,
         source: data.source || "site",

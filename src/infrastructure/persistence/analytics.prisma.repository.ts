@@ -123,10 +123,32 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     since.setHours(0, 0, 0, 0);
 
     const [contacts, rents, sales, autos] = await Promise.all([
-      db.contactRequest.findMany({ where: { createdAt: { gte: since } }, orderBy: { createdAt: "desc" }, take: 5000 }),
-      db.rentRequest.findMany({ where: { createdAt: { gte: since } }, include: { car: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 5000 }),
-      db.saleRequest.findMany({ where: { createdAt: { gte: since } }, include: { car: { select: { title: true } } }, orderBy: { createdAt: "desc" }, take: 5000 }),
-      db.autoPodborLead.findMany({ where: { createdAt: { gte: since } }, orderBy: { createdAt: "desc" }, take: 5000 }),
+      db.contactRequest.findMany({
+        where: { createdAt: { gte: since } },
+        select: {
+          status: true, createdAt: true, serviceSlug: true, pageUrl: true,
+          utmSource: true, utmMedium: true, utmCampaign: true,
+        },
+        take: 5000,
+      }),
+      db.rentRequest.findMany({
+        where: { createdAt: { gte: since } },
+        select: { status: true, createdAt: true, car: { select: { name: true } } },
+        take: 5000,
+      }),
+      db.saleRequest.findMany({
+        where: { createdAt: { gte: since } },
+        select: { status: true, createdAt: true, car: { select: { title: true } } },
+        take: 5000,
+      }),
+      db.autoPodborLead.findMany({
+        where: { createdAt: { gte: since } },
+        select: {
+          status: true, createdAt: true, serviceSlug: true, serviceTitle: true, pageUrl: true,
+          utmSource: true, utmMedium: true, utmCampaign: true,
+        },
+        take: 5000,
+      }),
     ]);
 
     const leads: NormalizedLead[] = [

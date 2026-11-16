@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { ImapFlow } from "imapflow";
+import { simpleParser } from "mailparser";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { decryptSecret } from "@/shared/lib/encryption";
 
@@ -94,6 +95,9 @@ export async function sendEmail(to: string, subject: string, body: string, inRep
   }
 }
 
+/** Сколько последних писем просматривать за одно обновление. */
+const MAX_SCAN = 100;
+
 export async function fetchInboxEmails(): Promise<{ count: number; error?: string }> {
   const config = await getImapConfig();
   if (!config) return { count: 0, error: "IMAP не настроен" };
@@ -104,7 +108,7 @@ export async function fetchInboxEmails(): Promise<{ count: number; error?: strin
     const client = new ImapFlow({
       host: config.host,
       port: config.port,
-      secure: true,
+      secure: config.port === 993,
       auth: { user: config.user, pass: config.pass },
       logger: false,
     });
@@ -113,54 +117,55 @@ export async function fetchInboxEmails(): Promise<{ count: number; error?: strin
     const lock = await client.getMailboxLock("INBOX");
     let inserted = 0;
     try {
+      const total = client.mailbox && typeof client.mailbox === "object" ? client.mailbox.exists : 0;
+      if (total <= 0) return { count: 0 };
+
+      // Смотрим только последние письма, а не весь ящик: экономит память и время.
+      const start = Math.max(1, total - MAX_SCAN + 1);
       const existingIds = new Set(
         (await db.inboxEmail.findMany({ select: { messageId: true }, where: { messageId: { not: null } } }))
-          .map(e => e.messageId!)
+          .map(e => e.messageId!),
       );
 
-      for await (const msg of client.fetch("1:*", { envelope: true, source: true })) {
+      for await (const msg of client.fetch(`${start}:*`, { envelope: true, source: true })) {
         const envelope = msg.envelope;
-        if (!envelope) continue;
-        const messageId = (envelope as any).messageId as string | undefined;
+        if (!envelope || !msg.source) continue;
+
+        const messageId = envelope.messageId ?? undefined;
         if (messageId && existingIds.has(messageId)) continue;
 
-        const from = envelope.from?.[0];
-        const to = envelope.to?.[0];
-        const fromAddr = from ? `${from.name ?? ""} <${from.address}>`.trim() : "";
-        const toAddr = to ? `${to.name ?? ""} <${to.address}>`.trim() : "";
-        const subject = envelope.subject ?? "";
-        const rawSource = msg.source ? Buffer.from(msg.source).toString("utf-8") : "";
-        const date = envelope.date ? new Date(envelope.date) : new Date();
+        // Полноценный MIME-парсер: base64, quoted-printable, кодировки, multipart.
+        const parsed = await simpleParser(Buffer.from(msg.source));
 
-        let htmlBody = "";
-        let textBody = "";
+        const from = parsed.from?.text
+          ?? (envelope.from?.[0]
+            ? `${envelope.from[0].name ?? ""} <${envelope.from[0].address}>`.trim()
+            : "");
+        if (!from) continue;
 
-        if (rawSource) {
-          const htmlMatch = /Content-Type:\s*text\/html[\s\S]*?\r?\n\r?\n([\s\S]*?)(?=\r?\n--|$)/i.exec(rawSource);
-          if (htmlMatch?.[1]) {
-            htmlBody = htmlMatch[1].trim();
-          } else {
-            htmlBody = rawSource;
-          }
-          const textMatch = /Content-Type:\s*text\/plain[\s\S]*?\r?\n\r?\n([\s\S]*?)(?=\r?\n--|$)/i.exec(rawSource);
-          if (textMatch?.[1]) {
-            textBody = textMatch[1].trim();
-          }
-        }
+        const to = Array.isArray(parsed.to)
+          ? parsed.to.map(item => item.text).join(", ")
+          : parsed.to?.text ?? (envelope.to?.[0]
+            ? `${envelope.to[0].name ?? ""} <${envelope.to[0].address}>`.trim()
+            : "");
 
-        if (!fromAddr) continue;
+        const html = typeof parsed.html === "string" ? parsed.html : "";
+        const text = parsed.text ?? "";
+        const receivedAt = parsed.date
+          ?? (envelope.date ? new Date(envelope.date) : new Date());
 
         await db.inboxEmail.create({
           data: {
             messageId: messageId ?? null,
-            from: fromAddr,
-            to: toAddr,
-            subject,
-            body: htmlBody || textBody || rawSource || "",
-            textBody: textBody || null,
-            receivedAt: date,
+            from,
+            to,
+            subject: parsed.subject ?? envelope.subject ?? "",
+            body: html || text || "",
+            textBody: text || null,
+            receivedAt,
           },
         });
+        if (messageId) existingIds.add(messageId);
         inserted++;
       }
     } finally {

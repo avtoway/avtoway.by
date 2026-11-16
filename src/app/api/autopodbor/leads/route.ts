@@ -4,6 +4,7 @@ import { container } from "@/di/container";
 import { requireAnyAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { autopodborLeadSchema } from "@/entities/autopodbor/autopodbor.schema";
+import { notifyNewLead } from "@/shared/lib/telegram.server";
 import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repository";
 import type { LeadFilters } from "@/entities/autopodbor/autopodbor.types";
 
@@ -70,6 +71,17 @@ export async function POST(request: Request) {
       utmSource: input.utmSource,
       utmMedium: input.utmMedium,
       utmCampaign: input.utmCampaign,
+    });
+
+    notifyNewLead({
+      source: "Автоподбор",
+      service: lead.serviceTitle ?? lead.serviceSlug,
+      name: lead.name,
+      phone: lead.phone,
+      email: lead.email,
+      message: lead.comment,
+      pageUrl: lead.pageUrl,
+      utm: [lead.utmSource, lead.utmMedium, lead.utmCampaign].filter(Boolean).join(" / ") || undefined,
     });
 
     return NextResponse.json({ ok: true, data: { id: lead.id } }, { status: 201 });

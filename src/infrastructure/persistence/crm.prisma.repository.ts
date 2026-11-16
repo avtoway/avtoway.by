@@ -1,6 +1,7 @@
 import { getPrismaClient } from "./prisma.client";
 import type { CrmRepository, LeadTaskFilters } from "@/entities/crm/crm.repository";
 import { LEAD_SOURCES_ORDER } from "@/entities/crm/crm.access";
+import { normalizePhone } from "@/shared/lib/phone";
 import type {
   CrmAssignee,
   CrmClient,
@@ -19,9 +20,7 @@ function iso(value: Date | string | null | undefined): string | undefined {
   return value instanceof Date ? value.toISOString() : value;
 }
 
-export function normalizePhone(value?: string | null): string {
-  return (value ?? "").replace(/\D/g, "");
-}
+export { normalizePhone };
 
 const SERVICE_LABELS: Record<string, string> = {
   truck: "Эвакуатор",
@@ -315,28 +314,64 @@ export class PrismaCrmRepository implements CrmRepository {
   }
 
   async getClients(search?: string, sources?: LeadSource[]): Promise<CrmClientSummary[]> {
-    const leads = await this.getLeads(sources);
-    const map = new Map<string, CrmClientSummary>();
+    const db = getPrismaClient();
+    const allowed = new Set<LeadSource>(sources ?? LEAD_SOURCES_ORDER);
+    // Лёгкая выборка: только поля, нужные для агрегации. Никаких сообщений и JSON-полей.
+    const select = {
+      name: true,
+      email: true,
+      status: true,
+      createdAt: true,
+      normalizedPhone: true,
+    } as const;
 
-    for (const lead of leads) {
-      const phone = normalizePhone(lead.phone);
+    const [contacts, rents, sales, autos] = await Promise.all([
+      allowed.has("contact")
+        ? db.contactRequest.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        : Promise.resolve([]),
+      allowed.has("rent")
+        ? db.rentRequest.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        : Promise.resolve([]),
+      allowed.has("sale")
+        ? db.saleRequest.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        : Promise.resolve([]),
+      allowed.has("autopodbor")
+        ? db.autoPodborLead.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        : Promise.resolve([]),
+    ]);
+
+    type Row = { name: string; email: string | null; status: string; createdAt: Date; normalizedPhone: string | null };
+    const rows: Array<{ row: Row; source: LeadSource }> = [
+      ...contacts.map(row => ({ row: row as Row, source: "contact" as const })),
+      ...rents.map(row => ({ row: row as Row, source: "rent" as const })),
+      ...sales.map(row => ({ row: row as Row, source: "sale" as const })),
+      ...autos.map(row => ({ row: row as Row, source: "autopodbor" as const })),
+    ];
+
+    const map = new Map<string, CrmClientSummary>();
+    for (const { row, source } of rows) {
+      const phone = row.normalizedPhone;
       if (!phone) continue;
+      const createdAt = iso(row.createdAt) ?? "";
       const existing = map.get(phone);
       if (existing) {
         existing.total += 1;
-        existing.newCount += lead.status === "new" ? 1 : 0;
-        existing.sources = [...new Set([...existing.sources, lead.source])];
-        if (new Date(lead.createdAt).getTime() > new Date(existing.lastAt).getTime()) existing.lastAt = lead.createdAt;
-        if (lead.email && !existing.email) existing.email = lead.email;
+        existing.newCount += row.status === "new" ? 1 : 0;
+        if (!existing.sources.includes(source)) existing.sources.push(source);
+        if (new Date(createdAt).getTime() > new Date(existing.lastAt).getTime()) {
+          existing.lastAt = createdAt;
+          existing.name = row.name || existing.name;
+        }
+        if (row.email && !existing.email) existing.email = row.email;
       } else {
         map.set(phone, {
           phone,
-          name: lead.name,
-          email: lead.email,
+          name: row.name,
+          email: row.email ?? undefined,
           total: 1,
-          newCount: lead.status === "new" ? 1 : 0,
-          sources: [lead.source],
-          lastAt: lead.createdAt,
+          newCount: row.status === "new" ? 1 : 0,
+          sources: [source],
+          lastAt: createdAt,
         });
       }
     }
@@ -344,9 +379,10 @@ export class PrismaCrmRepository implements CrmRepository {
     const items = [...map.values()].sort((a, b) => new Date(b.lastAt).getTime() - new Date(a.lastAt).getTime());
     if (!search) return items.slice(0, 200);
     const query = search.toLowerCase();
+    const digits = query.replace(/\D/g, "");
     return items.filter(item =>
       item.name.toLowerCase().includes(query) ||
-      item.phone.includes(query.replace(/\D/g, "")) ||
+      (digits.length > 0 && item.phone.includes(digits)) ||
       item.email?.toLowerCase().includes(query),
     );
   }
@@ -354,7 +390,33 @@ export class PrismaCrmRepository implements CrmRepository {
   async getClient(phone: string, sources?: LeadSource[]): Promise<CrmClient | null> {
     const normalized = normalizePhone(phone);
     if (!normalized) return null;
-    const leads = (await this.getLeads(sources)).filter(lead => normalizePhone(lead.phone) === normalized);
+
+    const db = getPrismaClient();
+    const allowed = new Set<LeadSource>(sources ?? LEAD_SOURCES_ORDER);
+    const where = { normalizedPhone: normalized };
+
+    const [contacts, rents, sales, autos] = await Promise.all([
+      allowed.has("contact")
+        ? db.contactRequest.findMany({ where, orderBy: { createdAt: "desc" }, take: 200 })
+        : Promise.resolve([]),
+      allowed.has("rent")
+        ? db.rentRequest.findMany({ where, include: { car: { select: { name: true, slug: true } } }, orderBy: { createdAt: "desc" }, take: 200 })
+        : Promise.resolve([]),
+      allowed.has("sale")
+        ? db.saleRequest.findMany({ where, include: { car: { select: { title: true } } }, orderBy: { createdAt: "desc" }, take: 200 })
+        : Promise.resolve([]),
+      allowed.has("autopodbor")
+        ? db.autoPodborLead.findMany({ where, orderBy: { createdAt: "desc" }, take: 200 })
+        : Promise.resolve([]),
+    ]);
+
+    const leads: CrmLead[] = [
+      ...contacts.map(mapContact),
+      ...rents.map(mapRent),
+      ...sales.map(mapSale),
+      ...autos.map(mapAuto),
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     if (leads.length === 0) return null;
     const first = leads[0]!;
     return {

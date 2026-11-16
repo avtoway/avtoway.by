@@ -200,6 +200,7 @@ model ContactRequest {
   id          String   @id @default(uuid())
   name        String
   phone       String?
+  normalizedPhone String? @map("normalized_phone")
   email       String?
   message     String
   source      String   @default("site")
@@ -215,6 +216,7 @@ model ContactRequest {
   @@index([createdAt])
   @@index([source])
   @@index([serviceSlug])
+  @@index([normalizedPhone])
   @@map("contact_requests")
 }
 
@@ -415,6 +417,7 @@ model RentRequest {
   car       RentCar? @relation(fields: [carId], references: [id], onDelete: SetNull)
   name      String
   phone     String?
+  normalizedPhone String? @map("normalized_phone")
   email     String?
   startDate String?  @map("start_date")
   endDate   String?  @map("end_date")
@@ -432,6 +435,7 @@ model RentRequest {
 
   @@index([status])
   @@index([createdAt])
+  @@index([normalizedPhone])
   @@map("rent_requests")
 }
 
@@ -684,6 +688,7 @@ model AutoPodborLead {
   id           String   @id @default(uuid())
   name         String
   phone        String?
+  normalizedPhone String? @map("normalized_phone")
   email        String?
   messenger    String?
   city         String?
@@ -710,6 +715,7 @@ model AutoPodborLead {
 
   @@index([status, createdAt])
   @@index([serviceSlug])
+  @@index([normalizedPhone])
   @@map("autopodbor_leads")
 }
 
@@ -805,6 +811,7 @@ model SaleRequest {
   car         SaleCar? @relation(fields: [carId], references: [id], onDelete: SetNull)
   clientName  String   @map("client_name")
   clientPhone String   @map("client_phone")
+  normalizedPhone String? @map("normalized_phone")
   carInfo     String?  @map("car_info")
   offerPrice  Int?     @map("offer_price")
   comment     String?
@@ -818,6 +825,7 @@ model SaleRequest {
 
   @@index([status, createdAt])
   @@index([carId])
+  @@index([normalizedPhone])
   @@map("sale_requests")
 }
 

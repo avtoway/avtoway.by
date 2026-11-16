@@ -76,6 +76,7 @@ export async function GET() {
     { label: "Заявки", icon: "document-text", href: "/admin/requests", anyPerm: LEAD_ACCESS_PERMS },
     { label: "Клиенты", icon: "users", href: "/admin/clients", anyPerm: LEAD_ACCESS_PERMS },
     { label: "Задачи", icon: "document-text", href: "/admin/tasks", anyPerm: LEAD_ACCESS_PERMS },
+    { label: "Уведомления", icon: "bell", href: "/admin/notifications", perm: "audit.view" },
     { label: "Аналитика", icon: "chart", href: "/admin/analytics", perm: "audit.view" },
     { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },

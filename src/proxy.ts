@@ -96,7 +96,9 @@ export function proxy(request: NextRequest) {
     }
 
     if (
-      (pathname.startsWith("/admin/analytics") || pathname.startsWith("/admin/monitoring")) &&
+      (pathname.startsWith("/admin/analytics") ||
+        pathname.startsWith("/admin/monitoring") ||
+        pathname.startsWith("/admin/notifications")) &&
       !perms.includes("audit.view")
     ) {
       return NextResponse.redirect(new URL("/admin", request.url));
