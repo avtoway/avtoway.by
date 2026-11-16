@@ -72,13 +72,13 @@ model UserRole {
 
 model AuditLog {
   id        String   @id @default(uuid())
-  userId    String   @map("user_id")
+  userId    String?  @map("user_id")
   action    String
   entity    String
   entityId  String   @map("entity_id")
   details   String?
   createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([action])
@@ -424,6 +424,10 @@ model RentRequest {
   deposit   Int?
   status    String   @default("new")
   message   String?
+  pageUrl     String? @map("page_url")
+  utmSource   String? @map("utm_source")
+  utmMedium   String? @map("utm_medium")
+  utmCampaign String? @map("utm_campaign")
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([status])
@@ -805,6 +809,10 @@ model SaleRequest {
   offerPrice  Int?     @map("offer_price")
   comment     String?
   status      String   @default("new")
+  pageUrl     String?  @map("page_url")
+  utmSource   String?  @map("utm_source")
+  utmMedium   String?  @map("utm_medium")
+  utmCampaign String?  @map("utm_campaign")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

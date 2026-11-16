@@ -23,6 +23,7 @@ import PhotoLightboxGallery from "@/shared/ui/photo-lightbox-gallery";
 import SaleContactCard from "@/features/sell/ui/sale-contact-card";
 import SaleCard from "@/features/sell/ui/sale-card";
 import SaleStructuredData from "@/features/sell/ui/sale-structured-data";
+import SaleViewTracker from "@/features/sell/ui/view-tracker";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -81,14 +82,13 @@ export default async function SaleCarPage({ params }: Props) {
     })
     .slice(0, 3);
 
-  void repo().incrementViews(car.id);
-
   const featureGroups = saleFeatureGroups(car.features);
   const condition = SALE_CONDITION_LABEL[car.condition] ?? car.condition;
   const title = car.title;
 
   return (
     <div className="min-h-screen bg-zinc-950 pb-28 lg:pb-20">
+      <SaleViewTracker carId={car.id} />
       <SaleStructuredData car={car} usdRate={usdRate} />
       <BreadcrumbSchema
         items={[

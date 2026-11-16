@@ -283,12 +283,10 @@ async function main() {
   ];
   for (const s of services) {
     const existing = await prisma.service.findUnique({ where: { slug: s.slug } });
-    if (existing) {
-      await prisma.service.update({ where: { slug: s.slug }, data: { title: s.title, description: s.description, icon: s.icon, color: s.color, isActive: s.isActive, sortOrder: s.sortOrder } });
-    } else {
-      await prisma.service.create({ data: s });
-      console.log(`  Услуга: ${s.title}`);
-    }
+    // Не перезаписываем услуги, отредактированные в админке: seed только создаёт недостающие.
+    if (existing) continue;
+    await prisma.service.create({ data: s });
+    console.log(`  Услуга: ${s.title}`);
   }
 
   // Seed contact info (contacts table — singleton)

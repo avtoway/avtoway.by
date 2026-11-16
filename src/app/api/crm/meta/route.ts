@@ -4,6 +4,7 @@ import { container } from "@/di/container";
 import { requireAnyAuth } from "@/lib/auth.server";
 import { toApiError, ValidationError, ForbiddenError } from "@/shared/lib/errors";
 import { createAuditLog } from "@/lib/audit.server";
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { canAccessLeadSource, ANY_LEAD_ACCESS_PERMISSIONS } from "@/entities/crm/crm.access";
 import { LEAD_SOURCES, leadMetaSchema } from "@/entities/crm/crm.schema";
 import type { CrmRepository } from "@/entities/crm/crm.repository";
@@ -46,6 +47,18 @@ export async function PUT(request: Request) {
       internalNote: parsed.data.internalNote,
     });
     await repo().advanceLeadStatus(parsed.data.source, parsed.data.leadId);
+
+    // Автоподбор хранит ответственного и заметку в собственной таблице — держим их синхронными.
+    if (parsed.data.source === "autopodbor") {
+      await getPrismaClient().autoPodborLead.updateMany({
+        where: { id: parsed.data.leadId },
+        data: {
+          assignedToId: parsed.data.assignedToId ?? null,
+          internalNote: parsed.data.internalNote ?? null,
+        },
+      });
+    }
+
     await createAuditLog({
       userId: user.id,
       action: "UPDATE",

@@ -94,5 +94,9 @@ export interface RentRequest {
   deposit?: number;
   status: string;
   message?: string;
+  pageUrl?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
   createdAt: string;
 }

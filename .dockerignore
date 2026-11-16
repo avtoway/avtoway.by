@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+data
+backups
+test-results
+allure-results
+allure-report
+.env
+.env.local
+temp

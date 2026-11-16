@@ -95,6 +95,10 @@ function toRentRequest(row: any): RentRequest {
     deposit: row.deposit ?? undefined,
     status: row.status,
     message: row.message ?? undefined,
+    pageUrl: row.pageUrl ?? undefined,
+    utmSource: row.utmSource ?? undefined,
+    utmMedium: row.utmMedium ?? undefined,
+    utmCampaign: row.utmCampaign ?? undefined,
     createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
   };
 }
@@ -314,13 +318,15 @@ export class PrismaRentCarRepository implements RentCarRepository {
   }
 
   async setCarConditions(carId: string, conditions: CarConditionInput[]): Promise<void> {
-    await this.db.rentCarCondition.deleteMany({ where: { carId } });
     const list = (conditions ?? []).filter(c => c.conditionId);
-    if (list.length > 0) {
-      await this.db.rentCarCondition.createMany({
-        data: list.map(c => ({ carId, conditionId: c.conditionId, value: c.value ?? "" })),
-      });
-    }
+    await this.db.$transaction([
+      this.db.rentCarCondition.deleteMany({ where: { carId } }),
+      ...(list.length > 0
+        ? [this.db.rentCarCondition.createMany({
+            data: list.map(c => ({ carId, conditionId: c.conditionId, value: c.value ?? "" })),
+          })]
+        : []),
+    ]);
   }
 
   /* ─── Pricing tiers ─── */
@@ -365,6 +371,10 @@ export class PrismaRentCarRepository implements RentCarRepository {
         total: data.total ?? null,
         deposit: data.deposit ?? null,
         message: data.message ?? null,
+        pageUrl: data.pageUrl ?? null,
+        utmSource: data.utmSource ?? null,
+        utmMedium: data.utmMedium ?? null,
+        utmCampaign: data.utmCampaign ?? null,
         status: "new",
       },
       include: { car: true },

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
+import { deleteLeadCrmData } from "@/shared/lib/lead-cleanup.server";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 
 export async function PUT(
@@ -28,6 +29,7 @@ export async function DELETE(
     const { id } = await params;
     const repo = container.get<RentCarRepository>("RentCarRepository");
     await repo.deleteRentRequest(id);
+    await deleteLeadCrmData("rent", id);
     return NextResponse.json({ ok: true, data: { deleted: id } });
   } catch (e) { return toApiError(e); }
 }

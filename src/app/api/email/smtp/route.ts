@@ -33,6 +33,7 @@ export async function PUT(request: Request) {
     const body = await request.json().catch(() => ({}));
     const db = getPrismaClient();
 
+    const upserts: ReturnType<typeof db.setting.upsert>[] = [];
     for (const key of SETTINGS_KEYS) {
       if (body[key] === undefined) continue;
 
@@ -41,13 +42,14 @@ export async function PUT(request: Request) {
 
       const value = SECRET_KEYS.has(key) ? encryptSecret(body[key]) : (body[key] ?? "");
 
-      const existing = await db.setting.findUnique({ where: { key } });
-      if (existing) {
-        await db.setting.update({ where: { key }, data: { value } });
-      } else {
-        await db.setting.create({ data: { key, value } });
-      }
+      upserts.push(db.setting.upsert({
+        where: { key },
+        update: { value },
+        create: { key, value },
+      }));
     }
+
+    if (upserts.length > 0) await db.$transaction(upserts);
     return NextResponse.json({ ok: true });
   } catch (e) { return toApiError(e); }
 }

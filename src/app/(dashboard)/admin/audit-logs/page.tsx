@@ -39,7 +39,7 @@ const FIELD_LABEL: Record<string, string> = {
 };
 
 function describeWho(log: LogEntry): string {
-  return log.userName || log.userLogin || log.userId.slice(0, 8);
+  return log.userName || log.userLogin || (log.userId ? log.userId.slice(0, 8) : "удалённый сотрудник");
 }
 
 function describeChanges(fields: string[]): string {

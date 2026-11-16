@@ -56,6 +56,10 @@ export async function POST(request: Request) {
       carInfo: input.carInfo || undefined,
       offerPrice: input.offerPrice ?? undefined,
       comment: input.comment || undefined,
+      pageUrl: input.pageUrl || undefined,
+      utmSource: input.utmSource || undefined,
+      utmMedium: input.utmMedium || undefined,
+      utmCampaign: input.utmCampaign || undefined,
     });
 
     return NextResponse.json({ ok: true, data: { id: created.id } }, { status: 201 });

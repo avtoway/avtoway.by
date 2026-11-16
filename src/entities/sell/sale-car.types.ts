@@ -131,6 +131,10 @@ export interface SaleRequest {
   offerPrice?: number;
   comment?: string;
   status: string;
+  pageUrl?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -144,4 +148,8 @@ export interface SaleRequestInput {
   offerPrice?: number;
   comment?: string;
   company?: string;
+  pageUrl?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 }

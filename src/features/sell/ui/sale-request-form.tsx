@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { SaleRequestInput } from "@/entities/sell/sale-car.types";
 import { trackLead } from "@/shared/lib/analytics";
+import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 
 const inputCls =
   "w-full rounded-xl border border-zinc-700 bg-zinc-950/60 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-red-500";
@@ -52,6 +53,7 @@ export default function SaleRequestForm({
           offerPrice: offerPrice ? Number(offerPrice.replace(/\s/g, "")) : undefined,
           comment: comment || undefined,
           company,
+          ...getLeadAttribution(),
         }),
       });
       const json = await response.json().catch(() => ({}));

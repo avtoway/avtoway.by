@@ -6,6 +6,7 @@ import { calculateRentPrice, getPeriodPrices, type RentPricingTier } from "@/sha
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
 import { trackLead } from "@/shared/lib/analytics";
+import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 
 interface Car {
   id: string; name: string; slug: string; brand?: string; model?: string;
@@ -150,6 +151,7 @@ export default function RentCalculatorPage() {
       email: email.trim() || null,
       startDate, endDate,
       extraIds: [...selectedExtras],
+      ...getLeadAttribution(),
     };
     try {
       const res = await fetch("/api/rent/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });

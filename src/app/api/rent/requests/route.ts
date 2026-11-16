@@ -62,6 +62,10 @@ export async function POST(request: Request) {
       extras: quote.extrasLabel || undefined,
       total: quote.total,
       deposit: quote.deposit || undefined,
+      pageUrl: input.pageUrl?.trim() || undefined,
+      utmSource: input.utmSource?.trim() || undefined,
+      utmMedium: input.utmMedium?.trim() || undefined,
+      utmCampaign: input.utmCampaign?.trim() || undefined,
       message:
         `Заявка из калькулятора: ${car.name}, ${days} дн. (${input.startDate} — ${input.endDate}), ` +
         `итог ${quote.total} BYN, залог ${quote.deposit || "по согласованию"} BYN.`,

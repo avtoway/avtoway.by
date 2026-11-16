@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { container } from "@/di/container";
 import { requireAuth } from "@/lib/auth.server";
 import { toApiError, ValidationError } from "@/shared/lib/errors";
+import { deleteLeadCrmData } from "@/shared/lib/lead-cleanup.server";
 import type { ContactRepository } from "@/entities/contact/contact.repository";
 import type { ContactRequestStatus } from "@/entities/contact/contact";
 
@@ -38,6 +39,7 @@ export async function DELETE(request: Request) {
     if (!id) throw new ValidationError("id обязателен");
     const repo = container.get<ContactRepository>("ContactRepository");
     await repo.delete(id);
+    await deleteLeadCrmData("contact", id);
     return NextResponse.json({ ok: true, data: { deleted: id } });
   } catch (e) { return toApiError(e); }
 }

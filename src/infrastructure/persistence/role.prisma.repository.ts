@@ -41,24 +41,30 @@ export class PrismaRoleRepository implements RoleRepository {
   }
 
   async update(id: string, data: { name?: string; description?: string; level?: number; permissions?: string[] }): Promise<void> {
-    const roleData: Record<string, unknown> = {};
-    if (data.name !== undefined) roleData.name = data.name;
-    if (data.description !== undefined) roleData.description = data.description;
-    if (data.level !== undefined) roleData.level = data.level;
-    if (Object.keys(roleData).length > 0) {
-      await this.db.role.update({ where: { id }, data: roleData });
-    }
-    if (data.permissions) {
-      await this.db.rolePermission.deleteMany({ where: { roleId: id } });
-      for (const perm of data.permissions) {
-        await this.db.rolePermission.create({ data: { roleId: id, permission: perm } });
+    await this.db.$transaction(async tx => {
+      const roleData: Record<string, unknown> = {};
+      if (data.name !== undefined) roleData.name = data.name;
+      if (data.description !== undefined) roleData.description = data.description;
+      if (data.level !== undefined) roleData.level = data.level;
+      if (Object.keys(roleData).length > 0) {
+        await tx.role.update({ where: { id }, data: roleData });
       }
-    }
+      if (data.permissions) {
+        await tx.rolePermission.deleteMany({ where: { roleId: id } });
+        if (data.permissions.length > 0) {
+          await tx.rolePermission.createMany({
+            data: data.permissions.map(permission => ({ roleId: id, permission })),
+          });
+        }
+      }
+    });
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.rolePermission.deleteMany({ where: { roleId: id } });
-    await this.db.userRole.deleteMany({ where: { roleId: id } });
-    await this.db.role.delete({ where: { id } });
+    await this.db.$transaction([
+      this.db.rolePermission.deleteMany({ where: { roleId: id } }),
+      this.db.userRole.deleteMany({ where: { roleId: id } }),
+      this.db.role.delete({ where: { id } }),
+    ]);
   }
 }

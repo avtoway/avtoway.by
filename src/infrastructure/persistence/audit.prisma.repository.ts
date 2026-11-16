@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 function toAuditLog(row: any): AuditLog {
   return {
     id: row.id,
-    userId: row.userId,
+    userId: row.userId ?? undefined,
     action: row.action,
     entity: row.entity,
     entityId: row.entityId,

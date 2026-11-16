@@ -109,16 +109,18 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.userRole.deleteMany({ where: { userId: id } });
-    await this.db.profile.deleteMany({ where: { userId: id } });
-    await this.db.user.delete({ where: { id } });
+    await this.db.$transaction([
+      this.db.userRole.deleteMany({ where: { userId: id } }),
+      this.db.profile.deleteMany({ where: { userId: id } }),
+      this.db.user.delete({ where: { id } }),
+    ]);
   }
 
   async assignRoles(userId: string, roleIds: string[]): Promise<void> {
-    await this.db.userRole.deleteMany({ where: { userId } });
-    for (const roleId of roleIds) {
-      await this.db.userRole.create({ data: { userId, roleId } });
-    }
+    await this.db.$transaction([
+      this.db.userRole.deleteMany({ where: { userId } }),
+      ...roleIds.map(roleId => this.db.userRole.create({ data: { userId, roleId } })),
+    ]);
   }
 
   async updateProfile(id: string, data: Record<string, unknown>): Promise<void> {

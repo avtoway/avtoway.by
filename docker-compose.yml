@@ -1,33 +1,16 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: avtoway
-      POSTGRES_PASSWORD: avtoway
-      POSTGRES_DB: avtoway_dev
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U avtoway -d avtoway_dev"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   app:
     build: .
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://avtoway:avtoway@postgres:5432/avtoway_dev"
-      AUTH_SECRET: "avtoway-secret-change-in-production"
+      # SQLite в контейнере; файл лежит на volume, поэтому данные сохраняются.
+      DATABASE_URL: "file:/app/data/avtoway.db"
+      AUTH_SECRET: "${AUTH_SECRET:?Задайте AUTH_SECRET в .env}"
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:?Задайте ENCRYPTION_KEY в .env}"
       NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: >
-      sh -c "npx prisma migrate deploy && npx tsx scripts/seed.ts && npm start"
-
-volumes:
-  pgdata:
+    volumes:
+      - ./data:/app/data
+      - ./public/uploads:/app/public/uploads
+      - ./backups:/app/backups
+    restart: unless-stopped

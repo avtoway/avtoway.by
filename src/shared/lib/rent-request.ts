@@ -31,6 +31,10 @@ export const rentRequestSchema = z
     startDate: z.string().refine(isRealDate, "Некорректная дата начала"),
     endDate: z.string().refine(isRealDate, "Некорректная дата окончания"),
     extraIds: z.array(z.string().min(1).max(64)).max(20, "Слишком много опций").optional(),
+    pageUrl: z.string().trim().max(1000).optional().or(z.literal("")),
+    utmSource: z.string().trim().max(200).optional().or(z.literal("")),
+    utmMedium: z.string().trim().max(200).optional().or(z.literal("")),
+    utmCampaign: z.string().trim().max(200).optional().or(z.literal("")),
   })
   .superRefine((value, ctx) => {
     const phone = value.phone?.trim();

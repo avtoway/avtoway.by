@@ -66,7 +66,13 @@ npm run build
 npm run start   # :3000
 ```
 
-Для продакшена с PostgreSQL: `docker compose up -d` (см. docker-compose.yml), затем `DATABASE_URL=postgresql://... npx prisma migrate deploy`.
+Для продакшена используется SQLite на volume (см. `docker-compose.yml` и `Dockerfile`):
+
+```bash
+docker compose up -d --build
+```
+
+Важно: `AUTH_SECRET` и `ENCRYPTION_KEY` обязательны — без них production-вход в админку заблокирован по соображениям безопасности. Папки `data`, `public/uploads` и `backups` монтируются как volume, поэтому база и загруженные файлы сохраняются между перезапусками.
 
 ## Примечания
 

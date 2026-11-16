@@ -102,13 +102,16 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     if (data.ogImage !== undefined) values.push([KEYS.ogImage, data.ogImage]);
     if (data.noindex !== undefined) values.push([KEYS.noindex, String(data.noindex)]);
 
-    for (const [key, value] of values) {
-      await db.setting.upsert({
-        where: { key },
-        update: { value },
-        create: { key, value },
-      });
-    }
+    if (values.length === 0) return this.getSettings();
+    await db.$transaction(
+      values.map(([key, value]) =>
+        db.setting.upsert({
+          where: { key },
+          update: { value },
+          create: { key, value },
+        }),
+      ),
+    );
     return this.getSettings();
   }
 

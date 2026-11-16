@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface DashLog {
-  id: string; userId: string; action: string; entity: string; entityId: string;
+  id: string; userId?: string; action: string; entity: string; entityId: string;
   createdAt: string; userName?: string; userLogin?: string; details?: string | null;
 }
 
@@ -26,7 +26,7 @@ const ENTITY_LABEL: Record<string, string> = {
 };
 
 function describeLog(log: DashLog): string {
-  const who = log.userName || log.userLogin || log.userId.slice(0, 8);
+  const who = log.userName || log.userLogin || (log.userId ? log.userId.slice(0, 8) : "удалённый сотрудник");
   const action = ACTION_LABEL[log.action] || log.action.toLowerCase();
   const entity = ENTITY_LABEL[log.entity] || log.entity.toLowerCase();
 

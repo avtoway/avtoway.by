@@ -91,6 +91,10 @@ export const saleRequestSchema = z.object({
   offerPrice: z.coerce.number().int().min(0).max(10_000_000).optional().nullable(),
   comment: optionalText(2000),
   company: z.string().max(0).optional(),
+  pageUrl: optionalText(1000),
+  utmSource: optionalText(200),
+  utmMedium: optionalText(200),
+  utmCampaign: optionalText(200),
 });
 
 export const saleRequestStatusUpdateSchema = z.object({

@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { toApiError } from "@/shared/lib/errors";
+import { deleteLeadCrmData } from "@/shared/lib/lead-cleanup.server";
 import { saleRequestStatusUpdateSchema } from "@/entities/sell/sale-car.schema";
 import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
 
@@ -40,6 +41,7 @@ export async function DELETE(_: Request, { params }: Props) {
     const user = await requireAuth("sell.manage");
     const { id } = await params;
     await repo().deleteRequest(id);
+    await deleteLeadCrmData("sale", id);
     await createAuditLog({
       userId: user.id, action: "DELETE", entity: "SaleRequest", entityId: id,
     });

@@ -122,6 +122,10 @@ function toRequest(row: any): SaleRequest {
     offerPrice: row.offerPrice ?? undefined,
     comment: row.comment ?? undefined,
     status: row.status,
+    pageUrl: row.pageUrl ?? undefined,
+    utmSource: row.utmSource ?? undefined,
+    utmMedium: row.utmMedium ?? undefined,
+    utmCampaign: row.utmCampaign ?? undefined,
     createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
     updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : String(row.updatedAt),
   };
@@ -405,6 +409,10 @@ export class PrismaSaleCarRepository implements SaleCarRepository {
         offerPrice: data.offerPrice ?? null,
         comment: data.comment || null,
         status: data.status ?? "new",
+        pageUrl: data.pageUrl || null,
+        utmSource: data.utmSource || null,
+        utmMedium: data.utmMedium || null,
+        utmCampaign: data.utmCampaign || null,
       },
       include: { car: true },
     });
