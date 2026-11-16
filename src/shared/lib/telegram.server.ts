@@ -1,6 +1,7 @@
 import "server-only";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { decryptSecret, encryptSecret } from "@/shared/lib/encryption";
+import { sendEmail } from "@/shared/lib/mail";
 import { SITE_URL } from "@/shared/config/site";
 import { logger } from "@/shared/lib/logger";
 
@@ -133,6 +134,39 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
+/** Дублирует заявку на email из контактов, если SMTP настроен. */
+async function notifyLeadByEmail(lead: LeadNotification): Promise<void> {
+  try {
+    const db = getPrismaClient();
+    const [smtp, contact] = await Promise.all([
+      db.setting.findUnique({ where: { key: "smtp_host" } }),
+      db.contact.findFirst(),
+    ]);
+    if (!smtp?.value || !contact?.email) return;
+
+    const lines = [
+      `<p><b>Новая заявка</b></p>`,
+      `<p><b>Источник:</b> ${escapeHtml(lead.source)}</p>`,
+      lead.service ? `<p><b>Услуга:</b> ${escapeHtml(lead.service)}</p>` : "",
+      `<p><b>Имя:</b> ${escapeHtml(lead.name)}</p>`,
+      lead.phone ? `<p><b>Телефон:</b> ${escapeHtml(lead.phone)}</p>` : "",
+      lead.email ? `<p><b>Email:</b> ${escapeHtml(lead.email)}</p>` : "",
+      lead.message ? `<p><b>Сообщение:</b> ${escapeHtml(lead.message.slice(0, 1000))}</p>` : "",
+      lead.utm ? `<p><b>UTM:</b> ${escapeHtml(lead.utm)}</p>` : "",
+      lead.pageUrl ? `<p><b>Страница:</b> ${escapeHtml(lead.pageUrl.slice(0, 300))}</p>` : "",
+      `<p><a href="${SITE_URL}/admin/requests">Открыть заявки в админке</a></p>`,
+    ].filter(Boolean);
+
+    await sendEmail(
+      contact.email,
+      `Новая заявка: ${lead.source} — ${lead.name}`,
+      lines.join("\n"),
+    );
+  } catch (error) {
+    logger.warn("email: notifyNewLead failed", { error: String(error) });
+  }
+}
+
 /** Уведомление о новой заявке. Не блокирует ответ клиенту. */
 export function notifyNewLead(lead: LeadNotification): void {
   const lines = [
@@ -151,4 +185,5 @@ export function notifyNewLead(lead: LeadNotification): void {
   void sendTelegramMessage(lines.join("\n")).catch(error => {
     logger.warn("telegram: notifyNewLead failed", { error: String(error) });
   });
+  void notifyLeadByEmail(lead);
 }
