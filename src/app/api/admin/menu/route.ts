@@ -72,6 +72,7 @@ export async function GET() {
     { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
     { label: "Вакансии", icon: "briefcase", href: "/admin/vacancies", perm: "vacancies." },
     { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined },
+    { label: "Отчёты осмотра", icon: "document-text", href: "/admin/reports", anyPerm: ["autopodbor.manage", "autopodbor.requests", "autopodbor.view"] },
     { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
     { label: "Заявки", icon: "document-text", href: "/admin/requests", anyPerm: LEAD_ACCESS_PERMS },
     { label: "Клиенты", icon: "users", href: "/admin/clients", anyPerm: LEAD_ACCESS_PERMS },

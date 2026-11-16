@@ -109,9 +109,10 @@ export function proxy(request: NextRequest) {
     }
 
     if (
-      pathname.startsWith("/admin/inspection") &&
+      (pathname.startsWith("/admin/inspection") || pathname.startsWith("/admin/reports")) &&
       !perms.includes("autopodbor.manage") &&
-      !perms.includes("autopodbor.view")
+      !perms.includes("autopodbor.view") &&
+      !perms.includes("autopodbor.requests")
     ) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }

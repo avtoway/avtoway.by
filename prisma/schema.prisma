@@ -911,3 +911,27 @@ model SystemEvent {
   @@index([source, createdAt])
   @@map("system_events")
 }
+
+model InspectionReport {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  leadId      String?  @map("lead_id")
+  clientName  String?  @map("client_name")
+  clientPhone String?  @map("client_phone")
+  carTitle    String   @map("car_title")
+  vin         String?
+  mileageKm   Int?     @map("mileage_km")
+  inspectedAt String?  @map("inspected_at")
+  verdict     String   @default("recommended")
+  summary     String?
+  checklist   String?
+  expenses    String?
+  photos      String?
+  isPublished Boolean  @default(false) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([isPublished, createdAt])
+  @@index([leadId])
+  @@map("inspection_reports")
+}
