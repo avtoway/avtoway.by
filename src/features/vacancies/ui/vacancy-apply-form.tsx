@@ -5,6 +5,7 @@ import Link from "next/link";
 import LandingIcon from "@/features/service-landings/ui/icon";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 import { trackLead } from "@/shared/lib/analytics";
+import ConsentNote from "@/shared/ui/consent-note";
 
 const input =
   "w-full rounded-xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500";
@@ -132,6 +133,7 @@ export default function VacancyApplyForm({
             {status === "sending" ? "Отправляем..." : "Отправить отклик"}
             {status !== "sending" && <LandingIcon name="arrow-right" className="h-4 w-4" />}
           </button>
+          <ConsentNote />
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-600">
             <span>Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.</span>

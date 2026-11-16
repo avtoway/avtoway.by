@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SaleRequestInput } from "@/entities/sell/sale-car.types";
 import { trackLead } from "@/shared/lib/analytics";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import ConsentNote from "@/shared/ui/consent-note";
 
 const inputCls =
   "w-full rounded-xl border border-zinc-700 bg-zinc-950/60 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-red-500";
@@ -151,9 +152,7 @@ export default function SaleRequestForm({
       >
         {sending ? "Отправляем..." : submitLabel ?? (type === "sell_own" ? "Оценить моё авто" : "Отправить заявку")}
       </button>
-      <p className="text-[10px] leading-relaxed text-zinc-600">
-        Нажимая кнопку, вы соглашаетесь на обработку персональных данных.
-      </p>
+      <ConsentNote />
     </form>
   );
 }

@@ -7,6 +7,7 @@ import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
 import { trackLead } from "@/shared/lib/analytics";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import ConsentNote from "@/shared/ui/consent-note";
 
 interface Car {
   id: string; name: string; slug: string; brand?: string; model?: string;
@@ -371,6 +372,7 @@ export default function RentCalculatorPage() {
                         className="w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
                         {submitting ? "Отправка..." : "Отправить заявку"}
                       </button>
+                      <ConsentNote />
                       {submitError && <p className="text-xs text-red-400">{submitError}</p>}
                       <p className="text-[10px] text-zinc-600">Это предварительный расчёт. Точную смету согласуем до начала аренды.</p>
                     </div>

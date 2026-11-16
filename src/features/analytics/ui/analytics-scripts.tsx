@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { trackEvent } from "@/shared/lib/analytics";
 
 const YANDEX_SNIPPET = (id: string, webvisor: boolean) => `
@@ -33,6 +33,21 @@ export default function AnalyticsScripts({
 }) {
   const safeYmId = (ymId ?? "").replace(/\D/g, "");
 
+  // Счётчики грузим только после согласия на cookie (Закон № 99-З).
+  const [allowed, setAllowed] = useState(false);
+  useEffect(() => {
+    const read = () => {
+      try {
+        setAllowed(localStorage.getItem("avtoway:cookie-consent") === "accepted");
+      } catch {
+        setAllowed(false);
+      }
+    };
+    read();
+    window.addEventListener("avtoway:cookie-consent", read);
+    return () => window.removeEventListener("avtoway:cookie-consent", read);
+  }, []);
+
   useEffect(() => {
     function onClick(event: MouseEvent) {
       const target = event.target;
@@ -46,6 +61,8 @@ export default function AnalyticsScripts({
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
   }, []);
+
+  if (!allowed) return null;
 
   return (
     <>

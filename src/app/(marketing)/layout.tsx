@@ -1,6 +1,7 @@
 import SiteHeader from "@/shared/ui/site-header";
 import SiteFooter from "@/shared/ui/site-footer";
 import AnalyticsScripts from "@/features/analytics/ui/analytics-scripts";
+import CookieConsent from "@/features/analytics/ui/cookie-consent";
 import { getAnalyticsSettings } from "@/features/analytics/lib/get-settings";
 
 export default async function MarketingLayout({
@@ -15,6 +16,7 @@ export default async function MarketingLayout({
       <SiteHeader />
       <main>{children}</main>
       <SiteFooter />
+      <CookieConsent />
       {settings && (
         <AnalyticsScripts
           gaId={settings.gaId}

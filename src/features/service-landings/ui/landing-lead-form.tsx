@@ -5,6 +5,7 @@ import Link from "next/link";
 import LandingIcon from "./icon";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 import { trackLead } from "@/shared/lib/analytics";
+import ConsentNote from "@/shared/ui/consent-note";
 
 const BUTTONS: Record<string, string> = {
   red: "bg-primary hover:bg-primary-dark hover:shadow-primary/20",
@@ -141,6 +142,7 @@ export default function LandingLeadForm({
             {status === "sending" ? "Отправляем..." : submitLabel}
             {status !== "sending" && <LandingIcon name="arrow-right" className="h-4 w-4" />}
           </button>
+          <ConsentNote />
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-600">
             <span>Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.</span>
