@@ -124,7 +124,7 @@ export default function Carousel<T>({
           </button>
         )}
 
-        <div className="flex items-stretch" style={{ gap }}>
+        <div className="flex items-stretch py-2" style={{ gap }}>
           {elements}
         </div>
 

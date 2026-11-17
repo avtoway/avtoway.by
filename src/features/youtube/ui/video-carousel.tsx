@@ -20,7 +20,7 @@ export default function VideoCarousel({ videos }: { videos: Video[] }) {
             href={getVideoUrl(video.id)}
             target="_blank"
             rel="noopener noreferrer"
-            className="group/card block h-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/50 transition-all duration-500 hover:-translate-y-1 hover:border-zinc-600 hover:shadow-xl hover:shadow-red-500/10"
+            className="group/card block h-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/50 transition duration-300 hover:border-zinc-600 hover:shadow-xl hover:shadow-red-500/10"
           >
             <div className="relative aspect-video overflow-hidden bg-zinc-800">
               <Image
@@ -28,7 +28,7 @@ export default function VideoCarousel({ videos }: { videos: Video[] }) {
                 alt={video.title}
                 fill
                 sizes="360px"
-                className="object-cover"
+                className="object-cover transition-transform duration-500 group-hover/card:scale-105"
                 loading="lazy"
               />
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
