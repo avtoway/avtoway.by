@@ -8,6 +8,7 @@ import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repo
 import type { AutoPodborCase } from "@/entities/autopodbor/autopodbor.types";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { casePhotos } from "@/features/autopodbor/lib/case-photos";
+import { getActiveServices } from "@/shared/lib/active-services.server";
 
 export const revalidate = 300;
 
@@ -49,6 +50,7 @@ export default async function WorkPage({ params }: Props) {
   const item = await getCase(slug);
   if (!item) notFound();
 
+  const inspectionActive = (await getActiveServices()).some(service => service.slug === "inspection");
   const photos = casePhotos(item);
   const money = (value?: number) => (value != null ? `${value.toLocaleString("ru-RU")} BYN` : undefined);
   const facts = [
@@ -121,8 +123,11 @@ export default async function WorkPage({ params }: Props) {
         <section className="mt-8 rounded-3xl border border-red-500/20 bg-gradient-to-br from-red-950/30 via-zinc-900/50 to-zinc-950 p-6 text-center sm:p-8">
           <h2 className="text-xl font-bold text-white">Хотите такой же результат?</h2>
           <p className="mt-2 text-sm text-zinc-400">Подберём авто под ваш бюджет и задачу, проверим и сторгуем.</p>
-          <Link href="/services/inspection" className="mt-5 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-white">
-            Заказать автоподбор
+          <Link
+            href={inspectionActive ? "/services/inspection" : "/contacts"}
+            className="mt-5 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-white"
+          >
+            {inspectionActive ? "Заказать автоподбор" : "Связаться с нами"}
           </Link>
         </section>
       </div>

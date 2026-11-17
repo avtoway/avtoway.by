@@ -8,6 +8,7 @@ import type { AutoPodborCase } from "@/entities/autopodbor/autopodbor.types";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { casePhotos } from "@/features/autopodbor/lib/case-photos";
 import AdSlotBlock from "@/features/ads/ui/ad-slot";
+import { getActiveServices } from "@/shared/lib/active-services.server";
 
 export const revalidate = 300;
 
@@ -33,6 +34,7 @@ interface Props {
 
 export default async function WorksPage({ searchParams }: Props) {
   const { brand } = await searchParams;
+  const inspectionActive = (await getActiveServices()).some(service => service.slug === "inspection");
   let cases: AutoPodborCase[] = [];
   try {
     cases = await container.get<AutoPodborRepository>("AutoPodborRepository").getCases(true);
@@ -83,7 +85,12 @@ export default async function WorksPage({ searchParams }: Props) {
           <div className="rounded-2xl border border-dashed border-zinc-800 p-12 text-center">
             <p className="text-sm text-zinc-400">Кейсы появятся здесь после первых завершённых подборов.</p>
             <p className="mt-2 text-xs text-zinc-600">
-              Хотите стать первым? <Link href="/services/inspection" className="text-red-300 underline">Заказать автоподбор</Link>
+              Хотите стать первым?{" "}
+              {inspectionActive ? (
+                <Link href="/services/inspection" className="text-red-300 underline">Заказать автоподбор</Link>
+              ) : (
+                <Link href="/contacts" className="text-red-300 underline">Связаться с нами</Link>
+              )}
             </p>
           </div>
         ) : (

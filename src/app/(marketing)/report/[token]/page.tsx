@@ -8,6 +8,7 @@ import type { InspectionReportRepository } from "@/entities/report/report.reposi
 import type { ContactInfoRepository } from "@/entities/contact/contact-info.repository";
 import type { InspectionReport, ReportCheckStatus, ReportVerdict } from "@/entities/report/report.types";
 import PrintReportButton from "@/features/autopodbor/ui/print-report-button";
+import { getActiveServices } from "@/shared/lib/active-services.server";
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -69,7 +70,11 @@ export default async function ReportPage({ params }: Props) {
   const report = await getReport(token);
   if (!report || !report.isPublished) notFound();
 
-  const contact = await container.get<ContactInfoRepository>("ContactInfoRepository").get();
+  const [contact, services] = await Promise.all([
+    container.get<ContactInfoRepository>("ContactInfoRepository").get(),
+    getActiveServices(),
+  ]);
+  const inspectionActive = services.some(service => service.slug === "inspection");
   const verdict = VERDICT[report.verdict] ?? VERDICT.recommended;
   const groups = groupChecklist(report);
   const expensesTotal = report.expenses.reduce((sum, item) => sum + item.amount, 0);
@@ -80,8 +85,11 @@ export default async function ReportPage({ params }: Props) {
     <div className="min-h-screen bg-zinc-950 pb-20 pt-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <Link href="/services/inspection" className="text-xs text-zinc-500 transition hover:text-white">
-            ← Автоподбор АВТОWAY
+          <Link
+            href={inspectionActive ? "/services/inspection" : "/"}
+            className="text-xs text-zinc-500 transition hover:text-white"
+          >
+            {inspectionActive ? "← Автоподбор АВТОWAY" : "← На главную"}
           </Link>
           <PrintReportButton />
         </div>
@@ -190,8 +198,11 @@ export default async function ReportPage({ params }: Props) {
             Осмотр кузова, техники и документов с отчётом и рекомендациями по торгу.
           </p>
           <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/services/inspection" className="inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-white">
-              Заказать проверку
+            <Link
+              href={inspectionActive ? "/services/inspection" : "/contacts"}
+              className="inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-white"
+            >
+              {inspectionActive ? "Заказать проверку" : "Связаться с нами"}
             </Link>
             {contact?.phone && (
               <a
