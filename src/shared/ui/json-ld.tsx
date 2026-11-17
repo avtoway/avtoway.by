@@ -1,6 +1,7 @@
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { SITE_URL } from "@/shared/config/site";
 import { telegramUrl } from "@/shared/lib/social";
+import { getActiveServices } from "@/shared/lib/active-services.server";
 
 /** JSON-LD безопасно встраивается в <script>: экранируем `<`, чтобы нельзя было закрыть тег. */
 function serialize(schema: unknown): string {
@@ -9,7 +10,7 @@ function serialize(schema: unknown): string {
 
 export async function OrganizationSchema() {
   const db = getPrismaClient();
-  const contact = await db.contact.findFirst();
+  const [contact, services] = await Promise.all([db.contact.findFirst(), getActiveServices()]);
   const sameAs: string[] = [];
   const telegram = contact?.telegram ? telegramUrl(contact.telegram) : null;
   if (telegram) sameAs.push(telegram);
@@ -26,6 +27,25 @@ export async function OrganizationSchema() {
     logo: `${SITE_URL}/images/avatar.webp`,
     description: "Личный бренд и проекты про автомобили. Честные обзоры, ремонты, лайфхаки и полезные услуги.",
     sameAs,
+    ...(contact?.phone ? { telephone: contact.phone } : {}),
+    ...(contact?.email ? { email: contact.email } : {}),
+    ...(contact?.address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: contact.address,
+            addressLocality: "Минск",
+            addressCountry: "BY",
+          },
+        }
+      : {}),
+    areaServed: [
+      { "@type": "City", name: "Минск" },
+      { "@type": "Country", name: "Беларусь" },
+    ],
+    ...(services.length
+      ? { knowsAbout: services.map(service => service.title) }
+      : {}),
   };
 
   return (

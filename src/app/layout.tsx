@@ -4,6 +4,7 @@ import "@/di/composition-root";
 import { SITE_URL } from "@/shared/config/site";
 import { OrganizationSchema } from "@/shared/ui/json-ld";
 import { getAnalyticsSettings } from "@/features/analytics/lib/get-settings";
+import { getActiveServices } from "@/shared/lib/active-services.server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,11 +22,13 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getAnalyticsSettings();
+  const [settings, services] = await Promise.all([getAnalyticsSettings(), getActiveServices()]);
   const defaultTitle = settings?.seoTitle?.trim() || "АВТОWAY — автомобильные услуги в Минске";
-  const defaultDescription =
-    settings?.seoDescription?.trim() ||
-    "АВТОWAY — аренда авто, автоподбор, эвакуатор, автопригон, автосервис и грузоперевозки в Минске.";
+  const serviceList = services.map(service => service.title).join(", ");
+  const fallbackDescription = serviceList
+    ? `АВТОWAY — ${serviceList} в Минске и Беларуси.`
+    : "АВТОWAY — автомобильные услуги в Минске и Беларуси.";
+  const defaultDescription = settings?.seoDescription?.trim() || fallbackDescription;
   const noindex = settings?.noindex ?? false;
 
   const verification: Metadata["verification"] = {};

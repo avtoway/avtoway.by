@@ -111,6 +111,14 @@ export function proxy(request: NextRequest) {
     }
 
     if (
+      pathname.startsWith("/admin/promotion") &&
+      !perms.includes("services.manage") &&
+      !perms.includes("audit.view")
+    ) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (
       (pathname.startsWith("/admin/inspection") || pathname.startsWith("/admin/reports")) &&
       !perms.includes("autopodbor.manage") &&
       !perms.includes("autopodbor.view") &&

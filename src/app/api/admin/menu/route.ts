@@ -30,8 +30,10 @@ export async function GET() {
 
   // Services from DB (single source of truth). Only "rent" has a dedicated
   // admin module; other services are managed via the "Все услуги" page.
+  // Для меню берём все услуги, включая скрытые: иначе, скрыв аренду,
+  // администратор потеряет доступ к её управлению.
   const serviceRepo = container.get<ServiceRepository>("ServiceRepository");
-  const services = await serviceRepo.getActive();
+  const services = await serviceRepo.getAll();
 
   const serviceChildren: MenuItem[] = [];
   if (services.some(s => s.slug === "rent")) {
@@ -80,6 +82,8 @@ export async function GET() {
     { label: "Задачи", icon: "document-text", href: "/admin/tasks", anyPerm: LEAD_ACCESS_PERMS },
     { label: "Уведомления", icon: "bell", href: "/admin/notifications", perm: "audit.view" },
     { label: "Аналитика", icon: "chart", href: "/admin/analytics", perm: "audit.view" },
+    { label: "Продвижение", icon: "chart", href: "/admin/promotion", anyPerm: ["services.manage", "audit.view"] },
+    { label: "Справка", icon: "document-text", href: "/admin/help" },
     { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
     { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
     { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles" },

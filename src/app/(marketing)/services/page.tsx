@@ -7,6 +7,8 @@ import type { Metadata } from "next";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import LandingIcon from "@/features/service-landings/ui/icon";
 import ServicesEmptyState from "@/features/service-page/ui/services-empty-state";
+import { getActiveServices } from "@/shared/lib/active-services.server";
+import AdSlotBlock from "@/features/ads/ui/ad-slot";
 
 const SERVICE_ICON: Record<string, string> = {
   rent: "car",
@@ -20,17 +22,24 @@ const SERVICE_ICON: Record<string, string> = {
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Услуги",
-  description:
-    "Услуги АВТОWAY: аренда авто, автоподбор, эвакуатор, автопригон, автосервис, продажа авто и грузоперевозки по Минску и Беларуси.",
-  alternates: { canonical: "/services" },
-  openGraph: {
-    title: "Услуги | АВТОWAY",
-    description: "Аренда, автоподбор, эвакуатор, автопригон, автосервис и грузоперевозки.",
-    url: "/services",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const services = await getActiveServices();
+  const titles = services.map(service => service.title);
+  const description = titles.length
+    ? `Услуги АВТОWAY: ${titles.join(", ")}. Минск и вся Беларусь.`
+    : "Услуги АВТОWAY. Минск и вся Беларусь.";
+
+  return {
+    title: "Услуги",
+    description,
+    alternates: { canonical: "/services" },
+    openGraph: {
+      title: "Услуги | АВТОWAY",
+      description,
+      url: "/services",
+    },
+  };
+}
 
 export default async function ServicesPage() {
   const repo = container.get<ServiceRepository>("ServiceRepository");
@@ -69,7 +78,7 @@ export default async function ServicesPage() {
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">Наши услуги</h1>
           <p className="mt-3 text-base text-zinc-400 max-w-xl mx-auto">
-            Аренда, автоподбор, эвакуатор, автопригон, автосервис и грузоперевозки.
+            {services.map(service => service.title).join(" · ")}.
           </p>
         </div>
 
@@ -124,6 +133,7 @@ export default async function ServicesPage() {
           })}
         </div>
 
+        <AdSlotBlock slotKey="services_bottom" />
       </div>
     </div>
   );

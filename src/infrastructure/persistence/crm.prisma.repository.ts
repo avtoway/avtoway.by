@@ -318,26 +318,30 @@ export class PrismaCrmRepository implements CrmRepository {
     const db = getPrismaClient();
     const allowed = new Set<LeadSource>(sources ?? LEAD_SOURCES_ORDER);
     // Лёгкая выборка: только поля, нужные для агрегации. Никаких сообщений и JSON-полей.
-    const select = {
-      name: true,
-      email: true,
+    const commonSelect = {
       status: true,
       createdAt: true,
       normalizedPhone: true,
     } as const;
+    const personSelect = { ...commonSelect, name: true, email: true } as const;
 
     const [contacts, rents, sales, autos] = await Promise.all([
       allowed.has("contact")
-        ? db.contactRequest.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        ? db.contactRequest.findMany({ where: { normalizedPhone: { not: null } }, select: personSelect, orderBy: { createdAt: "desc" }, take: 5000 })
         : Promise.resolve([]),
       allowed.has("rent")
-        ? db.rentRequest.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        ? db.rentRequest.findMany({ where: { normalizedPhone: { not: null } }, select: personSelect, orderBy: { createdAt: "desc" }, take: 5000 })
         : Promise.resolve([]),
       allowed.has("sale")
-        ? db.saleRequest.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        ? db.saleRequest.findMany({
+            where: { normalizedPhone: { not: null } },
+            select: { ...commonSelect, clientName: true },
+            orderBy: { createdAt: "desc" },
+            take: 5000,
+          })
         : Promise.resolve([]),
       allowed.has("autopodbor")
-        ? db.autoPodborLead.findMany({ where: { normalizedPhone: { not: null } }, select, orderBy: { createdAt: "desc" }, take: 5000 })
+        ? db.autoPodborLead.findMany({ where: { normalizedPhone: { not: null } }, select: personSelect, orderBy: { createdAt: "desc" }, take: 5000 })
         : Promise.resolve([]),
     ]);
 
@@ -345,7 +349,17 @@ export class PrismaCrmRepository implements CrmRepository {
     const rows: Array<{ row: Row; source: LeadSource }> = [
       ...contacts.map(row => ({ row: row as Row, source: "contact" as const })),
       ...rents.map(row => ({ row: row as Row, source: "rent" as const })),
-      ...sales.map(row => ({ row: row as Row, source: "sale" as const })),
+      // В заявках на продажу поле называется clientName и email не хранится.
+      ...sales.map(row => ({
+        row: {
+          name: row.clientName,
+          email: null,
+          status: row.status,
+          createdAt: row.createdAt,
+          normalizedPhone: row.normalizedPhone,
+        },
+        source: "sale" as const,
+      })),
       ...autos.map(row => ({ row: row as Row, source: "autopodbor" as const })),
     ];
 

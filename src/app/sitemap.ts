@@ -10,10 +10,6 @@ const STATIC_ENTRIES: Entry[] = [
   { url: SITE_URL, priority: 1.0, changeFrequency: "weekly" },
   { url: `${SITE_URL}/about`, priority: 0.8, changeFrequency: "monthly" },
   { url: `${SITE_URL}/services`, priority: 0.9, changeFrequency: "weekly" },
-  { url: `${SITE_URL}/services/inspection`, priority: 0.9, changeFrequency: "weekly" },
-  { url: `${SITE_URL}/services/sell`, priority: 0.9, changeFrequency: "weekly" },
-  { url: `${SITE_URL}/services/rent`, priority: 0.9, changeFrequency: "weekly" },
-  { url: `${SITE_URL}/services/rent/calculator`, priority: 0.7, changeFrequency: "monthly" },
   { url: `${SITE_URL}/works`, priority: 0.7, changeFrequency: "weekly" },
   { url: `${SITE_URL}/blog`, priority: 0.7, changeFrequency: "weekly" },
   { url: `${SITE_URL}/contacts`, priority: 0.6, changeFrequency: "monthly" },
@@ -21,6 +17,13 @@ const STATIC_ENTRIES: Entry[] = [
   { url: `${SITE_URL}/vacancies`, priority: 0.6, changeFrequency: "weekly" },
   { url: `${SITE_URL}/privacy`, priority: 0.3, changeFrequency: "yearly" },
 ];
+
+/** Приоритет посадочных страниц услуг. Сами страницы добавляются только для активных услуг. */
+const SERVICE_PRIORITY: Record<string, number> = {
+  inspection: 0.9,
+  sell: 0.9,
+  rent: 0.9,
+};
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries = new Map<string, Entry>(STATIC_ENTRIES.map((entry) => [entry.url, entry]));
@@ -60,12 +63,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const service of services) {
       const url = `${SITE_URL}/services/${service.slug}`;
-      if (!entries.has(url)) {
-        entries.set(url, {
-          url,
+      entries.set(url, {
+        url,
+        lastModified: service.updatedAt,
+        priority: SERVICE_PRIORITY[service.slug] ?? 0.7,
+        changeFrequency: "weekly",
+      });
+      if (service.slug === "rent") {
+        const calculator = `${SITE_URL}/services/rent/calculator`;
+        entries.set(calculator, {
+          url: calculator,
           lastModified: service.updatedAt,
-          priority: service.slug === "inspection" ? 0.9 : 0.7,
-          changeFrequency: "weekly",
+          priority: 0.7,
+          changeFrequency: "monthly",
         });
       }
     }

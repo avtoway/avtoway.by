@@ -77,7 +77,11 @@ export default function AdminDashboard() {
     { href: "/admin/profile", label: "Мой профиль", desc: "Редактировать личные данные", show: true, color: "border-red-800/40 hover:border-red-600" },
     { href: "/admin/users", label: "Сотрудники", desc: "Управление пользователями", show: hasPerm("users.manage"), color: "border-blue-800/40 hover:border-blue-600" },
     { href: "/admin/roles", label: "Роли и доступы", desc: "Настройка ролей и прав", show: hasPerm("users.roles"), color: "border-purple-800/40 hover:border-purple-600" },
-    { href: "/admin/services", label: "Услуги", desc: "Список и редактирование услуг", show: hasPerm("services.manage"), color: "border-green-800/40 hover:border-green-600" },
+    { href: "/admin/services", label: "Услуги", desc: "Список, порядок и видимость услуг на сайте", show: hasPerm("services.manage"), color: "border-green-800/40 hover:border-green-600" },
+    { href: "/admin/blog", label: "Блог", desc: "Статьи для SEO и доверия", show: hasPerm("services.manage"), color: "border-emerald-800/40 hover:border-emerald-600" },
+    { href: "/admin/reports", label: "Отчёты осмотра", desc: "Цифровые отчёты и ссылки клиентам", show: hasPerm("autopodbor.manage") || hasPerm("autopodbor.view") || hasPerm("autopodbor.requests"), color: "border-cyan-800/40 hover:border-cyan-600" },
+    { href: "/admin/promotion", label: "Продвижение", desc: "Кампании, UTM и рекламные блоки", show: hasPerm("services.manage") || hasPerm("audit.view"), color: "border-orange-800/40 hover:border-orange-600" },
+    { href: "/admin/help", label: "Справка", desc: "Инструкции и Word-документы", show: true, color: "border-zinc-700 hover:border-zinc-500" },
     { href: "/admin/partners", label: "Партнёры", desc: "Управление партнёрами", show: hasPerm("partners.manage"), color: "border-amber-800/40 hover:border-amber-600" },
     { href: "/admin/audit-logs", label: "Аудит", desc: "Журнал действий", show: hasPerm("audit.view"), color: "border-zinc-700 hover:border-zinc-500" },
   ];

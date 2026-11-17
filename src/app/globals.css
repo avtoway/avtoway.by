@@ -162,3 +162,60 @@ body {
 .animate-slide-up {
   animation: slide-up 0.25s ease-out;
 }
+
+/* ── Анимации витрины ───────────────────────────────────────── */
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 34s linear infinite;
+}
+
+@keyframes text-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-text-shimmer {
+  background-size: 200% 100%;
+  animation: text-shimmer 6s ease-in-out infinite;
+}
+
+/* Блик, пробегающий по карточке при наведении. */
+@keyframes card-sheen {
+  from { transform: translateX(-120%) skewX(-18deg); }
+  to { transform: translateX(320%) skewX(-18deg); }
+}
+
+.animate-card-sheen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+  pointer-events: none;
+}
+
+.animate-card-sheen:hover::after {
+  animation: card-sheen 0.9s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-text-shimmer,
+  .animate-card-sheen::after {
+    animation: none;
+  }
+  .animate-marquee {
+    flex-wrap: wrap;
+    width: auto;
+    justify-content: center;
+    row-gap: 0.75rem;
+  }
+}

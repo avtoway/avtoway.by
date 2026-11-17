@@ -7,6 +7,7 @@ import type { AutoPodborRepository } from "@/entities/autopodbor/autopodbor.repo
 import type { AutoPodborCase } from "@/entities/autopodbor/autopodbor.types";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { casePhotos } from "@/features/autopodbor/lib/case-photos";
+import AdSlotBlock from "@/features/ads/ui/ad-slot";
 
 export const revalidate = 300;
 
@@ -117,6 +118,7 @@ export default async function WorksPage({ searchParams }: Props) {
             })}
           </div>
         )}
+        <AdSlotBlock slotKey="works_bottom" />
       </div>
     </div>
   );

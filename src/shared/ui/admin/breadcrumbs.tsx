@@ -28,6 +28,10 @@ const FALLBACK: Record<string, string> = {
   "/admin/truck": "Эвакуатор",
   "/admin/import": "Автопригон",
   "/admin/service": "Автосервис",
+  "/admin/reports": "Отчёты осмотра",
+  "/admin/blog": "Блог",
+  "/admin/promotion": "Продвижение",
+  "/admin/help": "Справка",
 };
 
 function getLabel(path: string, items: MenuItem[]): string | null {

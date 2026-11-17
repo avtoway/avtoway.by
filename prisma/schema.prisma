@@ -954,3 +954,45 @@ model BlogPost {
   @@index([isPublished, publishedAt])
   @@map("blog_posts")
 }
+
+model PromotionCampaign {
+  id          String   @id @default(uuid())
+  title       String
+  channel     String
+  status      String   @default("planned")
+  budget      Int?
+  spend       Int?
+  startDate   String?  @map("start_date")
+  endDate     String?  @map("end_date")
+  targetUrl   String?  @map("target_url")
+  utmSource   String?  @map("utm_source")
+  utmMedium   String?  @map("utm_medium")
+  utmCampaign String?  @map("utm_campaign")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@map("promotion_campaigns")
+}
+
+model AdSlot {
+  id          String    @id @default(uuid())
+  key         String    @unique
+  title       String
+  placement   String
+  html        String?
+  imageUrl    String?   @map("image_url")
+  targetUrl   String?   @map("target_url")
+  height      Int       @default(250)
+  isActive    Boolean   @default(false) @map("is_active")
+  startsAt    DateTime? @map("starts_at")
+  endsAt      DateTime? @map("ends_at")
+  impressions Int       @default(0)
+  clicks      Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("ad_slots")
+}
+

@@ -8,6 +8,7 @@ import type { BlogRepository } from "@/entities/blog/blog.repository";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import CrossSell from "@/shared/ui/cross-sell";
 import { SITE_URL } from "@/shared/config/site";
+import AdSlotBlock from "@/features/ads/ui/ad-slot";
 
 export const revalidate = 300;
 
@@ -135,6 +136,8 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </div>
       </article>
+
+      <AdSlotBlock slotKey="blog_inline" />
 
       <div className="mt-10">
         <CrossSell exclude="" title="Услуги АВТОWAY" />
