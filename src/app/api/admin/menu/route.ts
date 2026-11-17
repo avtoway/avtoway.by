@@ -17,6 +17,8 @@ interface MenuItem {
   perm?: string;
   /** Доступ, если есть хотя бы одно из прав. */
   anyPerm?: string[];
+  /** Заголовок группы в сайдбаре. */
+  section?: string;
   badge?: number;
   children?: MenuItem[];
 }
@@ -58,12 +60,18 @@ export async function GET() {
   }
 
   const allItems: MenuItem[] = [
-    { label: "Главная", icon: "home", href: "/admin" },
-    { label: "Мой профиль", icon: "user", href: "/admin/profile" },
+    { label: "Главная", icon: "home", href: "/admin", section: "Обзор" },
+    { label: "Мой профиль", icon: "user", href: "/admin/profile", section: "Обзор" },
+
+    { label: "Заявки", icon: "document-text", href: "/admin/requests", anyPerm: LEAD_ACCESS_PERMS, section: "Клиенты" },
+    { label: "Клиенты", icon: "users", href: "/admin/clients", anyPerm: LEAD_ACCESS_PERMS, section: "Клиенты" },
+    { label: "Задачи", icon: "document-text", href: "/admin/tasks", anyPerm: LEAD_ACCESS_PERMS, section: "Клиенты" },
+
     {
       label: "Услуги",
       icon: "grid",
       perm: "services.",
+      section: "Услуги",
       children: [
         { label: "Все услуги", icon: "settings", href: "/admin/services", perm: "services.manage" },
         { label: "Контент лендингов", icon: "document-text", href: "/admin/landings", perm: "services.manage" },
@@ -72,23 +80,23 @@ export async function GET() {
         { label: "Продажа авто", icon: "dollar", href: "/admin/sell", perm: "sell.manage", badge: newSaleRequests || undefined },
       ],
     },
-    { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners." },
-    { label: "Вакансии", icon: "briefcase", href: "/admin/vacancies", perm: "vacancies." },
-    { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined },
-    { label: "Отчёты осмотра", icon: "document-text", href: "/admin/reports", anyPerm: ["autopodbor.manage", "autopodbor.requests", "autopodbor.view"] },
-    { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage" },
-    { label: "Заявки", icon: "document-text", href: "/admin/requests", anyPerm: LEAD_ACCESS_PERMS },
-    { label: "Клиенты", icon: "users", href: "/admin/clients", anyPerm: LEAD_ACCESS_PERMS },
-    { label: "Задачи", icon: "document-text", href: "/admin/tasks", anyPerm: LEAD_ACCESS_PERMS },
-    { label: "Уведомления", icon: "bell", href: "/admin/notifications", perm: "audit.view" },
-    { label: "Аналитика", icon: "chart", href: "/admin/analytics", perm: "audit.view" },
-    { label: "Продвижение", icon: "chart", href: "/admin/promotion", anyPerm: ["services.manage", "audit.view"] },
-    { label: "Справка", icon: "document-text", href: "/admin/help" },
-    { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage" },
-    { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage" },
-    { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles" },
-    { label: "Аудит", icon: "document-text", href: "/admin/audit-logs", perm: "audit.view" },
-    { label: "Мониторинг", icon: "settings", href: "/admin/monitoring", perm: "audit.view" },
+    { label: "Отчёты осмотра", icon: "document-text", href: "/admin/reports", anyPerm: ["autopodbor.manage", "autopodbor.requests", "autopodbor.view"], section: "Услуги" },
+    { label: "Автоподбор", icon: "search", href: "/admin/inspection", perm: "autopodbor.", badge: newAutoPodborLeads || undefined, section: "Услуги" },
+    { label: "Партнёры", icon: "handshake", href: "/admin/partners", perm: "partners.", section: "Услуги" },
+    { label: "Вакансии", icon: "briefcase", href: "/admin/vacancies", perm: "vacancies.", section: "Услуги" },
+
+    { label: "Аналитика", icon: "chart", href: "/admin/analytics", perm: "audit.view", section: "Маркетинг" },
+    { label: "Продвижение", icon: "chart", href: "/admin/promotion", anyPerm: ["services.manage", "audit.view"], section: "Маркетинг" },
+    { label: "Уведомления", icon: "bell", href: "/admin/notifications", perm: "audit.view", section: "Маркетинг" },
+
+    { label: "Контакты", icon: "phone", href: "/admin/contacts", perm: "contacts.manage", section: "Компания" },
+    { label: "Почта", icon: "mail", href: "/admin/email", perm: "email.manage", section: "Компания" },
+
+    { label: "Сотрудники", icon: "users", href: "/admin/users", perm: "users.manage", section: "Система" },
+    { label: "Роли", icon: "lock", href: "/admin/roles", perm: "users.roles", section: "Система" },
+    { label: "Аудит", icon: "document-text", href: "/admin/audit-logs", perm: "audit.view", section: "Система" },
+    { label: "Мониторинг", icon: "settings", href: "/admin/monitoring", perm: "audit.view", section: "Система" },
+    { label: "Справка", icon: "document-text", href: "/admin/help", section: "Система" },
   ];
 
   // Filter by permissions recursively

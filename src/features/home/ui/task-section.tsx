@@ -1,59 +1,93 @@
 import Link from "next/link";
-import { IconArrowRight, IconBoxes, IconCar, IconCheckCircle, IconDollar } from "@/shared/ui/icons";
+import {
+  IconArrowRight,
+  IconBoxes,
+  IconCar,
+  IconCheckCircle,
+  IconDollar,
+  IconWrench,
+} from "@/shared/ui/icons";
 import { getActiveServices } from "@/shared/lib/active-services.server";
 
-const TASKS = [
-  {
-    slug: "rent",
+/**
+ * Карточки задач для главной. Ключ — slug услуги из БД.
+ * Показываем ровно те услуги, которые включены в админке.
+ */
+const SERVICE_TASKS: Record<
+  string,
+  { title: string; text: string; href: string; icon: typeof IconCar }
+> = {
+  rent: {
     title: "Нужна машина на время",
     text: "Аренда по дням и неделям, в том числе под такси. Прозрачные цены и залог.",
     href: "/services/rent",
     icon: IconCar,
   },
-  {
-    slug: "inspection",
-    title: "Проверить или купить авто",
-    text: "Автоподбор и осмотр перед покупкой: кузов, техника, документы, торг.",
-    href: "/services/inspection",
-    icon: IconCheckCircle,
-  },
-  {
-    slug: "sell",
+  sell: {
     title: "Продать авто выгодно",
     text: "Поможем продать или принять авто в зачёт. Проверка и реклама включены.",
     href: "/services/sell",
     icon: IconDollar,
   },
-  {
-    slug: "truck",
-    title: "Эвакуатор и перевозки",
-    text: "Эвакуация авто 24/7, автосервис и грузоперевозки по Минску и Беларуси.",
+  inspection: {
+    title: "Проверить или купить авто",
+    text: "Автоподбор и осмотр перед покупкой: кузов, техника, документы, торг.",
+    href: "/services/inspection",
+    icon: IconCheckCircle,
+  },
+  truck: {
+    title: "Эвакуатор",
+    text: "Эвакуация авто 24/7 по Минску и Беларуси. Быстро и аккуратно.",
     href: "/services/truck",
     icon: IconBoxes,
   },
-] as const;
+  moving: {
+    title: "Грузоперевозки",
+    text: "Квартирные и офисные переезды, грузовое такси, перевозка мебели и оборудования.",
+    href: "/services/moving",
+    icon: IconBoxes,
+  },
+  import: {
+    title: "Пригнать авто",
+    text: "Подбор и доставка авто из США, Европы, Кореи и Китая под ключ.",
+    href: "/services/import",
+    icon: IconCar,
+  },
+  service: {
+    title: "Автосервис",
+    text: "Ремонт и обслуживание автомобилей любой сложности.",
+    href: "/services/service",
+    icon: IconWrench,
+  },
+};
 
 export default async function TaskSection() {
-  // Показываем только те задачи, услуги которых активны в админке.
   const services = await getActiveServices();
-  const activeSlugs = new Set(services.map(service => service.slug));
-  const visibleTasks = TASKS.filter(task => activeSlugs.has(task.slug));
+  const visibleTasks = services.map(service => ({
+    title: service.title,
+    text: service.desc || "Подробнее об услуге на отдельной странице.",
+    href: service.href,
+    icon: IconCar,
+    ...(SERVICE_TASKS[service.slug] ?? {}),
+  }));
 
   if (visibleTasks.length === 0) return null;
 
   const gridClass =
-    visibleTasks.length >= 4
-      ? "lg:grid-cols-4"
-      : visibleTasks.length === 3
-        ? "lg:grid-cols-3"
-        : visibleTasks.length === 2
-          ? "lg:grid-cols-2"
-          : "lg:grid-cols-1";
+    visibleTasks.length === 1
+      ? "lg:grid-cols-1"
+      : visibleTasks.length === 2
+        ? "lg:grid-cols-2"
+        : visibleTasks.length === 3
+          ? "lg:grid-cols-3"
+          : visibleTasks.length === 4
+            ? "lg:grid-cols-4"
+            : "lg:grid-cols-3";
 
   return (
-    <section id="tasks" className="border-b border-zinc-800/60 bg-zinc-950 py-20 sm:py-24">
+    <section id="tasks" className="border-b border-zinc-800/60 bg-zinc-950 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-10 max-w-2xl">
+        <div className="mb-9 max-w-2xl">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-400">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             С чего начнём

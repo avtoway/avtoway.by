@@ -19,6 +19,7 @@
     "db:backup": "tsx scripts/backup-db.ts",
     "db:backfill:phones": "tsx scripts/backfill-phones.ts",
     "docs:build": "tsx scripts/generate-docs.ts",
+    "docs:screenshots": "tsx scripts/capture-docs-screenshots.ts",
     "db:backup:check": "tsx scripts/backup-db.ts check",
     "monitor:check": "tsx scripts/uptime-check.ts",
     "yt:analyze": "node scripts/youtube-storyboard.mjs",

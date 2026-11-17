@@ -22,6 +22,7 @@ interface MenuItem {
   icon: string;
   href?: string;
   perm?: string;
+  section?: string;
   badge?: number;
   children?: MenuItem[];
 }
@@ -37,6 +38,10 @@ const TITLE_OVERRIDE: Record<string, string> = {
   "/admin/rent": "Аренда",
   "/admin/sell": "Продажа авто",
   "/admin/inspection": "Автоподбор",
+  "/admin/blog": "Блог",
+  "/admin/reports": "Отчёты осмотра",
+  "/admin/promotion": "Продвижение и реклама",
+  "/admin/help": "Справка",
 };
 
 function resolvePageTitle(pathname: string, items: MenuItem[]): string {
@@ -95,6 +100,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const [user, setUser] = useState<AuthUser | null>(null);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     if (pathname === "/admin/login") return;
@@ -121,7 +127,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
-
   if (!loaded) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-slate-950">
@@ -153,15 +158,31 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               pathname={pathname}
               user={{ id: user.id, name: user.name, login: user.login, photo: user.photo, role: user.role }}
               onLogout={handleLogout}
+              mobileOpen={mobileNavOpen}
+              onClose={() => setMobileNavOpen(false)}
             />
           )}
 
-          <main className="flex flex-1 flex-col overflow-hidden">
-            <div className="border-b border-slate-800 bg-slate-900/40 px-8 py-4">
-              <Breadcrumbs pathname={pathname} items={menu} />
-              <h1 className="mt-1 text-xl font-bold text-white">{pageTitle}</h1>
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="border-b border-slate-800 bg-slate-900/40 px-4 py-3 sm:px-6 lg:px-8 lg:py-4">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMobileNavOpen(true)}
+                  aria-label="Открыть меню"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-800 text-slate-400 transition hover:border-slate-600 hover:text-white lg:hidden"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <div className="min-w-0">
+                  <Breadcrumbs pathname={pathname} items={menu} />
+                  <h1 className="mt-1 truncate text-lg font-bold text-white lg:text-xl">{pageTitle}</h1>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 overflow-auto p-8"><ErrorBoundary>{children}</ErrorBoundary></div>
+            <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8"><ErrorBoundary>{children}</ErrorBoundary></div>
           </main>
         </div>
         <DirtyFormGuard router={router} />
