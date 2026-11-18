@@ -73,19 +73,20 @@ export default async function TaskSection() {
 
   if (visibleTasks.length === 0) return null;
 
+  // Сетка подстраивается под число активных услуг: не оставляем «дыр» и не растягиваем одну карточку на весь экран.
   const gridClass =
     visibleTasks.length === 1
-      ? "lg:grid-cols-1"
+      ? "mx-auto max-w-xl lg:grid-cols-1"
       : visibleTasks.length === 2
         ? "lg:grid-cols-2"
         : visibleTasks.length === 3
           ? "lg:grid-cols-3"
           : visibleTasks.length === 4
-            ? "lg:grid-cols-4"
+            ? "xl:grid-cols-4"
             : "lg:grid-cols-3";
 
   return (
-    <section id="tasks" className="border-b border-zinc-800/60 bg-zinc-950 py-16 sm:py-20">
+    <section id="tasks" className="scroll-mt-24 border-b border-zinc-800/60 bg-zinc-950 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-9 max-w-2xl">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-400">
@@ -98,14 +99,14 @@ export default async function TaskSection() {
           </p>
         </div>
 
-        <div className={`grid gap-4 sm:grid-cols-2 ${gridClass}`}>
+        <div className={`grid auto-rows-fr gap-4 sm:grid-cols-2 ${gridClass}`}>
           {visibleTasks.map(task => {
             const Icon = task.icon;
             return (
               <Link
                 key={task.href}
                 href={task.href}
-                className="group animate-card-sheen relative flex flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 transition duration-300 hover:-translate-y-1 hover:border-red-500/40 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-red-950/20"
+                className="group animate-card-sheen relative flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 transition duration-300 hover:-translate-y-1 hover:border-red-500/40 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-red-950/20"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 transition duration-300 group-hover:scale-110 group-hover:border-red-500/40 group-hover:bg-red-500/15">
                   <Icon className="size-5" />

@@ -12,9 +12,10 @@ export default function VideoCarousel({ videos }: { videos: Video[] }) {
     <div className="relative">
       <Carousel
         items={videos}
-        cardWidth={360}
-        gap={16}
-        autoScroll={2000}
+        cardWidth={320}
+        gap={14}
+        peekWidth={40}
+        autoScroll={4500}
         renderItem={(video) => (
           <a
             href={getVideoUrl(video.id)}

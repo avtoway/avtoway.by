@@ -58,7 +58,7 @@ export default function Carousel<T>({
   // Previous peek
   if (n > 1) {
     elements.push(
-      <div key="peek-l" className="shrink-0 relative" style={{ width: peekWidth, minHeight: 320 }}>
+      <div key="peek-l" className="relative shrink-0 opacity-45" style={{ width: peekWidth, minHeight: 320 }}>
         <div className="h-full overflow-hidden rounded-r-2xl" style={{
           width: cardWidth,
           marginLeft: -(cardWidth - peekWidth),
@@ -86,7 +86,7 @@ export default function Carousel<T>({
   // Next peek
   if (n > 1) {
     elements.push(
-      <div key="peek-r" className="shrink-0 relative" style={{ width: peekWidth, minHeight: 320 }}>
+      <div key="peek-r" className="relative shrink-0 opacity-45" style={{ width: peekWidth, minHeight: 320 }}>
         <div className="h-full overflow-hidden rounded-l-2xl" style={{
           width: cardWidth,
           WebkitMaskImage: "linear-gradient(to left, transparent 0%, black 30%, black 100%)",

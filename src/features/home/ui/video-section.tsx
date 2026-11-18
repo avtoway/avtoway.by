@@ -6,7 +6,7 @@ export default function VideoSection({ videos }: { videos: Video[] }) {
   if (videos.length === 0) return null;
 
   return (
-    <section id="videos" className="relative overflow-hidden border-t border-zinc-800/50 bg-zinc-900/30 py-16 sm:py-20">
+    <section id="videos" className="relative scroll-mt-24 overflow-hidden border-t border-zinc-800/50 bg-zinc-900/30 py-16 sm:py-20">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
           className="absolute -left-20 -top-20 h-[360px] w-[360px] rounded-full blur-[100px]"
