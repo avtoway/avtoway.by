@@ -27,7 +27,9 @@ if (process.env.CI) {
   env.AUTH_SECRET ||= "ci-test-secret";
   env.ENCRYPTION_KEY ||= "0".repeat(64);
 
-  run("npx", ["prisma", "migrate", "deploy"]);
+  // Миграции в репозитории устарели, поэтому для одноразовой CI-базы
+  // синхронизируем схему напрямую из schema.prisma.
+  run("npx", ["prisma", "db", "push", "--skip-generate"]);
 }
 
 run("npx", ["next", "build"]);
