@@ -50,7 +50,9 @@ export default function AdminDashboard() {
     (async () => {
       const me = await fetch("/api/auth/me").then(r => r.json());
       if (!me.ok) { router.push("/admin/login"); return; }
-      const safeJson = (r: Response): Promise<any> => r.json().catch(() => ({ ok: false }));
+      type JsonList = { ok: boolean; data: unknown[] };
+      const safeJson = (r: Response): Promise<JsonList> =>
+        r.json().catch(() => ({ ok: false, data: [] }));
       const hasAudit = me.data.permissions?.includes("audit.view");
       const hasUsers = me.data.permissions?.includes("users.manage");
       const [uRes, sRes, pRes, lRes] = await Promise.all([
@@ -64,7 +66,7 @@ export default function AdminDashboard() {
         userCount: uRes.ok ? uRes.data.length : 0,
         serviceCount: sRes.ok ? sRes.data.length : 0,
         partnerCount: pRes.ok ? pRes.data.length : 0,
-        recentLogs: lRes.ok ? lRes.data.slice(0, 5) : [],
+        recentLogs: lRes.ok ? (lRes.data.slice(0, 5) as DashData["recentLogs"]) : [],
       });
     })();
   }, [router]);

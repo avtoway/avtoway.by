@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- превью в админке и внешние креативы без известных размеров */
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";

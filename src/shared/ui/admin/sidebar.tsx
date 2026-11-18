@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- превью в админке и внешние креативы без известных размеров */
 "use client";
 
 import Link from "next/link";
@@ -151,7 +152,6 @@ export default function Sidebar({
           <NavLink href={profileHref} isDirty={isDirty} setConfirmLeave={setConfirmLeave} onNavigate={onClose}>
             <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-slate-800 text-sm font-bold text-slate-400 ring-1 ring-slate-700 transition hover:ring-red-500/50">
               {user.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element -- аватар пользователя с произвольным размером
                 <img src={user.photo} alt="" className="h-full w-full rounded-full object-cover" />
               ) : (
                 user.name.charAt(0).toUpperCase()

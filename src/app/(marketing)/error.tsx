@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
-import { reportClientError } from "@/shared/lib/client-monitoring";
 
 export default function MarketingError({
   error,
@@ -11,21 +11,33 @@ export default function MarketingError({
   reset: () => void;
 }) {
   useEffect(() => {
-    reportClientError(error, `site:${window.location.pathname}`, error.digest);
+    console.error("Page error:", error);
   }, [error]);
 
   return (
-    <section className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
-      <h2 className="text-3xl font-bold text-white">Упс! Что-то пошло не так</h2>
-      <p className="max-w-md text-zinc-400">
-        {error.message || "Не удалось загрузить страницу. Попробуйте снова."}
-      </p>
-      <button
-        onClick={reset}
-        className="inline-flex h-12 items-center rounded-full bg-primary px-8 text-sm font-medium text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark"
-      >
-        Попробовать снова
-      </button>
+    <section className="flex min-h-[70dvh] items-center justify-center bg-zinc-950 px-6 py-24">
+      <div className="max-w-lg text-center">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-red-400">Ошибка</p>
+        <h1 className="mt-3 text-3xl font-bold text-white">Что-то пошло не так</h1>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+          Страница не загрузилась. Попробуйте обновить — если ошибка повторится, позвоните нам.
+        </p>
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={reset}
+            className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-dark"
+          >
+            Попробовать снова
+          </button>
+          <Link
+            href="/"
+            className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-700 px-6 text-sm text-zinc-300 transition hover:border-zinc-500 hover:text-white"
+          >
+            На главную
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

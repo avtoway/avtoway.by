@@ -54,6 +54,7 @@ export default function AdminVacanciesPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const { toast } = useToast();
   const { confirm, dialog } = useConfirm();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- форма шире схемы: id и служебные поля
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(VacancySchema, EMPTY as any);
 
   async function loadVacancies() {

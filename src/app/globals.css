@@ -203,3 +203,15 @@ body {
     animation: none;
   }
 }
+
+/* Accessibility: visible keyboard focus */
+:focus-visible {
+  outline: 2px solid #ef4444;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(239, 68, 68, 0.35);
+  color: #fff;
+}

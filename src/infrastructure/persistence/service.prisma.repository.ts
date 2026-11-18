@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- строки libSQL-адаптера приходят без типов и нормализуются в мапперах */
 import type { ServiceRepository } from "@/entities/service/service.repository";
 import type { Service } from "@/entities/service/service.types";
 import { getPrismaClient } from "./prisma.client";

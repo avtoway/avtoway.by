@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer, { type SendMailOptions } from "nodemailer";
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
@@ -67,7 +67,7 @@ export async function sendEmail(to: string, subject: string, body: string, inRep
       auth: { user: config.user, pass: config.pass },
     });
 
-    const mailOpts: any = {
+    const mailOpts: SendMailOptions = {
       from: `"${config.fromName}" <${config.fromEmail}>`,
       to,
       subject,

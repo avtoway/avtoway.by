@@ -24,8 +24,8 @@ export default function ProfileForm({
   onChange,
   allowedSections,
 }: {
-  form: Record<string, any>;
-  onChange: (field: string, value: any) => void;
+  form: Record<string, string>;
+  onChange: (field: string, value: string) => void;
   allowedSections: string[];
 }) {
   return (

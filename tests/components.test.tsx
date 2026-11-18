@@ -12,7 +12,7 @@ describe("ProfileView component", () => {
       telegram: "@admin", bio: "About me", roles: [{ id: "1", name: "Администратор" }],
     };
 
-    const { container } = render(React.createElement(ProfileView, { profile: profile as any }));
+    const { container } = render(React.createElement(ProfileView, { profile: profile as never }));
     expect(container.querySelector("h2")).toBeTruthy();
   });
 });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- строки libSQL-адаптера приходят без типов и нормализуются в мапперах */
 import type { Vacancy, VacancyInput, VacancyUpdate } from "@/entities/vacancy/vacancy";
 import type { VacancyRepository } from "@/entities/vacancy/vacancy.repository";
 import { getPrismaClient } from "./prisma.client";

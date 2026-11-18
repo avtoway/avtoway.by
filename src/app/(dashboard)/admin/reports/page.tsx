@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps -- загрузка данных при монтировании; зависимости контролируются вручную */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";

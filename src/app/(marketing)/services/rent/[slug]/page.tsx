@@ -94,7 +94,9 @@ export default async function RentCarDetailPage({ params }: Props) {
   const priceAmount = priceLabel ? parseInt(priceLabel.replace(/\D/g, "")) : null;
   const heroUsd = usdRate && priceAmount ? Math.round(priceAmount / usdRate) : null;
   const periodPrices = !isTaxi && car.priceDay != null ? getPeriodPrices(car.priceDay, tiers) : null;
-  const conditions = (car.conditions ?? []).filter((c: any) => c.condition?.name);
+  const conditions = (car.conditions ?? [])
+    .filter(condition => condition.condition?.name)
+    .map(condition => ({ name: condition.condition!.name, value: condition.value }));
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -244,7 +246,7 @@ export default async function RentCarDetailPage({ params }: Props) {
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
             <h2 className="mb-4 text-lg font-semibold text-white">Условия аренды</h2>
             <ul className="space-y-2.5">
-              {conditions.map((c: any, i: number) => (
+              {conditions.map((c, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-zinc-300">
                   <span className="mt-0.5 text-red-400">•</span>
                   <span>

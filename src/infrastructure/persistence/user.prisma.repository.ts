@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- строки libSQL-адаптера приходят без типов и нормализуются в мапперах */
 import { getPrismaClient } from "./prisma.client";
 import type { UserRepository, CreateUserInput, UpdateUserInput } from "@/entities/user/user.repository";
 import type { UserWithRoles } from "@/entities/user/user";

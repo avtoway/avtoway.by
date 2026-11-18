@@ -24,6 +24,7 @@ const eslintConfig = defineConfig([
     "package-lock.json",
     "allure-report/**",
     "temp/**",
+    "coverage/**",
   ]),
 ]);
 

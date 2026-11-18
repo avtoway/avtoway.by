@@ -58,6 +58,21 @@ function clientIp(request: NextRequest): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // CSRF: мутирующие запросы с чужим Origin отклоняем до бизнес-логики.
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host");
+    if (origin && host) {
+      try {
+        if (new URL(origin).host !== host) {
+          return new Response("Cross-origin request blocked", { status: 403 });
+        }
+      } catch {
+        return new Response("Invalid origin", { status: 403 });
+      }
+    }
+  }
+
   // Честный 404 до стриминга: страницы с динамическими сегментами сами отдают 200 из-за streaming.
   if (
     request.method === "GET" &&

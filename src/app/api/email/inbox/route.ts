@@ -1,5 +1,6 @@
 import "@/di/composition-root";
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { requireAuth } from "@/lib/auth.server";
 import { toApiError } from "@/shared/lib/errors";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "30"), 100);
     const db = getPrismaClient();
     const search = searchParams.get("search") ?? "";
-    const where: any = { isDeleted: false };
+    const where: Prisma.InboxEmailWhereInput = { isDeleted: false };
     if (search) {
       where.OR = [
         { from: { contains: search } },

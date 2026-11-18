@@ -22,6 +22,7 @@ export default function AdminServicesPage() {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
   const { confirm, dialog } = useConfirm();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- form содержит служебные поля вне схемы
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(ServiceSchema, INITIAL_SERVICE as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
@@ -136,6 +137,7 @@ export default function AdminServicesPage() {
       )}
 
       <AdminModal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Редактировать услугу" : "Новая услуга"}>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- форма шире схемы валидации */}
         <ServiceForm form={form as any} onChange={setField} editing={!!editing} errors={errors} />
         <div className="flex justify-end gap-3 pt-4">
           <button onClick={() => setModalOpen(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">Отмена</button>

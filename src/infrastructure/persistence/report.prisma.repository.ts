@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- строки libSQL-адаптера приходят без типов и нормализуются в мапперах */
 import { getPrismaClient } from "./prisma.client";
 import { randomUUID } from "node:crypto";
 import type { InspectionReportRepository } from "@/entities/report/report.repository";

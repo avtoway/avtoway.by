@@ -14,8 +14,14 @@ export default async function MarketingLayout({
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-primary focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Перейти к содержимому
+      </a>
       <SiteHeader />
-      <main>{children}</main>
+      <main id="main-content">{children}</main>
       <AdSlotBlock slotKey="global_footer" />
       <SiteFooter />
       <CookieConsent />

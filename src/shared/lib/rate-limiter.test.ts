@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { checkRateLimit, resetRateLimit } from "./rate-limiter";
 
 describe("checkRateLimit", () => {
@@ -25,5 +25,23 @@ describe("checkRateLimit", () => {
     expect(checkRateLimit("test:4a", 1)).toBe(true);
     expect(checkRateLimit("test:4a", 1)).toBe(false);
     expect(checkRateLimit("test:4b", 1)).toBe(true);
+  });
+
+  it("does not grow memory under a key flood", () => {
+    for (let i = 0; i < 10_050; i++) checkRateLimit(`flood:${i}`, 1, 60_000);
+    // Самые старые ключи вытесняются, поэтому первый снова доступен.
+    expect(checkRateLimit("flood:0", 1, 60_000)).toBe(true);
+  });
+
+  it("cleans up expired windows", () => {
+    vi.useFakeTimers();
+    try {
+      resetRateLimit("expired");
+      checkRateLimit("expired", 1, 1_000);
+      vi.setSystemTime(Date.now() + 120_000);
+      expect(checkRateLimit("expired", 1, 1_000)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

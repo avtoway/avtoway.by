@@ -27,6 +27,7 @@ export default function AdminPartnersPage() {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
   const { confirm, dialog } = useConfirm();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- форма шире схемы: id и служебные поля
   const { form, setField, errors, validateAll, resetForm } = useFormValidation(PartnerSchema, EMPTY as any);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);

@@ -34,7 +34,7 @@ describe("Auth utilities", () => {
     it("should produce a valid token that can be verified", async () => {
       const { signTokenFromUser, verifyToken } = await import("@/lib/auth.server");
       const user = { id: "1", login: "admin", name: "Admin", role: "Администратор", level: 100, permissions: ["users.manage"] };
-      const token = await signTokenFromUser(user as any);
+      const token = await signTokenFromUser(user as never);
       expect(token).toContain(".");
       const decoded = verifyToken(token);
       expect(decoded).not.toBeNull();

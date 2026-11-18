@@ -23,6 +23,7 @@ export default function ServiceForm({
   form, onChange, editing, errors,
 }: {
   form: ServiceFormData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- поля формы имеют разные типы
   onChange: (field: string, value: any) => void;
   editing: boolean;
   errors?: Record<string, string>;

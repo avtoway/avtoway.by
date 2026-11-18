@@ -12,9 +12,11 @@ export function getTestDb(): PrismaClient {
   return testPrisma;
 }
 
-export async function createTestUser(prisma: PrismaClient, overrides: Record<string, any> = {}) {
-  const id = overrides.id ?? randomUUID();
-  const login = overrides.login ?? `test_${randomUUID().slice(0, 8)}`;
+export async function createTestUser(prisma: PrismaClient, overrides: Record<string, unknown> = {}) {
+  const id = typeof overrides.id === "string" ? overrides.id : randomUUID();
+  const login = typeof overrides.login === "string" ? overrides.login : `test_${randomUUID().slice(0, 8)}`;
+  const name = typeof overrides.name === "string" ? overrides.name : "Test User";
+  const email = typeof overrides.email === "string" ? overrides.email : `${login}@test.com`;
 
   await prisma.user.create({
     data: {
@@ -24,8 +26,8 @@ export async function createTestUser(prisma: PrismaClient, overrides: Record<str
       profile: {
         create: {
           id: randomUUID(),
-          name: overrides.name ?? "Test User",
-          email: overrides.email ?? `${login}@test.com`,
+          name,
+          email,
         },
       },
     },
@@ -34,18 +36,21 @@ export async function createTestUser(prisma: PrismaClient, overrides: Record<str
   return { id, login };
 }
 
-export async function createTestRole(prisma: PrismaClient, overrides: Record<string, any> = {}) {
-  const id = overrides.id ?? randomUUID();
-  const name = overrides.name ?? `role_${randomUUID().slice(0, 8)}`;
+export async function createTestRole(prisma: PrismaClient, overrides: Record<string, unknown> = {}) {
+  const id = typeof overrides.id === "string" ? overrides.id : randomUUID();
+  const name = typeof overrides.name === "string" ? overrides.name : `role_${randomUUID().slice(0, 8)}`;
+  const description = typeof overrides.description === "string" ? overrides.description : "Test role";
+  const level = typeof overrides.level === "number" ? overrides.level : 0;
+  const permissions = Array.isArray(overrides.permissions) ? overrides.permissions.map(String) : [];
 
   await prisma.role.create({
     data: {
       id,
       name,
-      description: overrides.description ?? "Test role",
-      level: overrides.level ?? 0,
+      description,
+      level,
       permissions: {
-        create: (overrides.permissions ?? []).map((p: string) => ({ permission: p })),
+        create: permissions.map(permission => ({ permission })),
       },
     },
   });

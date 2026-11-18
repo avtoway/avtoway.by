@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element, react-hooks/exhaustive-deps -- превью в админке и внешние креативы без известных размеров */
 "use client";
 
 import { useEffect, useState, useCallback } from "react";

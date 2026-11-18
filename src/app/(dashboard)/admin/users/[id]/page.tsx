@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- превью в админке и внешние креативы без известных размеров */
 "use client";
 
 import { use, useEffect, useState } from "react";
@@ -32,8 +33,8 @@ export default function UserPage({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [form, setForm] = useState<Record<string, any>>({});
-  const [initialForm, setInitialForm] = useState<Record<string, any>>({});
+  const [form, setForm] = useState<Record<string, string>>({});
+  const [initialForm, setInitialForm] = useState<Record<string, string>>({});
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -51,10 +52,10 @@ export default function UserPage({
         const res = await fetch(`/api/users/${id}`).then(r => r.json());
         if (!res.ok) { router.push("/admin"); return; }
         setProfile(res.data);
-        const f: Record<string, any> = {};
+        const f: Record<string, string> = {};
         for (const key of ["name", "email", "phone", "telegram", "birth_date",
           "position", "hire_date", "work_schedule", "bio", "photo"]) {
-          f[key] = (res.data as any)[key] ?? "";
+          f[key] = String((res.data as Record<string, unknown>)[key] ?? "");
         }
         setForm(f);
       } catch { router.push("/admin/login"); } finally { setLoading(false); }
@@ -76,15 +77,15 @@ export default function UserPage({
 
   useEffect(() => { setDirty(isDirty); }, [isDirty, setDirty]);
 
-  function set(field: string, value: any) { setForm(prev => ({ ...prev, [field]: value })); }
+  function set(field: string, value: string) { setForm(prev => ({ ...prev, [field]: value })); }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!profile) return;
     setSaving(true); setSaved(false); setPwError("");
-    const body: Record<string, any> = { ...form };
+    const body: Record<string, unknown> = { ...form };
     if (newPassword) {
-      if (newPassword.length < 6) { setPwError("Минимум 6 символов"); setSaving(false); return; }
+      if (newPassword.length < 10) { setPwError("Минимум 10 символов, буквы и цифры"); setSaving(false); return; }
       if (newPassword !== confirmPassword) { setPwError("Новые пароли не совпадают"); setSaving(false); return; }
       if (!oldPassword) { setPwError("Введите текущий пароль"); setSaving(false); return; }
       body.oldPassword = oldPassword;
