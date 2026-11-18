@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import ContactsView from "@/features/contacts/ui/contacts-view";
 import { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
 
 export const metadata: Metadata = {
   title: "Контакты",
@@ -15,8 +15,22 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactsPage() {
-  const db = getPrismaClient();
-  const contact = await db.contact.findFirst();
+  const info = await getCachedContactInfo();
+  const contact = info
+    ? {
+        phone: info.phone ?? null,
+        email: info.email ?? null,
+        telegram: info.telegram ?? null,
+        viber: info.viber ?? null,
+        whatsapp: info.whatsapp ?? null,
+        instagram: info.instagram ?? null,
+        youtube: info.youtube ?? null,
+        rutube: info.rutube ?? null,
+        vk: info.vk ?? null,
+        address: info.address ?? null,
+        workingHours: info.workingHours ?? null,
+      }
+    : null;
 
   return (
     <>

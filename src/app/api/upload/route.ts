@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
+import sharp from "sharp";
 import { requireAnyAuth, requireAuth } from "@/lib/auth.server";
 import { toApiError, ValidationError } from "@/shared/lib/errors";
 
@@ -85,11 +86,23 @@ export async function POST(request: Request) {
       throw new ValidationError("Недопустимый формат файла. Разрешены: jpg, png, webp, gif");
     }
 
-    const filename = `${randomUUID()}.${detected.extension}`;
+    // Гифки оставляем как есть (иначе потеряется анимация), остальное сжимаем в WebP.
+    let output: Uint8Array = buffer;
+    let extension = detected.extension;
+
+    if (detected.mime !== "image/gif") {
+      const pipeline = sharp(buffer).rotate();
+      output = category === "avatars"
+        ? await pipeline.resize(400, 400, { fit: "cover" }).webp({ quality: 85 }).toBuffer()
+        : await pipeline.resize({ width: 1920, withoutEnlargement: true }).webp({ quality: 82 }).toBuffer();
+      extension = "webp";
+    }
+
+    const filename = `${randomUUID()}.${extension}`;
     const dir = join(process.cwd(), "public", "uploads", category);
 
     await mkdir(dir, { recursive: true });
-    await writeFile(join(dir, filename), buffer);
+    await writeFile(join(dir, filename), output);
 
     return NextResponse.json({ ok: true, url: `/uploads/${category}/${filename}` });
   } catch (e) { return toApiError(e); }

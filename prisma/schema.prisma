@@ -137,7 +137,7 @@ model Vacancy {
   slug             String   @unique
   title            String
   department       String?
-  location         String   @default("РњРёРЅСЃРє")
+  location         String   @default("Минск")
   employmentType   String   @default("full_time") @map("employment_type")
   workFormat       String?  @map("work_format")
   experience       String?
@@ -454,7 +454,7 @@ model RentCarHistory {
 }
 
 /**
- * в”Ђв”Ђв”Ђ РђРІС‚РѕРїРѕРґР±РѕСЂ (/services/inspection) в”Ђв”Ђв”Ђ
+ * ─── Автоподбор (/services/inspection) ───
  */
 
 model AutoPodborSettings {
@@ -467,8 +467,8 @@ model AutoPodborSettings {
   heroImage         String?  @map("hero_image")
   heroImageAlt      String?  @map("hero_image_alt")
   priceFrom         Int?     @map("price_from")
-  ctaPrimaryLabel   String   @default("РџРѕРґРѕР±СЂР°С‚СЊ Р°РІС‚Рѕ") @map("cta_primary_label")
-  ctaSecondaryLabel String   @default("РЎРјРѕС‚СЂРµС‚СЊ С‚Р°СЂРёС„С‹") @map("cta_secondary_label")
+  ctaPrimaryLabel   String   @default("Подобрать авто") @map("cta_primary_label")
+  ctaSecondaryLabel String   @default("Смотреть тарифы") @map("cta_secondary_label")
   phone             String?
   telegram          String?
   whatsapp          String?
@@ -530,7 +530,7 @@ model AutoPodborTariff {
   badge       String?
   icon        String   @default("check")
   image       String?
-  ctaLabel    String   @default("РћСЃС‚Р°РІРёС‚СЊ Р·Р°СЏРІРєСѓ") @map("cta_label")
+  ctaLabel    String   @default("Оставить заявку") @map("cta_label")
   isPopular   Boolean  @default(false) @map("is_popular")
   isActive    Boolean  @default(true) @map("is_active")
   sortOrder   Int      @default(0) @map("sort_order")
@@ -720,7 +720,7 @@ model AutoPodborLead {
 }
 
 /**
- * в”Ђв”Ђв”Ђ РџСЂРѕРґР°Р¶Р° Р°РІС‚Рѕ (/services/sell) в”Ђв”Ђв”Ђ
+ * ─── Продажа авто (/services/sell) ───
  */
 
 model SaleCar {
@@ -780,7 +780,7 @@ model SaleCar {
   photos      String?
   videoUrl    String? @map("video_url")
 
-  city         String  @default("РњРёРЅСЃРє")
+  city         String  @default("Минск")
   contactName  String? @map("contact_name")
   contactPhone String? @map("contact_phone")
 

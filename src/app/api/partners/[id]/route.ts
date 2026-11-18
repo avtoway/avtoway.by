@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { ConflictError, NotFoundError, toApiError } from "@/shared/lib/errors";
+import { deleteUploadFile, deleteUploadFiles } from "@/shared/lib/upload-files";
 import { PartnerSchema } from "@/entities/partner/partner.schema";
 import type { PartnerRepository } from "@/entities/partner/partner.repository";
 
@@ -60,6 +61,7 @@ export async function DELETE(
     if (!existing) throw new NotFoundError("Партнёр не найден");
 
     await partnerRepo.delete(id);
+    await Promise.all([deleteUploadFile(existing.photo), deleteUploadFiles(existing.photos)]);
 
     await createAuditLog({
       userId: user.id, action: "DELETE", entity: "Partner", entityId: id,

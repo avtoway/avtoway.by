@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 import { trackLead } from "@/shared/lib/analytics";
+import PhoneInput from "@/shared/ui/phone-input";
 
 const input =
   "w-full rounded-xl border border-zinc-700 bg-zinc-950/60 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-red-500";
@@ -24,7 +26,13 @@ export default function ExpressCheck() {
       const json = await fetch("/api/express-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, url, ...getLeadAttribution() }),
+        body: JSON.stringify({
+          name,
+          phone,
+          url,
+          company: String(new FormData(event.currentTarget as HTMLFormElement).get("company") ?? ""),
+          ...getLeadAttribution(),
+        }),
       }).then(r => r.json());
 
       if (!json.ok) {
@@ -60,6 +68,12 @@ export default function ExpressCheck() {
               <li>• Отвечаем в рабочее время, обычно в течение часа</li>
               <li>• Это предварительная оценка, полная проверка — на осмотре</li>
             </ul>
+            <Link
+              href="/report/demo"
+              className="mt-5 inline-flex h-10 items-center rounded-full border border-red-500/30 bg-red-500/10 px-4 text-xs font-medium text-red-200 transition hover:border-red-400/60 hover:text-white"
+            >
+              Посмотреть пример отчёта →
+            </Link>
           </div>
 
           {sent ? (
@@ -72,7 +86,7 @@ export default function ExpressCheck() {
           ) : (
             <form onSubmit={submit} className="space-y-3">
               <input value={name} onChange={e => setName(e.target.value)} placeholder="Ваше имя" required className={input} />
-              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+375 (__) ___-__-__" required inputMode="tel" className={input} />
+              <PhoneInput value={phone} onChange={setPhone} required placeholder="Телефон" className={input} />
               <input
                 value={url}
                 onChange={e => setUrl(e.target.value)}
@@ -93,6 +107,7 @@ export default function ExpressCheck() {
                 Нажимая кнопку, вы соглашаетесь с{" "}
                 <a href="/privacy" className="underline hover:text-zinc-400">политикой обработки данных</a>.
               </p>
+              <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
             </form>
           )}
         </div>

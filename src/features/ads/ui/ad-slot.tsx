@@ -26,6 +26,20 @@ export default function AdSlotBlock({
   className?: string;
 }) {
   const [slot, setSlot] = useState<PublicSlot | null>(null);
+  const [consent, setConsent] = useState<string | null>(null);
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        setConsent(localStorage.getItem("avtoway:cookie-consent"));
+      } catch {
+        setConsent(null);
+      }
+    };
+    read();
+    window.addEventListener("avtoway:cookie-consent", read);
+    return () => window.removeEventListener("avtoway:cookie-consent", read);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,6 +55,9 @@ export default function AdSlotBlock({
   }, [slotKey]);
 
   if (!slot) return null;
+
+  // Сторонние рекламные скрипты показываем только после согласия на cookie.
+  if (slot.html && consent !== "accepted") return null;
 
   return (
     <aside className={`mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 ${className}`} aria-label="Реклама">

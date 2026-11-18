@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { calculateRentPrice, getPeriodPrices, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import PageBreadcrumbs from "@/shared/ui/page-breadcrumbs";
 import { trackLead } from "@/shared/lib/analytics";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import PhoneInput from "@/shared/ui/phone-input";
 import ConsentNote from "@/shared/ui/consent-note";
 
 interface Car {
@@ -46,6 +47,7 @@ export default function RentCalculatorPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const companyRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -150,6 +152,7 @@ export default function RentCalculatorPage() {
       name: name.trim(),
       phone: phone.trim() || null,
       email: email.trim() || null,
+      company: companyRef.current?.value ?? "",
       startDate, endDate,
       extraIds: [...selectedExtras],
       ...getLeadAttribution(),
@@ -360,9 +363,9 @@ export default function RentCalculatorPage() {
 
                     {/* Lead form */}
                     <div className="space-y-3">
+                      <input ref={companyRef} type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
                       <input value={name} onChange={e => setName(e.target.value)} placeholder="Ваше имя *" autoComplete="name" className={inputCls} />
-                      <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Телефон" type="tel" autoComplete="tel" className={inputCls} />
-                      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email" autoComplete="email" className={inputCls} />
+                      <PhoneInput value={phone} onChange={setPhone} placeholder="Телефон" className={inputCls} />                      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email" autoComplete="email" className={inputCls} />
                       {!hasContact && (
                         <p className={`text-[11px] ${name.trim() ? "text-amber-400" : "text-zinc-600"}`}>
                           Укажите телефон или email — иначе мы не сможем связаться.

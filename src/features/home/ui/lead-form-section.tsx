@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 import { trackLead } from "@/shared/lib/analytics";
 import ConsentNote from "@/shared/ui/consent-note";
+import PhoneInput from "@/shared/ui/phone-input";
 import { IconArrowRight, IconCheckCircle, IconTelegram } from "@/shared/ui/icons";
 
 interface LeadFormSectionProps {
@@ -36,6 +37,7 @@ export default function LeadFormSection({ services, phone, telegram }: LeadFormS
     setError("");
 
     const serviceTitle = services.find(service => service.slug === serviceSlug)?.title;
+    const company = String(new FormData(event.currentTarget as HTMLFormElement).get("company") ?? "");
 
     try {
       const res = await fetch("/api/contact", {
@@ -45,6 +47,7 @@ export default function LeadFormSection({ services, phone, telegram }: LeadFormS
           name: name.trim(),
           phone: phoneValue.trim(),
           message: comment.trim() || `Заявка с главной${serviceTitle ? `: ${serviceTitle}` : ""}`,
+          company,
           source: "home",
           serviceSlug: serviceSlug || "home",
           ...getLeadAttribution(),
@@ -145,6 +148,7 @@ export default function LeadFormSection({ services, phone, telegram }: LeadFormS
             </div>
           ) : (
             <form onSubmit={submit} className="flex flex-col gap-3">
+              <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   value={name}
@@ -153,12 +157,10 @@ export default function LeadFormSection({ services, phone, telegram }: LeadFormS
                   autoComplete="name"
                   className={inputCls}
                 />
-                <input
+                <PhoneInput
                   value={phoneValue}
-                  onChange={event => setPhoneValue(event.target.value)}
+                  onChange={setPhoneValue}
                   placeholder="Телефон *"
-                  type="tel"
-                  autoComplete="tel"
                   className={inputCls}
                 />
               </div>

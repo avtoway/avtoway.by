@@ -1,7 +1,7 @@
-import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { SITE_URL } from "@/shared/config/site";
 import { telegramUrl } from "@/shared/lib/social";
 import { getActiveServices } from "@/shared/lib/active-services.server";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
 
 /** JSON-LD безопасно встраивается в <script>: экранируем `<`, чтобы нельзя было закрыть тег. */
 function serialize(schema: unknown): string {
@@ -9,8 +9,7 @@ function serialize(schema: unknown): string {
 }
 
 export async function OrganizationSchema() {
-  const db = getPrismaClient();
-  const [contact, services] = await Promise.all([db.contact.findFirst(), getActiveServices()]);
+  const [contact, services] = await Promise.all([getCachedContactInfo(), getActiveServices()]);
   const sameAs: string[] = [];
   const telegram = contact?.telegram ? telegramUrl(contact.telegram) : null;
   if (telegram) sameAs.push(telegram);

@@ -32,7 +32,7 @@ const QUICK_START = [
   },
   {
     title: "2. Проверьте услуги",
-    text: "Список услуг — единственный источник правды. Скрытая услуга исчезает из меню, hero, тикера, карточек и футера.",
+    text: "Список услуг — единственный источник правды. Скрытая услуга исчезает из меню, главной, карточек и футера.",
     href: "/admin/services",
   },
   {
@@ -57,10 +57,55 @@ const QUICK_START = [
   },
 ];
 
-const FAQ = [
+const GLOSSARY = [
   {
+    term: "Slug (короткий адрес)",
+    text: "Часть ссылки на английском: kia-rio-2022 → /services/rent/kia-rio-2022. Только строчные латинские буквы, цифры и дефис.",
+  },
+  {
+    term: "Черновик / Активен",
+    text: "Переключатель видимости. Выключено — клиенты не видят, но данные остаются в базе.",
+  },
+  {
+    term: "UTM-метка",
+    text: "Хвостик к ссылке, который показывает, из какого ролика или объявления пришёл клиент.",
+  },
+  {
+    term: "SEO-заголовок и описание",
+    text: "То, как страница выглядит в выдаче Google и Яндекса.",
+  },
+  {
+    term: "OG-картинка",
+    text: "Превью ссылки в Telegram, Viber и WhatsApp.",
+  },
+  {
+    term: "SMTP и IMAP",
+    text: "SMTP отправляет письма с сайта, IMAP забирает входящие письма в админку.",
+  },
+];
+
+const DAILY = [
+  {
+    when: "Утром, 5 минут",
+    text: "Откройте «Заявки»: новые — прозвонить, перевести в «В работе» и поставить дату следующего контакта. Затем «Задачи»: просроченные горят красным.",
+  },
+  {
+    when: "Выдали или вернули авто",
+    text: "В «Аренде» поставьте или очистите дату «Забронирован до». Договор печатается кнопкой «Договор» во вкладке «Заявки».",
+  },
+  {
+    when: "После осмотра",
+    text: "В «Отчётах» нажмите «Новый отчёт», заполните чек-лист и фото, включите «Опубликовать по ссылке» и отправьте ссылку клиенту.",
+  },
+  {
+    when: "Раз в неделю",
+    text: "Добавьте 1 реальный кейс в «Автоподбор → Кейсы» и 1 статью в «Блог».",
+  },
+];
+
+const FAQ = [  {
     q: "Что происходит, если скрыть услугу?",
-    a: "Услуга с выключенным статусом не попадает в публичный каталог /services, в меню «Услуги», в hero-строку на главной, в бегущую строку, в блок задач, в кросс-продажи и в футер. Прямые страницы услуги при этом не удаляются — их можно открыть по ссылке, но из навигации они исчезают.",
+    a: "Услуга с выключенным статусом не попадает в каталог /services, меню, hero на главной, блок задач, кросс-продажи, футер и sitemap. Её посадочная страница начинает отдавать 404, пока услуга выключена. Данные не удаляются: включите статус обратно — страница снова заработает.",
   },
   {
     q: "Почему заявка не пришла в Telegram?",
@@ -127,6 +172,30 @@ export default function AdminHelpPage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">Шпаргалка на каждый день</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {DAILY.map(item => (
+            <div key={item.when} className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+              <h3 className="text-sm font-semibold text-white">{item.when}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">Словарь терминов</h2>
+        <dl className="grid gap-3 sm:grid-cols-2">
+          {GLOSSARY.map(item => (
+            <div key={item.term} className="rounded-xl border border-slate-800 bg-slate-900/30 p-4">
+              <dt className="text-sm font-semibold text-white">{item.term}</dt>
+              <dd className="mt-1 text-xs leading-relaxed text-slate-400">{item.text}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className="mb-8">

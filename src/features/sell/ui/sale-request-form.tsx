@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SaleRequestInput } from "@/entities/sell/sale-car.types";
 import { trackLead } from "@/shared/lib/analytics";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
+import PhoneInput from "@/shared/ui/phone-input";
 import ConsentNote from "@/shared/ui/consent-note";
 
 const inputCls =
@@ -104,13 +105,11 @@ export default function SaleRequestForm({
           autoComplete="name"
           className={inputCls}
         />
-        <input
+        <PhoneInput
           required
           value={phone}
-          onChange={event => setPhone(event.target.value)}
+          onChange={setPhone}
           placeholder="Телефон"
-          inputMode="tel"
-          autoComplete="tel"
           className={inputCls}
         />
       </div>

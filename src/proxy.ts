@@ -2,6 +2,51 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { checkRateLimit } from "@/shared/lib/rate-limiter";
 import { verifyToken } from "@/lib/auth-token";
+import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
+import { notFoundHtml } from "@/shared/lib/not-found-response";
+
+/** Кэш «существует ли страница» на минуту: proxy не должен бить в БД на каждый запрос. */
+const contentCache = new Map<string, { exists: boolean; expiresAt: number }>();
+const CONTENT_CACHE_TTL_MS = 60_000;
+
+async function contentExists(pathname: string): Promise<boolean | null> {
+  const now = Date.now();
+  const cached = contentCache.get(pathname);
+  if (cached && cached.expiresAt > now) return cached.exists;
+
+  let exists: boolean | null = null;
+  try {
+    const db = getPrismaClient();
+    let match: RegExpMatchArray | null;
+
+    if ((match = pathname.match(/^\/services\/rent\/([^/]+)$/))) {
+      if (match[1] === "calculator") return null;
+      const row = await db.rentCar.findUnique({ where: { slug: match[1] }, select: { isActive: true } });
+      exists = Boolean(row?.isActive);
+    } else if ((match = pathname.match(/^\/services\/sell\/([^/]+)$/))) {
+      const row = await db.saleCar.findUnique({ where: { slug: match[1] }, select: { isActive: true } });
+      exists = Boolean(row?.isActive);
+    } else if ((match = pathname.match(/^\/services\/([^/]+)$/))) {
+      const row = await db.service.findUnique({ where: { slug: match[1] }, select: { isActive: true } });
+      exists = Boolean(row?.isActive);
+    } else if ((match = pathname.match(/^\/blog\/([^/]+)$/))) {
+      const row = await db.blogPost.findUnique({ where: { slug: match[1] }, select: { isPublished: true } });
+      exists = Boolean(row?.isPublished);
+    } else if ((match = pathname.match(/^\/works\/([^/]+)$/))) {
+      const row = await db.autoPodborCase.findUnique({ where: { slug: match[1] }, select: { isActive: true } });
+      exists = Boolean(row?.isActive);
+    }
+  } catch {
+    // При сбое БД не блокируем страницу: пусть рендер сам решит, что показать.
+    return null;
+  }
+
+  if (exists !== null) {
+    if (contentCache.size > 500) contentCache.clear();
+    contentCache.set(pathname, { exists, expiresAt: now + CONTENT_CACHE_TTL_MS });
+  }
+  return exists;
+}
 
 function clientIp(request: NextRequest): string {
   // На VPS за nginx сюда приходит реальный IP; при прямом доступе заголовок можно подделать
@@ -10,8 +55,26 @@ function clientIp(request: NextRequest): string {
   return first || request.headers.get("x-real-ip") || "unknown";
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Честный 404 до стриминга: страницы с динамическими сегментами сами отдают 200 из-за streaming.
+  if (
+    request.method === "GET" &&
+    (pathname.startsWith("/services/") || pathname.startsWith("/blog/") || pathname.startsWith("/works/"))
+  ) {
+    const exists = await contentExists(pathname);
+    if (exists === false) {
+      return new Response(notFoundHtml(), {
+        status: 404,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "x-robots-tag": "noindex, follow",
+          "cache-control": "public, max-age=60",
+        },
+      });
+    }
+  }
 
   // Публичные формы: защита от спама/флуда (лиды автоподбора — 5/10 мин, остальные — 10/10 мин)
   const isAutoPodborLead = pathname === "/api/autopodbor/leads";
@@ -131,4 +194,4 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/admin/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/express-check", "/api/autopodbor/leads/:path*", "/api/sell/requests/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/services/:path*", "/blog/:path*", "/works/:path*", "/api/rent/requests/:path*", "/api/contact", "/api/express-check", "/api/autopodbor/leads/:path*", "/api/sell/requests/:path*"] };

@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { NotFoundError, toApiError } from "@/shared/lib/errors";
+import { deleteUploadFile } from "@/shared/lib/upload-files";
 import { ServiceSchema } from "@/entities/service/service.schema";
 import type { ServiceRepository } from "@/entities/service/service.repository";
 
@@ -47,6 +48,7 @@ export async function DELETE(
     if (!existing) throw new NotFoundError("Услуга не найдена");
 
     await serviceRepo.delete(slug);
+    await deleteUploadFile(existing.photo);
 
     await createAuditLog({
       userId: user.id, action: "DELETE", entity: "Service", entityId: slug,

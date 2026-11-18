@@ -33,7 +33,11 @@ function isAllowedHost(url: string): boolean {
 
 export async function POST(request: Request) {
   try {
-    const parsed = schema.safeParse(await request.json().catch(() => null));
+    const body = await request.json().catch(() => null);
+    if (body && typeof body === "object" && "company" in body && String((body as { company?: unknown }).company ?? "").length > 0) {
+      return NextResponse.json({ ok: true, data: { id: null } }, { status: 201 });
+    }
+    const parsed = schema.safeParse(body);
     if (!parsed.success) {
       throw new ValidationError(parsed.error.issues[0]?.message ?? "Некорректные данные");
     }

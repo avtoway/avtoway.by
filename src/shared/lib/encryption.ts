@@ -2,10 +2,20 @@ import "server-only";
 import crypto from "node:crypto";
 
 const ALGORITHM = "aes-256-gcm";
+const DEV_FALLBACK = "avtoway-dev-encryption-key-change-me";
 
 function getKey(): Buffer {
-  const secret = process.env.ENCRYPTION_KEY ?? "avtoway-dev-encryption-key-change-me";
-  return crypto.createHash("sha256").update(secret).digest();
+  const secret = process.env.ENCRYPTION_KEY;
+
+  // Fail closed: в production нельзя шифровать пароли публично известным ключом.
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!secret || secret.length < 32 || secret === DEV_FALLBACK)
+  ) {
+    throw new Error("ENCRYPTION_KEY не задан или слишком короткий — шифрование в production заблокировано");
+  }
+
+  return crypto.createHash("sha256").update(secret ?? DEV_FALLBACK).digest();
 }
 
 export function encryptSecret(plain: string): string {

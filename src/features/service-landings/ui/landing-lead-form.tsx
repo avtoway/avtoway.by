@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import LandingIcon from "./icon";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 import { trackLead } from "@/shared/lib/analytics";
 import ConsentNote from "@/shared/ui/consent-note";
+import PhoneInput from "@/shared/ui/phone-input";
 
 const BUTTONS: Record<string, string> = {
   red: "bg-primary hover:bg-primary-dark hover:shadow-primary/20",
@@ -38,6 +39,7 @@ export default function LandingLeadForm({
   const [comment, setComment] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
+  const companyRef = useRef<HTMLInputElement>(null);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -58,6 +60,7 @@ export default function LandingLeadForm({
         body: JSON.stringify({
           name: name.trim(),
           phone: phoneValue.trim(),
+          company: companyRef.current?.value ?? "",
           message,
           source: "service_landing",
           serviceSlug,
@@ -115,13 +118,11 @@ export default function LandingLeadForm({
               className={input}
               autoComplete="name"
             />
-            <input
+            <PhoneInput
               value={phoneValue}
-              onChange={(event) => setPhoneValue(event.target.value)}
+              onChange={setPhoneValue}
               placeholder="Телефон для связи *"
               className={input}
-              inputMode="tel"
-              autoComplete="tel"
             />
           </div>
           <textarea
@@ -143,6 +144,7 @@ export default function LandingLeadForm({
             {status !== "sending" && <LandingIcon name="arrow-right" className="h-4 w-4" />}
           </button>
           <ConsentNote />
+          <input ref={companyRef} type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-600">
             <span>Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.</span>

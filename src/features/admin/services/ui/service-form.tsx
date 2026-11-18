@@ -2,6 +2,7 @@
 
 import FieldError from "@/shared/ui/field-error";
 import UploadZone from "@/shared/ui/admin/upload-zone";
+import { slugify } from "@/shared/lib/slug";
 
 const ICONS = ["youtube", "car", "check-circle", "dollar", "boxes"];
 
@@ -31,8 +32,17 @@ export default function ServiceForm({
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Slug</span>
-          <input value={form.slug} onChange={e => onChange("slug", e.target.value)} disabled={editing}
-            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("slug")}`} />
+          <div className="flex gap-2">
+            <input value={form.slug} onChange={e => onChange("slug", e.target.value)} disabled={editing}
+              className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${eb("slug")}`} />
+            {!editing && (
+              <button type="button" onClick={() => onChange("slug", slugify(form.title))}
+                className="shrink-0 rounded-lg border border-slate-700 px-3 text-xs text-slate-300 hover:bg-slate-800">
+                Из названия
+              </button>
+            )}
+          </div>
+          <span className="text-[10px] leading-relaxed text-slate-500">Адрес страницы на английском, например: rent</span>
           <FieldError error={errors?.slug} /></label>
         <label className="flex flex-col gap-1"><span className="text-xs font-medium text-slate-400">Название</span>
           <input value={form.title} onChange={e => onChange("title", e.target.value)}

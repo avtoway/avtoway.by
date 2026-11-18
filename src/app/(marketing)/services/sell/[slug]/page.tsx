@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { container } from "@/di/container";
-import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
 import type { SaleCar } from "@/entities/sell/sale-car.types";
 import { getUsdRate } from "@/shared/lib/exchange-rate";
@@ -25,6 +24,9 @@ import SaleContactCard from "@/features/sell/ui/sale-contact-card";
 import SaleCard from "@/features/sell/ui/sale-card";
 import SaleStructuredData from "@/features/sell/ui/sale-structured-data";
 import SaleViewTracker from "@/features/sell/ui/view-tracker";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
+import { SITE_URL } from "@/shared/config/site";
+import CarContactButtons from "@/shared/ui/car-contact-buttons";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SaleCarPage({ params }: Props) {
   const { slug } = await params;
-  const [car, contact] = await Promise.all([getCar(slug), getPrismaClient().contact.findFirst()]);
+  const [car, contact] = await Promise.all([getCar(slug), getCachedContactInfo()]);
   if (!car || !car.isActive || car.status === "draft") notFound();
 
   const usdRate = await getUsdRate();
@@ -273,6 +275,14 @@ export default async function SaleCarPage({ params }: Props) {
               telegram={contact?.telegram ?? undefined}
               whatsapp={contact?.whatsapp ?? undefined}
             />
+            <div className="mt-3">
+              <CarContactButtons
+                title={car.title}
+                pageUrl={`${SITE_URL}/services/sell/${car.slug}`}
+                telegram={contact?.telegram}
+                viber={contact?.viber}
+              />
+            </div>
           </aside>
         </div>
       </div>

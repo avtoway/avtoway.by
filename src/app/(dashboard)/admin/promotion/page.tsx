@@ -13,6 +13,7 @@ import {
   type PromotionCampaign,
   type PromotionChannel,
 } from "@/entities/promotion/promotion.types";
+import AdsTxtEditor from "@/features/promotion/ui/ads-txt-editor";
 
 type Tab = "campaigns" | "slots" | "utm" | "help";
 
@@ -643,9 +644,10 @@ export default function AdminPromotionPage() {
             ))}
           </div>
 
+          <AdsTxtEditor />
+
           <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-            <h2 className="text-sm font-semibold text-white">Кабинеты рекламных систем</h2>
-            <p className="mt-1 text-xs text-slate-500">Запуск, оплата и модерация происходят на стороне площадок.</p>
+            <h2 className="text-sm font-semibold text-white">Кабинеты рекламных систем</h2>            <p className="mt-1 text-xs text-slate-500">Запуск, оплата и модерация происходят на стороне площадок.</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { label: "Google Ads", href: "https://ads.google.com" },
@@ -721,6 +723,9 @@ function UtmBuilder() {
         <h2 className="text-sm font-semibold text-white">UTM-конструктор</h2>
         <p className="mt-1 text-xs text-slate-500">
           Одинаковые метки в кампании и в объявлении позволят связать заявки с источником.
+        </p>
+        <p className="mt-2 rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2 text-[11px] leading-relaxed text-slate-400">
+          Вставьте готовую ссылку под видео на YouTube или в рекламу — и в заявках будет видно, откуда пришёл клиент.
         </p>
       </div>
 

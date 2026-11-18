@@ -6,6 +6,7 @@ import { getAuthUser, hasPermission, requireAuth } from "@/lib/auth.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { toApiError, NotFoundError, ConflictError, ForbiddenError } from "@/shared/lib/errors";
 import { createAuditLog } from "@/lib/audit.server";
+import { deleteUploadFile } from "@/shared/lib/upload-files";
 import { blogPostUpdateSchema } from "@/entities/blog/blog.schema";
 import type { BlogRepository } from "@/entities/blog/blog.repository";
 
@@ -75,6 +76,7 @@ export async function DELETE(_request: Request, { params }: Props) {
     if (!existing) throw new NotFoundError("Статья не найдена");
 
     await repo().delete(id);
+    await deleteUploadFile(existing.cover);
     await createAuditLog({
       userId: user.id,
       action: "DELETE",

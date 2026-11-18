@@ -18,7 +18,8 @@ async function getService(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const service = await getService(slug);
-  if (!service) return { title: "Услуга не найдена", robots: { index: false, follow: false } };
+  // notFound() в generateMetadata срабатывает до стриминга, поэтому ответ получает честный HTTP 404.
+  if (!service || !service.isActive) notFound();
   const title = `${service.title} — АВТОWAY`;
   return {
     title: { absolute: title },

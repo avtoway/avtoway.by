@@ -1,9 +1,5 @@
 import { Suspense } from "react";
 import "@/di/composition-root";
-import { container } from "@/di/container";
-import type { ContactInfoRepository } from "@/entities/contact/contact-info.repository";
-import type { ContactInfo } from "@/entities/contact/contact-info.types";
-import { telegramUrl } from "@/shared/lib/social";
 import HeroSection from "@/features/home/ui/hero-section";
 import TaskSection from "@/features/home/ui/task-section";
 import ExpressCheck from "@/features/autopodbor/ui/express-check";
@@ -15,19 +11,13 @@ import VideoSectionWrapper from "@/features/home/ui/video-section-wrapper";
 import VideoSectionSkeleton from "@/shared/ui/video-section-skeleton";
 import AdSlotBlock from "@/features/ads/ui/ad-slot";
 import { getActiveServices } from "@/shared/lib/active-services.server";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
+import { telegramUrl } from "@/shared/lib/social";
 
 export const revalidate = 300;
 
-async function getContact(): Promise<ContactInfo | null> {
-  try {
-    return await container.get<ContactInfoRepository>("ContactInfoRepository").get();
-  } catch {
-    return null;
-  }
-}
-
 export default async function MarketingHome() {
-  const [contact, services] = await Promise.all([getContact(), getActiveServices()]);
+  const [contact, services] = await Promise.all([getCachedContactInfo(), getActiveServices()]);
   const showExpressCheck = services.some(service => service.slug === "inspection");
   const phone = contact?.phone ?? undefined;
   const telegram = telegramUrl(contact?.telegram) ?? undefined;

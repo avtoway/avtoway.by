@@ -1,14 +1,13 @@
 import "@/di/composition-root";
 import { container } from "@/di/container";
-import type { ContactInfoRepository } from "@/entities/contact/contact-info.repository";
 import ScrollProgress from "@/shared/ui/scroll-progress";
 import SiteLogo from "@/shared/ui/site-logo";
 import MainNav from "@/shared/ui/main-nav";
 import Link from "next/link";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
 
 export default async function SiteHeader() {
   let services: { slug: string; title: string; href: string }[] = [];
-  let phone: string | undefined;
 
   try {
     const serviceRepo = container.get<import("@/entities/service/service.repository").ServiceRepository>("ServiceRepository");
@@ -21,12 +20,7 @@ export default async function SiteHeader() {
     // Навигация не должна ронять весь сайт, если БД временно недоступна.
   }
 
-  try {
-    const contactRepo = container.get<ContactInfoRepository>("ContactInfoRepository");
-    phone = (await contactRepo.get())?.phone ?? undefined;
-  } catch {
-    // Телефон в шапке — необязательный элемент.
-  }
+  const phone = (await getCachedContactInfo())?.phone ?? undefined;
 
   return (
     <>

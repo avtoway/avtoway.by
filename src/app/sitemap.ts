@@ -10,6 +10,7 @@ const STATIC_ENTRIES: Entry[] = [
   { url: SITE_URL, priority: 1.0, changeFrequency: "weekly" },
   { url: `${SITE_URL}/about`, priority: 0.8, changeFrequency: "monthly" },
   { url: `${SITE_URL}/services`, priority: 0.9, changeFrequency: "weekly" },
+  { url: `${SITE_URL}/calculator/customs`, priority: 0.8, changeFrequency: "monthly" },
   { url: `${SITE_URL}/works`, priority: 0.7, changeFrequency: "weekly" },
   { url: `${SITE_URL}/blog`, priority: 0.7, changeFrequency: "weekly" },
   { url: `${SITE_URL}/contacts`, priority: 0.6, changeFrequency: "monthly" },

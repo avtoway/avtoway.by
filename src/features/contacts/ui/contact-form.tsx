@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getLeadAttribution } from "@/shared/lib/lead-attribution";
 import { trackLead } from "@/shared/lib/analytics";
 import ConsentNote from "@/shared/ui/consent-note";
+import PhoneInput from "@/shared/ui/phone-input";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -22,6 +23,7 @@ export default function ContactForm() {
     }
     setStatus("sending");
     setError("");
+    const company = String(new FormData(e.currentTarget as HTMLFormElement).get("company") ?? "");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -31,6 +33,7 @@ export default function ContactForm() {
           phone: phone.trim(),
           email: email.trim(),
           message: message.trim(),
+          company,
           source: "contacts",
           serviceSlug: "contacts",
           ...getLeadAttribution(),
@@ -55,9 +58,10 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-3 text-left">
+      <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       <div className="grid gap-3 sm:grid-cols-2">
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Ваше имя *" className={inputCls} />
-        <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Телефон" className={inputCls} />
+        <PhoneInput value={phone} onChange={setPhone} placeholder="Телефон" className={inputCls} />
       </div>
       <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="Email (необязательно)" className={inputCls} />
       <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Что вас интересует? *" rows={4} className={inputCls} />

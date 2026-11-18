@@ -21,6 +21,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
+    if (body && typeof body === "object" && "company" in body && String((body as { company?: unknown }).company ?? "").length > 0) {
+      return NextResponse.json({ ok: true, data: { id: null } }, { status: 201 });
+    }
     const parsed = rentRequestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ ok: false, error: firstValidationError(parsed.error) }, { status: 400 });

@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth.server";
 import { createAuditLog } from "@/lib/audit.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { ConflictError, NotFoundError, toApiError } from "@/shared/lib/errors";
+import { deleteUploadFile, deleteUploadFiles } from "@/shared/lib/upload-files";
 import { saleCarUpdateSchema } from "@/entities/sell/sale-car.schema";
 import type { SaleCarRepository } from "@/entities/sell/sale-car.repository";
 
@@ -66,6 +67,7 @@ export async function DELETE(_: Request, { params }: Props) {
     const existing = await repo().getById(id);
     if (!existing) throw new NotFoundError("Автомобиль не найден");
     await repo().delete(id);
+    await Promise.all([deleteUploadFile(existing.mainPhoto), deleteUploadFiles(existing.photos)]);
     await createAuditLog({
       userId: user.id, action: "DELETE", entity: "SaleCar", entityId: id,
       details: { title: existing.title, slug: existing.slug },

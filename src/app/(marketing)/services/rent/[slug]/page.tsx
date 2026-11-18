@@ -6,6 +6,9 @@ import { getUsdRate } from "@/shared/lib/exchange-rate";
 import { getPriceLabel, getPeriodPrices, formatPrice, type RentPricingTier } from "@/shared/lib/price";
 import { TRANSMISSION_LABEL, FUEL_LABEL } from "@/shared/lib/car-dictionaries";
 import { telegramHandle, telegramUrl } from "@/shared/lib/social";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
+import { SITE_URL } from "@/shared/config/site";
+import CarContactButtons from "@/shared/ui/car-contact-buttons";
 import PhotoLightboxGallery from "@/shared/ui/photo-lightbox-gallery";
 import PageBreadcrumbs, { BreadcrumbSchema } from "@/shared/ui/page-breadcrumbs";
 import { ServiceSchema } from "@/shared/ui/json-ld";
@@ -15,8 +18,7 @@ import type { Metadata } from "next";
 interface Props { params: Promise<{ slug: string }> }
 
 async function getContact() {
-  const db = getPrismaClient();
-  return db.contact.findFirst();
+  return getCachedContactInfo();
 }
 async function getCar(slug: string) {
   const db = getPrismaClient();
@@ -149,6 +151,12 @@ export default async function RentCarDetailPage({ params }: Props) {
               className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
               Рассчитать аренду
             </Link>
+            <CarContactButtons
+              title={car.name}
+              pageUrl={`${SITE_URL}/services/rent/${car.slug}`}
+              telegram={contact?.telegram}
+              viber={contact?.viber}
+            />
           </div>
         </div>
       </div>
@@ -378,7 +386,10 @@ function PriceHero({ priceLabel, usdVal }: { priceLabel: string; usdVal: number 
   );
 }
 
-function ContactBlock({ contact }: { contact: Record<string, unknown> }) {
+import type { ContactInfo } from "@/entities/contact/contact-info.types";
+
+function ContactBlock({ contact }: { contact: ContactInfo }) {
+  const record = contact as unknown as Record<string, unknown>;
   const items: { key: string; label: string; icon: string; href: (v: string) => string; display?: (v: string) => string }[] = [
     { key: "phone", label: "Позвонить", icon: "📞", href: v => `tel:${v}` },
     { key: "telegram", label: "Telegram", icon: "✈", href: v => telegramUrl(v) ?? v, display: v => telegramHandle(v) },
@@ -387,7 +398,7 @@ function ContactBlock({ contact }: { contact: Record<string, unknown> }) {
     { key: "instagram", label: "Instagram", icon: "📷", href: v => v },
   ];
 
-  const visible = items.filter(i => contact[i.key]).map(i => ({ ...i, value: contact[i.key] as string }));
+  const visible = items.filter(i => record[i.key]).map(i => ({ ...i, value: record[i.key] as string }));
 
   if (visible.length === 0) return null;
 

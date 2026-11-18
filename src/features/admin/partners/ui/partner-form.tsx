@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import UploadZone from "@/shared/ui/admin/upload-zone";
 import FieldError from "@/shared/ui/field-error";
+import { slugify } from "@/shared/lib/slug";
 import type { Partner } from "../types";
 
 export default function PartnerForm({
@@ -21,9 +22,16 @@ export default function PartnerForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-slate-400">Slug *</span>
-          <input value={form.slug ?? ""} onChange={e => onChange("slug", e.target.value)}
-            placeholder="minsktuning"
-            className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.slug ? "border-red-500" : "border-slate-700"}`} />
+          <div className="flex gap-2">
+            <input value={form.slug ?? ""} onChange={e => onChange("slug", e.target.value)}
+              placeholder="minsktuning"
+              className={`w-full rounded-lg border bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500 ${errors?.slug ? "border-red-500" : "border-slate-700"}`} />
+            <button type="button" onClick={() => onChange("slug", slugify(form.name))}
+              className="shrink-0 rounded-lg border border-slate-700 px-3 text-xs text-slate-300 hover:bg-slate-800">
+              Из названия
+            </button>
+          </div>
+          <span className="text-[10px] leading-relaxed text-slate-500">Адрес страницы на английском: `minsktuning`</span>
           <FieldError error={errors?.slug} />
         </label>
         <label className="flex flex-col gap-1">

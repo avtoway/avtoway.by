@@ -136,20 +136,28 @@ export default function Carousel<T>({
       </div>
 
       {showDots && (
-        <div className="relative z-10 mt-6 flex justify-center gap-2">
-          {items.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === current
-                  ? "w-6 bg-primary shadow-sm shadow-primary/50"
-                  : "w-1.5 bg-zinc-700 hover:bg-zinc-500"
-              }`}
-              aria-label={`Элемент ${i + 1}`}
-            />
-          ))}
-        </div>
+        n > 6 ? (
+          <div className="relative z-10 mt-6 flex justify-center">
+            <span className="rounded-full border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-[11px] tabular-nums text-zinc-400">
+              {current + 1} / {n}
+            </span>
+          </div>
+        ) : (
+          <div className="relative z-10 mt-6 flex justify-center gap-2">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === current
+                    ? "w-6 bg-primary shadow-sm shadow-primary/50"
+                    : "w-1.5 bg-zinc-700 hover:bg-zinc-500"
+                }`}
+                aria-label={`Элемент ${i + 1}`}
+              />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

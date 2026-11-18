@@ -1,6 +1,7 @@
 "use client";
 
 import FieldError from "@/shared/ui/field-error";
+import { slugify } from "@/shared/lib/slug";
 import type { Vacancy } from "@/entities/vacancy/vacancy";
 
 const inputClass =
@@ -125,7 +126,10 @@ export default function VacancyForm({
           <TextInput
             label="Название вакансии *"
             value={form.title}
-            onChange={(value) => onChange("title", value)}
+            onChange={(value) => {
+              onChange("title", value);
+              if (!form.slug) onChange("slug", slugify(value));
+            }}
             placeholder="Например, мастер-приёмщик автосервиса"
             error={errors?.title}
           />

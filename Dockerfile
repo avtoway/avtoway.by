@@ -13,4 +13,4 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Схема применяется на старте (db push безопасен и не удаляет данные).
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npm start"]
+CMD ["sh", "-c", "npx prisma db push && npm start"]

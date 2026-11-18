@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { telegramUrl } from "@/shared/lib/social";
 import { getActiveServices } from "@/shared/lib/active-services.server";
+import { getCachedContactInfo } from "@/shared/lib/contact-info.server";
 
 export default async function SiteFooter() {
-  const db = getPrismaClient();
-  const [contact, services] = await Promise.all([db.contact.findFirst(), getActiveServices()]);
+  const [contact, services] = await Promise.all([getCachedContactInfo(), getActiveServices()]);
 
   const socialLinks: { label: string; href: string }[] = [];
   if (contact?.telegram) socialLinks.push({ label: "Telegram", href: telegramUrl(contact.telegram)! });
@@ -35,6 +34,7 @@ export default async function SiteFooter() {
               ))}
               <Link href="/works" className="transition hover:text-zinc-300">Наши работы</Link>
               <Link href="/blog" className="transition hover:text-zinc-300">Блог</Link>
+              <Link href="/calculator/customs" className="transition hover:text-zinc-300">Калькулятор растаможки</Link>
               <Link href="/partners" className="transition hover:text-zinc-300">Партнёры</Link>
               <Link href="/privacy" className="transition hover:text-zinc-300">Политика</Link>
             </nav>

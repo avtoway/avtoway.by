@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/auth.server";
 import { validateOrResponse } from "@/shared/lib/validation";
 import { toApiError } from "@/shared/lib/errors";
 import { normalizeTaxiRequirements, validateTaxiRequirements } from "@/shared/lib/taxi-requirements";
+import { deleteUploadFile, deleteUploadFiles } from "@/shared/lib/upload-files";
 import { rentCarUpdateSchema } from "@/entities/rent/rent.schema";
 import type { RentCarRepository } from "@/entities/rent/rent-car.repository";
 import type { RentCar as RentCarEntity } from "@/entities/rent/rent-car.types";
@@ -52,7 +53,11 @@ export async function DELETE(
     await requireAuth("rent.manage");
     const { id } = await params;
     const repo = container.get<RentCarRepository>("RentCarRepository");
+    const existing = await repo.getById(id);
     await repo.delete(id);
+    if (existing) {
+      await Promise.all([deleteUploadFile(existing.mainPhoto), deleteUploadFiles(existing.photos)]);
+    }
     return NextResponse.json({ ok: true, data: { deleted: id } });
   } catch (e) { return toApiError(e); }
 }

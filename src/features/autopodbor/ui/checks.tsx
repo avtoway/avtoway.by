@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { AutoPodborCheckItem } from "@/entities/autopodbor/autopodbor.types";
 import type { SectionHeadingData } from "../lib/defaults";
 import { CHECK_CATEGORY_LABEL, CHECK_CATEGORY_ORDER } from "../lib/parse";
@@ -29,6 +30,14 @@ export default function Checks({
     <section className="border-b border-zinc-800/50 py-20 sm:py-24 lg:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading {...heading} />
+        <div className="-mt-6 mb-8">
+          <Link
+            href="/report/demo"
+            className="inline-flex h-10 items-center rounded-full border border-red-500/30 bg-red-500/10 px-4 text-xs font-medium text-red-200 transition hover:border-red-400/60 hover:text-white"
+          >
+            Посмотреть пример отчёта →
+          </Link>
+        </div>
 
         <div className="grid gap-8 lg:grid-cols-[300px_1fr]">
           <div role="tablist" aria-label="Категории проверки" className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0">

@@ -18,7 +18,13 @@ export async function POST(request: Request) {
       utmSource?: string;
       utmMedium?: string;
       utmCampaign?: string;
+      company?: string;
     };
+
+    if (body.company && body.company.trim().length > 0) {
+      // Honeypot: бот заполнил скрытое поле — отвечаем успехом, но заявку не создаём.
+      return NextResponse.json({ ok: true, data: { id: null } }, { status: 201 });
+    }
 
     const name = body.name?.trim();
     const message = body.message?.trim();

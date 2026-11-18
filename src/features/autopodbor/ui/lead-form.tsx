@@ -9,6 +9,7 @@ import { phoneHref } from "../lib/defaults";
 import { trackEvent } from "../lib/analytics";
 import SectionHeading from "./section-heading";
 import AutoIcon from "./icon";
+import PhoneInput from "@/shared/ui/phone-input";
 
 const input =
   "w-full rounded-xl border border-zinc-700 bg-zinc-900/70 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/40";
@@ -202,7 +203,7 @@ export default function LeadForm({
 
                   <label className="flex flex-col gap-1.5">
                     <span className="text-xs text-zinc-500">Телефон *</span>
-                    <input className={input} value={form.phone} onChange={set("phone")} maxLength={20} inputMode="tel" autoComplete="tel" aria-invalid={!!errors.phone} placeholder="+375 (__) ___-__-__" />
+                    <PhoneInput className={input} value={form.phone} onChange={value => setForm(prev => ({ ...prev, phone: value }))} aria-invalid={!!errors.phone} placeholder="+375 (__) ___-__-__" />
                     {errors.phone && <span className="text-xs text-red-400">{errors.phone}</span>}
                   </label>
                 </div>

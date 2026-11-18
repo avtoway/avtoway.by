@@ -173,6 +173,9 @@ export default function AdminBlogPage() {
             <label>
               <span className={label}>Slug</span>
               <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="kak-proverit-avto" className={input} />
+              <span className="mt-1 block text-[10px] leading-relaxed text-slate-500">
+                Адрес на английском: kak-proverit-avto. Подставляется из заголовка автоматически.
+              </span>
             </label>
             <label>
               <span className={label}>Категория</span>
@@ -193,6 +196,9 @@ export default function AdminBlogPage() {
             <label className="lg:col-span-2">
               <span className={label}>Текст статьи * (пустая строка — новый абзац, «## » — подзаголовок)</span>
               <textarea rows={14} value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className={input} />
+              <span className="mt-1 block text-[10px] leading-relaxed text-slate-500">
+                Пишите обычный текст. Чтобы сделать подзаголовок, начните строку с «## ». Между абзацами оставляйте пустую строку.
+              </span>
             </label>
             <label>
               <span className={label}>SEO-заголовок</span>
