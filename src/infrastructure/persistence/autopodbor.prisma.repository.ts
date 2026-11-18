@@ -270,16 +270,18 @@ export class PrismaAutoPodborRepository implements AutoPodborRepository {
   /* settings */
 
   async getSettings(): Promise<AutoPodborSettings> {
-    const existing = await this.db.autoPodborSettings.findUnique({ where: { id: "main" } });
-    if (existing) return toSettings(existing);
-    const created = await this.db.autoPodborSettings.create({
-      data: {
+    // upsert вместо findUnique+create: при сборке несколько воркеров
+    // создают настройки одновременно и ловили P2002 по id.
+    const row = await this.db.autoPodborSettings.upsert({
+      where: { id: "main" },
+      update: {},
+      create: {
         id: "main",
         heroTitle: "Найдём живое авто, а не красивую картинку",
         heroHighlight: "живое авто",
       },
     });
-    return toSettings(created);
+    return toSettings(row);
   }
 
   async updateSettings(data: Partial<AutoPodborSettings>): Promise<AutoPodborSettings> {
