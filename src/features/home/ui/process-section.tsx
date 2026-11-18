@@ -37,24 +37,31 @@ export default function ProcessSection() {
           </div>
         </Reveal>
 
-        <div className="relative mt-10 grid gap-4 md:grid-cols-3">
+        <div className="relative mt-12">
+          {/* Линия проходит только по кружкам и не заходит под карточки. */}
           <div
-            className="pointer-events-none absolute inset-x-0 top-[4.2rem] hidden h-px bg-gradient-to-r from-transparent via-red-500/30 to-transparent md:block"
             aria-hidden="true"
+            className="pointer-events-none absolute inset-x-6 top-6 hidden h-px bg-gradient-to-r from-transparent via-red-500/35 to-transparent md:block"
           />
 
-          {STEPS.map((step, index) => (
-            <Reveal key={step.title} delay={index * 110} className="h-full">
-              <div className="group relative h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 transition duration-300 hover:-translate-y-1 hover:border-red-500/30 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-red-950/20">
-                <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-red-500/5 blur-2xl transition group-hover:bg-red-500/10" />
-                <span className="bg-gradient-to-br from-red-400 to-red-700 bg-clip-text text-4xl font-black leading-none text-transparent">
-                  0{index + 1}
-                </span>
-                <h3 className="mt-4 text-base font-semibold text-white">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{step.text}</p>
-              </div>
-            </Reveal>
-          ))}
+          <div className="grid gap-5 md:grid-cols-3">
+            {STEPS.map((step, index) => (
+              <Reveal key={step.title} delay={index * 110} className="h-full">
+                <div className="flex h-full flex-col items-center text-center">
+                  <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-red-500/30 bg-zinc-950 shadow-[0_0_0_6px_#09090b]">
+                    <span className="bg-gradient-to-br from-red-300 to-red-600 bg-clip-text text-[13px] font-bold tracking-[0.12em] text-transparent">
+                      0{index + 1}
+                    </span>
+                  </span>
+
+                  <div className="mt-6 w-full flex-1 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 transition duration-300 hover:-translate-y-1 hover:border-red-500/30 hover:bg-zinc-900/80 hover:shadow-2xl hover:shadow-red-950/20">
+                    <h3 className="text-base font-semibold text-white">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-zinc-400">{step.text}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>
