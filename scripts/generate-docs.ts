@@ -40,13 +40,6 @@ const h2 = (text: string) =>
     spacing: { before: 240, after: 100 },
   });
 
-const h3 = (text: string) =>
-  new Paragraph({
-    text,
-    heading: HeadingLevel.HEADING_3,
-    spacing: { before: 180, after: 80 },
-  });
-
 const p = (text: string) =>
   new Paragraph({
     children: [new TextRun({ text })],
