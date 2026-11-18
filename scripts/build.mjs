@@ -2,8 +2,8 @@
  * Единая точка сборки.
  *
  * Локально просто запускает `next build` с текущим DATABASE_URL.
- * В CI базы ещё нет: создаём каталог, применяем миграции на пустую SQLite,
- * чтобы prerender мог обратиться к таблицам, и только потом собираем.
+ * В CI базы и секретов ещё нет: создаём каталог, применяем миграции на пустую
+ * SQLite и подставляем безопасные заглушки, чтобы prerender не падал.
  */
 import { mkdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -20,6 +20,13 @@ function run(command, args) {
 
 if (process.env.CI) {
   mkdirSync("data", { recursive: true });
+
+  // Заглушки только для сборки: реальные значения задаются на проде.
+  env.YOUTUBE_API_KEY ||= "ci-placeholder";
+  env.YOUTUBE_CHANNEL_ID ||= "ci-placeholder";
+  env.AUTH_SECRET ||= "ci-test-secret";
+  env.ENCRYPTION_KEY ||= "0".repeat(64);
+
   run("npx", ["prisma", "migrate", "deploy"]);
 }
 
