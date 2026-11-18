@@ -29,7 +29,7 @@ if (process.env.CI) {
 
   // Миграции в репозитории устарели, поэтому для одноразовой CI-базы
   // синхронизируем схему напрямую из schema.prisma.
-  run("npx", ["prisma", "db", "push", "--skip-generate"]);
+  run("npx", ["prisma", "db", "push"]);
 }
 
 run("npx", ["next", "build"]);
