@@ -77,6 +77,26 @@ export default function MainNav({ services: initialServices }: { services: NavSe
     setMobileServicesOpen(false);
   };
 
+  // Мобильное меню: закрытие по Esc и блокировка прокрутки фона.
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMobileOpen(false);
+      setMobileServicesOpen(false);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen]);
+
   return (
     <>
       <nav className="hidden items-center gap-1 rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5 text-base font-medium backdrop-blur-sm md:flex md:gap-3 md:px-4">
@@ -208,7 +228,7 @@ export default function MainNav({ services: initialServices }: { services: NavSe
         <nav
           id="mobile-nav"
           aria-label="Мобильная навигация"
-          className="absolute left-0 right-0 top-full border-b border-white/10 bg-zinc-950/95 px-4 py-4 backdrop-blur-xl md:hidden"
+          className="absolute left-0 right-0 top-full max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-b border-white/10 bg-zinc-950/95 px-4 py-4 backdrop-blur-xl md:hidden"
         >
           <div className="mx-auto flex max-w-6xl flex-col gap-1">
             {NAV_ITEMS.map((item) => {

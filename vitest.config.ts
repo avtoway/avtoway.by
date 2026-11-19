@@ -27,6 +27,7 @@ export default defineConfig({
         "src/shared/lib/slug.ts",
         "src/shared/lib/rate-limiter.ts",
         "src/shared/lib/image-type.ts",
+        "src/shared/lib/carousel-layout.ts",
         "src/features/calculator/lib/customs.ts",
       ],
     },

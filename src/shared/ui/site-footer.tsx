@@ -40,7 +40,7 @@ export default async function SiteFooter() {
             </nav>
           </div>
 
-          <div className="flex shrink-0 flex-col items-start gap-5 sm:items-end">
+          <div className="flex min-w-0 flex-col items-start gap-5 sm:items-end">
             {socialLinks.length > 0 && (
               <div>
                 <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">

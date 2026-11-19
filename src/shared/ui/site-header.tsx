@@ -34,7 +34,7 @@ export default async function SiteHeader() {
               {phone && (
                 <a
                   href={`tel:${phone.replace(/[^\d+]/g, "")}`}
-                  className="whitespace-nowrap text-sm font-medium text-zinc-300 transition hover:text-white"
+                  className="hidden whitespace-nowrap text-sm font-medium text-zinc-300 transition hover:text-white xl:inline"
                 >
                   {phone}
                 </a>

@@ -28,7 +28,7 @@ export default function VideoCarousel({ videos }: { videos: Video[] }) {
                 src={video.thumbnails.medium}
                 alt={video.title}
                 fill
-                sizes="360px"
+                sizes="(max-width: 768px) 92vw, 360px"
                 className="object-cover transition-transform duration-500 group-hover/card:scale-105"
                 loading="lazy"
               />
