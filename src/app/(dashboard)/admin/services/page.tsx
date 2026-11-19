@@ -94,7 +94,7 @@ export default function AdminServicesPage() {
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск услуг..." className="mb-4 w-full max-w-xs rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
       {loading ? <p className="text-slate-500">Загрузка...</p> : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="w-8 px-2 py-3" /><th className="px-4 py-3 font-medium text-slate-400">Название</th>

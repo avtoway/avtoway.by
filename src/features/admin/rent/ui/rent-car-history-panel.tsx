@@ -128,7 +128,7 @@ export default function RentCarHistoryPanel({ carId }: { carId: string }) {
         ) : entries.length === 0 ? (
           <p className="px-4 py-6 text-center text-xs text-slate-600">Нет записей в истории</p>
         ) : (
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[760px] text-left text-xs">
             <thead className="border-b border-slate-800 bg-slate-900/50">
               <tr>
                 <th className="px-4 py-2 font-medium text-slate-500">Дата</th>

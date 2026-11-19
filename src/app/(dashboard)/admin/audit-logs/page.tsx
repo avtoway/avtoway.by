@@ -135,7 +135,7 @@ export default function AdminAuditLogsPage() {
         <p className="text-slate-500">Нет записей</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Дата</th>

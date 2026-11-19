@@ -93,7 +93,7 @@ export default function AdminUsersPage() {
 
       {loading ? <p className="text-slate-500">Загрузка...</p> : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">ФИО</th><th className="px-4 py-3 font-medium text-slate-400">Логин</th>

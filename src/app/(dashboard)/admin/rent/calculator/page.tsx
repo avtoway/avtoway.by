@@ -126,7 +126,7 @@ function ClassesTab() {
         <p className="pt-10 text-center text-sm text-slate-600">Нет классов.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Название</th>
@@ -237,7 +237,7 @@ function ExtrasTab() {
         <p className="pt-10 text-center text-sm text-slate-600">Нет опций.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Название</th>
@@ -359,7 +359,7 @@ function ConditionsTab() {
         <p className="pt-10 text-center text-sm text-slate-600">Нет условий.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Название</th>
@@ -475,7 +475,7 @@ function TiersTab() {
         <p className="pt-10 text-center text-sm text-slate-600">Нет ступеней. Добавьте хотя бы одну.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Период</th>
@@ -598,7 +598,7 @@ function RequestsTab() {
         <p className="pt-10 text-center text-sm text-slate-600">Заявок пока нет.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-800 bg-slate-900">
               <tr>
                 <th className="px-4 py-3 font-medium text-slate-400">Авто</th>

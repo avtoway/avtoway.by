@@ -254,7 +254,7 @@ export default function AdminSellPage() {
             <p className="rounded-lg border border-dashed border-slate-800 py-16 text-center text-sm text-slate-600">Автомобилей нет. Добавьте первый.</p>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-slate-800">
-              <table className="w-full text-left text-sm">
+              <table className="w-full min-w-[820px] text-left text-sm">
                 <thead className="border-b border-slate-800 bg-slate-900">
                   <tr>
                     <th className="px-4 py-3 font-medium text-slate-400">Автомобиль</th>
@@ -325,7 +325,7 @@ export default function AdminSellPage() {
             <p className="rounded-lg border border-dashed border-slate-800 py-16 text-center text-sm text-slate-600">Заявок нет.</p>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-slate-800">
-              <table className="w-full text-left text-sm">
+              <table className="w-full min-w-[820px] text-left text-sm">
                 <thead className="border-b border-slate-800 bg-slate-900">
                   <tr>
                     <th className="px-4 py-3 font-medium text-slate-400">Клиент</th>
