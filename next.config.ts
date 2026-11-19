@@ -30,6 +30,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  allowedDevOrigins: ["bore.pub"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com" },

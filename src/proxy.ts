@@ -58,6 +58,14 @@ function clientIp(request: NextRequest): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Публичный туннель (bore.pub) не должен открывать админку наружу.
+  const host = request.headers.get("host") ?? "";
+  if (host.startsWith("bore.pub") || host.includes(".bore.pub")) {
+    if (pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   // CSRF: мутирующие запросы с чужим Origin отклоняем до бизнес-логики.
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
     const origin = request.headers.get("origin");
