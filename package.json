@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "test:report": "vitest run && npx allure generate ./allure-results -o ./allure-report --clean && npx allure open ./allure-report",
     "typecheck": "tsc --noEmit",
+    "tunnel": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tunnel.ps1",
     "db:up": "docker compose up -d",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx scripts/seed.ts && tsx scripts/seed-landings.ts",

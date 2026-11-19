@@ -92,11 +92,17 @@ npm run dev -- -p 3001
 ```
 
 ```powershell
-# 2. В отдельном окне — туннель через serveo (стабильнее всего в наших сетях)
-& "C:\Windows\System32\OpenSSH\ssh.exe" -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R 80:localhost:3001 serveo.net
+# 2. В отдельном окне — туннель с автопереподключением
+npm run tunnel
 ```
 
-В выводе будет строка `Forwarding HTTP traffic from https://xxxx.serveousercontent.com` — это и есть публичная ссылка (HTTPS, работает с телефона без предупреждений).
+Скрипт печатает публичный адрес и дублирует его в `temp/tunnel-url.txt`. Если serveo закроет сессию, туннель поднимется сам через 5 секунд — но **адрес изменится**, актуальный всегда лежит в этом файле.
+
+Вручную, без скрипта:
+
+```powershell
+& "C:\Windows\System32\OpenSSH\ssh.exe" -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R 80:localhost:3001 serveo.net
+```
 
 Альтернативы, если serveo недоступен:
 
