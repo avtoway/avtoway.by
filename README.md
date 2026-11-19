@@ -107,6 +107,12 @@ npm run tunnel
 Альтернативы, если serveo недоступен:
 
 ```powershell
+# ngrok со статическим доменом: адрес не меняется при переподключении.
+# Разовая настройка: регистрация на dashboard.ngrok.com, затем
+#   .\tools\ngrok.exe config add-authtoken <TOKEN>
+#   NGROK_DOMAIN="your-name.ngrok-free.app" в .env.local
+npm run tunnel:ngrok
+
 # Cloudflare Tunnel (HTTPS, но в некоторых сетях API блокируется)
 .\tools\cloudflared.exe tunnel --url http://localhost:3001 --no-autoupdate
 
