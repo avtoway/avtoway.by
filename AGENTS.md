@@ -25,6 +25,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Промпты и правила: `mcp/imagegen/PROMPTS.md`. Документация: `mcp/imagegen/README.md`.
 - Правило: для черновиков `flux-schnell`, для финала `flux-1.1-pro`/`imagen-4`, текст на картинке — `ideogram-3`/`gpt-image-1`. Текст для сайта верстать в HTML, а не рисовать на картинке.
 
+## Безопасность: публичные туннели запрещены
+
+- **Не предлагать и не запускать туннели** (bore, ngrok, serveo, cloudflared, localhost.run, pinggy и аналоги) — ни для демонстрации, ни «на пять минут». Причина: входящий доступ из интернета к машине, трафик форм идёт через третью сторону (часто без шифрования), в корпоративной сети это фиксируется как инцидент ИБ.
+- Проверка с телефона — только по локальной сети: `http://<IP-компьютера>:3001`, при необходимости добавить IP в `allowedDevOrigins` (`next.config.ts`).
+- Публичный доступ — только VPS с доменом и HTTPS по `DEPLOY.md`.
+- Админка ограничена по хосту (`src/shared/lib/admin-host.ts`): `localhost`, домен `NEXT_PUBLIC_SITE_URL`, список `ADMIN_ALLOWED_HOSTS`. Это правило не ослаблять.
+- Подробности и обоснование — в `SECURITY.md` («Публичные туннели не используем»).
+
 ## Git и GitHub (MCP `git`)
 
 - Сервер: `mcp/git` (Node, stdio). Подключён в `opencode.json` → инструменты `git_*` и `gh_*` (42 инструмента).

@@ -30,14 +30,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
-  // Dev-сервер за туннелем: иначе Next блокирует запросы с чужого Origin.
-  allowedDevOrigins: [
-    "bore.pub",
-    "*.serveousercontent.com",
-    "*.trycloudflare.com",
-    "*.lhr.life",
-    "*.ngrok-free.app",
-  ],
+  // Публичные туннели в проекте не используются. Если тестируете с телефона
+  // по локальной сети, добавьте сюда IP компьютера (например "192.168.1.10"),
+  // иначе Next заблокирует dev-запросы с чужого Origin.
+  allowedDevOrigins: [],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com" },
