@@ -30,7 +30,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
-  allowedDevOrigins: ["bore.pub"],
+  // Dev-сервер за туннелем: иначе Next блокирует запросы с чужого Origin.
+  allowedDevOrigins: [
+    "bore.pub",
+    "*.serveousercontent.com",
+    "*.trycloudflare.com",
+    "*.lhr.life",
+    "*.ngrok-free.app",
+  ],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com" },

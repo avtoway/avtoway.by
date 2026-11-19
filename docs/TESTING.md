@@ -7,7 +7,7 @@
 | Unit | Vitest | `tests/*.test.ts`, `src/**/*.test.ts` | Чистая логика: цены, токены, slug, телефон, калькулятор, magic bytes, раскладка карусели |
 | E2E | Playwright | `tests/e2e/*.spec.ts` | Формы, 404, защита админки, security.txt, калькулятор, отчёт, адаптивность |
 
-Текущее состояние: **98 unit-тестов**, **16 E2E-тестов**. Покрытие ключевой логики — **95% строк** (auth-token, price, slug, rate-limiter, image-type, customs, carousel-layout). UI покрывается E2E, а не unit-тестами.
+Текущее состояние: **103 unit-теста**, **16 E2E-тестов**. Покрытие ключевой логики — **95% строк** (auth-token, price, slug, rate-limiter, image-type, customs, carousel-layout, admin-host). UI покрывается E2E, а не unit-тестами.
 
 ## Команды
 

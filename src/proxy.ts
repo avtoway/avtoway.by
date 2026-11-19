@@ -4,6 +4,7 @@ import { checkRateLimit } from "@/shared/lib/rate-limiter";
 import { verifyToken } from "@/lib/auth-token";
 import { getPrismaClient } from "@/infrastructure/persistence/prisma.client";
 import { notFoundHtml } from "@/shared/lib/not-found-response";
+import { isAdminHostAllowed } from "@/shared/lib/admin-host";
 
 /** Кэш «существует ли страница» на минуту: proxy не должен бить в БД на каждый запрос. */
 const contentCache = new Map<string, { exists: boolean; expiresAt: number }>();
@@ -58,12 +59,10 @@ function clientIp(request: NextRequest): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Публичный туннель (bore.pub) не должен открывать админку наружу.
+  // Публичные туннели и любые внешние хосты не должны открывать админку.
   const host = request.headers.get("host") ?? "";
-  if (host.startsWith("bore.pub") || host.includes(".bore.pub")) {
-    if (pathname.startsWith("/admin")) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+  if (pathname.startsWith("/admin") && !isAdminHostAllowed(host)) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   // CSRF: мутирующие запросы с чужим Origin отклоняем до бизнес-логики.
