@@ -1,0 +1,17 @@
+{
+  "name": "avtoway-git-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server for Git and GitHub: status/log/diff, branches, commits, merge/rebase, stash, tags, worktrees, submodules, remotes, push/pull/clone, gh PR/issues/releases/actions",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "test:tools": "node scripts/test-tools.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  }
+}

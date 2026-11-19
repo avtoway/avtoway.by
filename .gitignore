@@ -63,6 +63,9 @@ snapshots/
 
 # mcp-сервер генерации картинок
 /mcp/imagegen/node_modules/
+# mcp-сервер git
+/mcp/git/node_modules/
+/mcp/git/allowed-roots.txt
 
 # vercel
 .vercel

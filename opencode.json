@@ -15,6 +15,14 @@
         "timeout": {
           "execution": 600000
         }
+      },
+      "git": {
+        "type": "local",
+        "command": ["node", "mcp/git/server.mjs"],
+        "cwd": ".",
+        "timeout": {
+          "execution": 900000
+        }
       }
     }
   }

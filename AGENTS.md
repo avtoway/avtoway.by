@@ -25,3 +25,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Промпты и правила: `mcp/imagegen/PROMPTS.md`. Документация: `mcp/imagegen/README.md`.
 - Правило: для черновиков `flux-schnell`, для финала `flux-1.1-pro`/`imagen-4`, текст на картинке — `ideogram-3`/`gpt-image-1`. Текст для сайта верстать в HTML, а не рисовать на картинке.
 
+## Git и GitHub (MCP `git`)
+
+- Сервер: `mcp/git` (Node, stdio). Подключён в `opencode.json` → инструменты `git_*` и `gh_*` (42 инструмента).
+- Локальный git: status/log/diff/show/blame/grep, ветки, коммиты, merge/rebase/cherry-pick/revert, stash, теги, worktree, submodules, remotes, fetch/pull/push/clone, gc/fsck.
+- GitHub через `gh` CLI (нужен `gh auth login`): repo, PR, issues, releases, Actions, произвольный `gh_api`.
+- Безопасность: работа только внутри корня проекта (расширяется `GIT_MCP_ALLOWED_ROOTS`); разрушительные операции требуют `confirm=true`; `GIT_MCP_DRY_RUN=1` — только предпросмотр команд.
+- Проверка: `cd mcp/git && npm install && npm run smoke && npm run test:tools`. Документация: `mcp/git/README.md`.
+
